@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TecArch · Project Tracker</title>
 <meta name="theme-color" content="#0f7a5c">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TecArch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -92,6 +98,8 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .progress{height:4px;background:var(--line);border-radius:4px;margin-top:12px;overflow:hidden}
 .progress i{display:block;height:100%;background:var(--green)}
 .card.sv .progress i{background:var(--orange)}
+.qa{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.qa .btn{text-decoration:none;color:var(--ink)}
 .empty{text-align:center;color:var(--muted);padding:50px 10px}
 
 /* drawer */
@@ -163,11 +171,12 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
       <label class="f">Email</label>
       <input id="liEmail" type="email" required autocomplete="email">
       <label class="f">Password</label>
-      <input id="liPass" type="password" required minlength="6" autocomplete="current-password">
+      <input id="liPass" type="password" required minlength="8" autocomplete="current-password">
       <button class="btn primary" style="width:100%;margin-top:4px" id="liBtn">Sign in</button>
     </form>
-    <div style="margin-top:14px;font-size:13px;text-align:center">
+    <div style="margin-top:14px;font-size:13px;text-align:center;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
       <a href="#" id="toggleMode">First time? Create your password</a>
+      <a href="#" id="forgotLink">Forgot password?</a>
     </div>
     <div id="liMsg"></div>
   </div>
@@ -274,15 +283,29 @@ $('#loginForm').onsubmit = async e => {
   try{
     if(signupMode){
       const { data, error } = await sb.auth.signUp({ email, password, options:{ emailRedirectTo: location.origin + location.pathname } });
-      if(error) throw error;
+      if(error){ if(/database error|NOT_ON_TEAM/i.test(error.message)) throw new Error('This email is not on the TecArch team. Ask the admin to add you first.'); throw error; }
       if(!data.session){ $('#liMsg').innerHTML='<div class="msg ok">Check your email and tap the confirmation link, then sign in here.</div>'; return; }
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password }); if(error) throw error;
     }
     await boot();
-  }catch(err){ $('#liMsg').innerHTML='<div class="msg err">'+esc(err.message)+'</div>'; }
+  }catch(err){ const m = /invalid login/i.test(err.message) ? 'Wrong email or password.' : err.message;
+    $('#liMsg').innerHTML='<div class="msg err">'+esc(m)+'</div>'; }
   finally{ $('#liBtn').disabled=false; }
 };
+$('#forgotLink').onclick = async e => { e.preventDefault();
+  const email=$('#liEmail').value.trim();
+  if(!email){ $('#liMsg').innerHTML='<div class="msg err">Type your email above first, then tap “Forgot password?”.</div>'; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  $('#liMsg').innerHTML = error ? '<div class="msg err">'+esc(error.message)+'</div>'
+    : '<div class="msg ok">If this email is on the team, a reset link has been sent. Open it on this device.</div>'; };
+sb.auth.onAuthStateChange(async (ev)=>{
+  if(ev==='PASSWORD_RECOVERY'){
+    const pw = prompt('Enter a new password (at least 8 characters):');
+    if(pw && pw.length>=8){ const { error } = await sb.auth.updateUser({ password: pw }); toast(error? '⚠ '+error.message : 'Password updated'); }
+    boot();
+  }
+});
 
 async function boot(){
   const { data:{ session } } = await sb.auth.getSession();
@@ -295,6 +318,7 @@ async function boot(){
   $('#addMemberSec').classList.toggle('hidden', me.role!=='admin');
   $('#appView').classList.remove('hidden');
   await loadAll();
+  if(me.role!=='admin' && S.projects.some(p=>p.assigned_to===me.id)){ $('#fAssigned').value='__me'; renderProjects(); }
 }
 
 /* ---------- DATA ---------- */
@@ -365,8 +389,17 @@ function renderProjects(){
         <span>🕒 ${ago(p.last_update_at||p.updated_at)}</span>
       </div>
       <div class="progress"><i style="width:${Math.round(p.stage_order/total*100)}%"></i></div>
+      ${(()=>{ const nx=stagesOf(p.project_type).find(s=>s.sort_order===p.stage_order+1);
+        return (p.phone||nx)?`<div class="qa">
+          ${p.phone?`<a class="btn sm" href="tel:${esc(p.phone)}">📞 Call</a>`:''}
+          ${nx?`<button class="btn sm" data-next="${nx.key}">Move to: ${esc(nx.label)} →</button>`:''}</div>`:''; })()}
     </div>`;}).join('');
-  $('#list').querySelectorAll('.card').forEach(c=>c.onclick=()=>openProject(+c.dataset.id));
+  $('#list').querySelectorAll('.card').forEach(c=>c.onclick=e=>{ if(e.target.closest('.qa')) return; openProject(+c.dataset.id); });
+  $('#list').querySelectorAll('[data-next]').forEach(b=>b.onclick=async e=>{
+    e.stopPropagation(); const card=b.closest('.card'), p=S.projects.find(x=>x.id===+card.dataset.id);
+    if(!confirm(`Move ${p.client_name} to “${stageLabel(p.project_type,b.dataset.next)}”?`)) return;
+    b.disabled=true; const { error } = await sb.from('projects').update({stage:b.dataset.next}).eq('id',p.id);
+    if(error){ b.disabled=false; return fail(error); } toast('Moved'); loadAll(); });
 }
 $('#typeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ $('#typeSeg .on').classList.remove('on'); b.classList.add('on'); S.type=b.dataset.t; S.stageFilter=null; renderProjects(); });
 ['#q','#fAssigned','#fDone'].forEach(s=>$(s).addEventListener('input',renderProjects));
