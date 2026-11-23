@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TecArch · Project Tracker</title>
+<meta name="theme-color" content="#0f7a5c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#0f7a5c; --green-d:#0a5a44; --green-l:#e6f3ee;
+  --orange:#e2611b; --orange-l:#fdeee4;
+  --ink:#1b2420; --muted:#6b7772; --line:#e3e8e5; --bg:#f5f7f6; --card:#fff;
+  --red:#c62828; --red-l:#fdecec; --amber:#b26a00; --amber-l:#fff4e0;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--green)}
+.hidden{display:none!important}
+
+/* header */
+header{background:#fff;border-bottom:3px solid var(--green);position:sticky;top:0;z-index:20}
+.hbar{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.logo{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:20px;letter-spacing:.5px}
+.logo .t{color:var(--green)} .logo .a{color:var(--orange)}
+.logo small{font-weight:500;font-size:13px;color:var(--muted);letter-spacing:0}
+.nav{display:flex;gap:4px;margin-left:12px}
+.nav button{border:0;background:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:500;color:var(--muted)}
+.nav button.on{background:var(--green-l);color:var(--green-d)}
+.spacer{flex:1}
+.me{font-size:13px;color:var(--muted);text-align:right}
+.me b{color:var(--ink);display:block;font-weight:600}
+
+main{max-width:1200px;margin:0 auto;padding:16px}
+
+/* buttons & inputs */
+.btn{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:#c9d2ce}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-d)}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none}
+.btn:disabled{opacity:.55;cursor:default}
+input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--green-l);border-color:var(--green)}
+textarea{resize:vertical;min-height:70px}
+label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--green);color:#fff}
+.toolbar input[type=search]{max-width:260px}
+.toolbar select{width:auto}
+.chk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap}
+.chk input{width:auto}
+
+/* stats */
+.stats{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.stat{flex:0 0 auto;min-width:120px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;cursor:pointer;text-align:left}
+.stat .n{font-size:22px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted)}
+.stat.on{border-color:var(--green);box-shadow:0 0 0 2px var(--green-l)}
+.stat.warn .n{color:var(--red)}
+.stat.money .n{color:var(--orange);font-size:18px}
+
+/* cards */
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;transition:box-shadow .15s,border-color .15s;position:relative}
+.card:hover{border-color:#c9d2ce;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.card h3{margin:0;font-size:16px}
+.card .sub{font-size:13px;color:var(--muted);margin-top:2px}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:10px}
+.card .meta b{color:var(--ink);font-weight:600}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--green-l);color:var(--green-d);white-space:nowrap}
+.pill.sv{background:var(--orange-l);color:#a54511}
+.pill.done{background:#eceff1;color:#546e7a}
+.tag{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+.tag.sv{color:var(--orange)}
+.od{color:var(--red)!important;font-weight:600}
+.soon{color:var(--amber)!important;font-weight:600}
+.progress{height:4px;background:var(--line);border-radius:4px;margin-top:12px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--green)}
+.card.sv .progress i{background:var(--orange)}
+.empty{text-align:center;color:var(--muted);padding:50px 10px}
+
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(15,25,20,.35);z-index:40;display:flex;justify-content:flex-end}
+.drawer{background:var(--bg);width:min(620px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.15);animation:slide .18s ease-out}
+@keyframes slide{from{transform:translateX(40px);opacity:.5}to{transform:none;opacity:1}}
+.dhead{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;position:sticky;top:0;z-index:2;display:flex;gap:10px;align-items:flex-start}
+.dhead h2{margin:0;font-size:19px}
+.dbody{padding:16px;display:flex;flex-direction:column;gap:14px}
+.sec{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.sec h4{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.stagebar{display:flex;gap:4px;flex-wrap:wrap}
+.stagebar button{flex:1 1 auto;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 6px;font-size:12px;cursor:pointer;color:var(--muted);font-weight:500}
+.stagebar button.past{background:var(--green-l);color:var(--green-d);border-color:var(--green-l)}
+.stagebar button.cur{background:var(--green);color:#fff;border-color:var(--green);font-weight:600}
+.sv .stagebar button.past{background:var(--orange-l);color:#a54511;border-color:var(--orange-l)}
+.sv .stagebar button.cur{background:var(--orange);border-color:var(--orange)}
+.money3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.money3 div{background:var(--bg);border-radius:9px;padding:8px 10px}
+.money3 small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.money3 b{font-size:16px}
+.rows{display:flex;flex-direction:column}
+.row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.row:first-child{border-top:0}
+.row .grow{flex:1;min-width:0}
+.row small{color:var(--muted)}
+.tl{display:flex;flex-direction:column;gap:0}
+.tl .it{position:relative;padding:0 0 12px 18px;border-left:2px solid var(--line);margin-left:5px}
+.tl .it:before{content:"";position:absolute;left:-6px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--green)}
+.tl .it.stg:before{background:var(--orange)}
+.tl .it small{color:var(--muted);display:block;font-size:12px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.file{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg);font-size:12px;text-decoration:none;color:var(--ink);display:block}
+.file .th{height:80px;display:flex;align-items:center;justify-content:center;background:#eef2f0;font-weight:700;color:var(--muted);font-size:13px}
+.file img{width:100%;height:80px;object-fit:cover;display:block}
+.file div.n{padding:5px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inline{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.inline > *{flex:1 1 120px}
+.inline > .btn{flex:0 0 auto}
+
+/* login */
+.login{max-width:380px;margin:9vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;border-top:4px solid var(--green)}
+.login h1{margin:0 0 4px;font-size:24px}
+.login p{color:var(--muted);margin:0 0 18px;font-size:14px}
+.login .f + input{margin-bottom:12px}
+.msg{font-size:13px;margin-top:10px;padding:8px 10px;border-radius:8px}
+.msg.err{background:var(--red-l);color:var(--red)}
+.msg.ok{background:var(--green-l);color:var(--green-d)}
+
+/* table (team) */
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}
+th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;z-index:60;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.fab{position:fixed;right:20px;bottom:20px;z-index:15;border-radius:999px;padding:13px 20px;box-shadow:0 6px 18px rgba(226,97,27,.35)}
+@media(max-width:640px){.me{display:none}.nav{margin-left:auto}.hbar{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView" class="hidden">
+  <div class="login">
+    <div class="logo" style="margin-bottom:14px"><span><span class="t">TEC</span><span class="a">ARCH</span></span></div>
+    <h1 id="loginTitle">Sign in</h1>
+    <p id="loginSub">Project tracker for the TecArch team.</p>
+    <form id="loginForm">
+      <label class="f">Email</label>
+      <input id="liEmail" type="email" required autocomplete="email">
+      <label class="f">Password</label>
+      <input id="liPass" type="password" required minlength="6" autocomplete="current-password">
+      <button class="btn primary" style="width:100%;margin-top:4px" id="liBtn">Sign in</button>
+    </form>
+    <div style="margin-top:14px;font-size:13px;text-align:center">
+      <a href="#" id="toggleMode">First time? Create your password</a>
+    </div>
+    <div id="liMsg"></div>
+  </div>
+</div>
+
+<!-- NOT A MEMBER -->
+<div id="noAccessView" class="hidden">
+  <div class="login">
+    <h1>Waiting for access</h1>
+    <p>You're signed in as <b id="naEmail"></b>, but this email hasn't been added to the TecArch team yet. Ask the admin to add you, then refresh.</p>
+    <button class="btn" onclick="signOut()">Sign out</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appView" class="hidden">
+  <header>
+    <div class="hbar">
+      <div class="logo"><span><span class="t">TEC</span><span class="a">ARCH</span></span><small>Project Tracker</small></div>
+      <nav class="nav">
+        <button data-view="projects" class="on">Projects</button>
+        <button data-view="team" id="navTeam">Team</button>
+      </nav>
+      <div class="spacer"></div>
+      <div class="me"><b id="meName"></b><span id="meRole"></span></div>
+      <button class="btn sm" onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="projectsView">
+      <div class="toolbar">
+        <div class="seg" id="typeSeg">
+          <button data-t="all" class="on">All</button>
+          <button data-t="site">Site</button>
+          <button data-t="supervision">Supervision</button>
+        </div>
+        <input type="search" id="q" placeholder="Search client, ward, location, phone…">
+        <select id="fAssigned"><option value="">Everyone</option></select>
+        <label class="chk"><input type="checkbox" id="fDone"> Show completed</label>
+        <div class="spacer"></div>
+        <button class="btn accent" id="addBtn">+ New project</button>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="list" id="list"></div>
+    </section>
+
+    <section id="teamView" class="hidden">
+      <div class="toolbar"><h2 style="margin:0;font-size:18px">Team</h2><div class="spacer"></div></div>
+      <div class="sec" id="addMemberSec" style="margin-bottom:14px">
+        <h4>Add team member</h4>
+        <form id="memberForm" class="inline">
+          <div><label class="f">Full name</label><input id="mName" required></div>
+          <div><label class="f">Email</label><input id="mEmail" type="email" required></div>
+          <div><label class="f">Phone</label><input id="mPhone"></div>
+          <div><label class="f">Role</label><select id="mRole"><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
+          <button class="btn primary">Add</button>
+        </form>
+        <p style="font-size:13px;color:var(--muted);margin:10px 0 0">After you add them, they open this app, tap “First time? Create your password” and use the same email.</p>
+      </div>
+      <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Projects</th><th></th></tr></thead><tbody id="teamBody"></tbody></table>
+    </section>
+  </main>
+</div>
+
+<div id="drawerRoot"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://cslndhcboybvejwcbhuj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09';
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const BUCKET = 'project-files';
+
+const S = { me:null, stages:[], team:[], projects:[], type:'all', stageFilter:null, special:null };
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => 'Rs. ' + Number(n||0).toLocaleString('en-IN', {maximumFractionDigits:0});
+const fdate = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+const today = () => new Date().toISOString().slice(0,10);
+function ago(d){ if(!d) return ''; const s=(Date.now()-new Date(d))/1000;
+  if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago';
+  const dd=Math.floor(s/86400); return dd<30? dd+'d ago' : fdate(d); }
+function toast(t){ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),2600); }
+function fail(e){ console.error(e); toast('⚠ ' + (e?.message || e)); }
+const stagesOf = t => S.stages.filter(s=>s.project_type===t).sort((a,b)=>a.sort_order-b.sort_order);
+const stageLabel = (t,k) => (S.stages.find(s=>s.project_type===t && s.key===k)||{}).label || k;
+const isDone = p => p.stage === 'completed';
+function deadlineClass(p){ if(!p.deadline || isDone(p)) return ''; const days=(new Date(p.deadline)-new Date(today()))/864e5;
+  return days<0?'od':days<=7?'soon':''; }
+window.signOut = async () => { await sb.auth.signOut(); location.reload(); };
+
+/* ---------- AUTH ---------- */
+let signupMode = false;
+$('#toggleMode').onclick = e => { e.preventDefault(); signupMode=!signupMode;
+  $('#loginTitle').textContent = signupMode ? 'Create your password' : 'Sign in';
+  $('#liBtn').textContent = signupMode ? 'Create account' : 'Sign in';
+  $('#toggleMode').textContent = signupMode ? 'Already have a password? Sign in' : 'First time? Create your password';
+  $('#liMsg').innerHTML=''; };
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault(); const email=$('#liEmail').value.trim(), password=$('#liPass').value;
+  $('#liBtn').disabled=true; $('#liMsg').innerHTML='';
+  try{
+    if(signupMode){
+      const { data, error } = await sb.auth.signUp({ email, password, options:{ emailRedirectTo: location.origin + location.pathname } });
+      if(error) throw error;
+      if(!data.session){ $('#liMsg').innerHTML='<div class="msg ok">Check your email and tap the confirmation link, then sign in here.</div>'; return; }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password }); if(error) throw error;
+    }
+    await boot();
+  }catch(err){ $('#liMsg').innerHTML='<div class="msg err">'+esc(err.message)+'</div>'; }
+  finally{ $('#liBtn').disabled=false; }
+};
+
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  ['#loginView','#noAccessView','#appView'].forEach(s=>$(s).classList.add('hidden'));
+  if(!session){ $('#loginView').classList.remove('hidden'); return; }
+  const { data:me } = await sb.from('team_members').select('*').eq('auth_user_id', session.user.id).eq('active', true).maybeSingle();
+  if(!me){ $('#naEmail').textContent=session.user.email; $('#noAccessView').classList.remove('hidden'); return; }
+  S.me = me;
+  $('#meName').textContent = me.full_name; $('#meRole').textContent = me.role==='admin'?'Admin':'Team';
+  $('#addMemberSec').classList.toggle('hidden', me.role!=='admin');
+  $('#appView').classList.remove('hidden');
+  await loadAll();
+}
+
+/* ---------- DATA ---------- */
+async function loadAll(){
+  const [st, tm, pr] = await Promise.all([
+    sb.from('stages').select('*'),
+    sb.from('team_members').select('*').order('full_name'),
+    sb.from('project_overview').select('*').order('updated_at',{ascending:false})
+  ]);
+  if(st.error||tm.error||pr.error) return fail(st.error||tm.error||pr.error);
+  S.stages=st.data; S.team=tm.data; S.projects=pr.data;
+  const sel=$('#fAssigned'), cur=sel.value;
+  sel.innerHTML='<option value="">Everyone</option><option value="__me">Assigned to me</option><option value="__none">Unassigned</option>' +
+    S.team.filter(t=>t.active).map(t=>`<option value="${t.id}">${esc(t.full_name)}</option>`).join('');
+  sel.value=cur; renderProjects(); renderTeam();
+}
+
+/* ---------- PROJECT LIST ---------- */
+function filtered(ignoreStage){
+  const q=$('#q').value.trim().toLowerCase(), a=$('#fAssigned').value, showDone=$('#fDone').checked;
+  return S.projects.filter(p=>{
+    if(p.archived) return false;
+    if(S.type!=='all' && p.project_type!==S.type) return false;
+    if(!showDone && isDone(p) && S.stageFilter!=='completed') return false;
+    if(a==='__me' && p.assigned_to!==S.me.id) return false;
+    if(a==='__none' && p.assigned_to) return false;
+    if(a && !a.startsWith('__') && p.assigned_to!==a) return false;
+    if(q){ const hay=[p.client_name,p.location,p.phone,p.notes,p.assigned_name,'ward '+p.ward_no,p.stage_label].join(' ').toLowerCase(); if(!hay.includes(q)) return false; }
+    if(!ignoreStage){
+      if(S.stageFilter && (S.stageFilter.split('|')[1]!==p.stage || S.stageFilter.split('|')[0]!==p.project_type)) return false;
+      if(S.special==='overdue' && deadlineClass(p)!=='od') return false;
+      if(S.special==='due' && !(Number(p.balance)>0)) return false;
+    }
+    return true;
+  });
+}
+function renderProjects(){
+  const base = filtered(true);
+  const types = S.type==='all' ? ['site','supervision'] : [S.type];
+  let html = `<button class="stat ${!S.stageFilter&&!S.special?'on':''}" data-sf=""><div class="n">${base.length}</div><div class="l">Active projects</div></button>`;
+  types.forEach(t => stagesOf(t).forEach(s => {
+    const n = base.filter(p=>p.project_type===t && p.stage===s.key).length;
+    if(!n && s.key==='completed') return;
+    const k=t+'|'+s.key;
+    html += `<button class="stat ${S.stageFilter===k?'on':''}" data-sf="${k}"><div class="n">${n}</div><div class="l">${S.type==='all'?(t==='site'?'Site · ':'Sup. · '):''}${esc(s.label)}</div></button>`;
+  }));
+  const overdue = base.filter(p=>deadlineClass(p)==='od').length;
+  const due = base.reduce((s,p)=>s+Math.max(0,Number(p.balance)||0),0);
+  html += `<button class="stat warn ${S.special==='overdue'?'on':''}" data-sp="overdue"><div class="n">${overdue}</div><div class="l">Overdue deadlines</div></button>`;
+  html += `<button class="stat money ${S.special==='due'?'on':''}" data-sp="due"><div class="n">${money(due)}</div><div class="l">Fees still due</div></button>`;
+  $('#stats').innerHTML = html;
+  $('#stats').querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{ S.stageFilter=b.dataset.sf||null; S.special=null; renderProjects(); });
+  $('#stats').querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ S.special = S.special===b.dataset.sp?null:b.dataset.sp; S.stageFilter=null; renderProjects(); });
+
+  const list = filtered(false).sort((a,b)=> (a.project_type.localeCompare(b.project_type)) || (b.stage_order-a.stage_order) || a.client_name.localeCompare(b.client_name));
+  if(!list.length){ $('#list').innerHTML='<div class="empty">No projects match.</div>'; return; }
+  $('#list').innerHTML = list.map(p=>{
+    const sv=p.project_type==='supervision', total=stagesOf(p.project_type).length;
+    const dc=deadlineClass(p);
+    return `<div class="card ${sv?'sv':''}" data-id="${p.id}">
+      <div class="top"><div><span class="tag ${sv?'sv':''}">${sv?'Supervision':'Site'}</span><h3>${esc(p.client_name)}</h3>
+        <div class="sub">${p.ward_no?'Ward '+p.ward_no:'Ward —'}${p.location?' · '+esc(p.location):''}</div></div>
+        <span class="pill ${sv?'sv':''} ${isDone(p)?'done':''}">${esc(p.stage_label)}</span></div>
+      <div class="meta">
+        <span>👤 <b>${esc(p.assigned_name||'Unassigned')}</b></span>
+        ${p.deadline?`<span class="${dc}">📅 ${fdate(p.deadline)}</span>`:''}
+        ${Number(p.fee_total)>0?`<span>💰 ${Number(p.balance)>0?'<b style="color:var(--orange)">'+money(p.balance)+' due</b>':'<b style="color:var(--green)">Paid</b>'}</span>`:''}
+        <span>🕒 ${ago(p.last_update_at||p.updated_at)}</span>
+      </div>
+      <div class="progress"><i style="width:${Math.round(p.stage_order/total*100)}%"></i></div>
+    </div>`;}).join('');
+  $('#list').querySelectorAll('.card').forEach(c=>c.onclick=()=>openProject(+c.dataset.id));
+}
+$('#typeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ $('#typeSeg .on').classList.remove('on'); b.classList.add('on'); S.type=b.dataset.t; S.stageFilter=null; renderProjects(); });
+['#q','#fAssigned','#fDone'].forEach(s=>$(s).addEventListener('input',renderProjects));
+$('#addBtn').onclick=()=>openProject(null);
+
+/* ---------- NAV ---------- */
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x===b));
+  $('#projectsView').classList.toggle('hidden', b.dataset.view!=='projects');
+  $('#teamView').classList.toggle('hidden', b.dataset.view!=='team');
+});
+
+/* ---------- DRAWER ---------- */
+function closeDrawer(){ $('#drawerRoot').innerHTML=''; document.body.style.overflow=''; }
+window.closeDrawer = closeDrawer;
+function teamOptions(sel){ return '<option value="">Unassigned</option>'+S.team.filter(t=>t.active||t.id===sel).map(t=>`<option value="${t.id}" ${t.id===sel?'selected':''}>${esc(t.full_name)}</option>`).join(''); }
+
+function infoForm(p){
+  const t=p?.project_type||'site';
+  return `<form id="pForm">
+    <div class="grid2">
+      <div><label class="f">Project type</label><select id="pType" ${p?'disabled':''}>
+        <option value="site" ${t==='site'?'selected':''}>Site (drawing / file)</option>
+        <option value="supervision" ${t==='supervision'?'selected':''}>Supervision</option></select></div>
+      <div><label class="f">Client name *</label><input id="pName" required value="${esc(p?.client_name)}"></div>
+      <div><label class="f">Phone</label><input id="pPhone" type="tel" value="${esc(p?.phone)}"></div>
+      <div class="grid2" style="gap:8px"><div><label class="f">Ward no.</label><input id="pWard" type="number" min="1" max="40" value="${esc(p?.ward_no)}"></div>
+        <div><label class="f">Deadline</label><input id="pDeadline" type="date" value="${esc(p?.deadline)}"></div></div>
+      <div><label class="f">Location</label><input id="pLoc" value="${esc(p?.location)}" placeholder="Tole / area / map link"></div>
+      <div><label class="f">Assigned to</label><select id="pAssigned">${teamOptions(p?.assigned_to)}</select></div>
+      <div><label class="f">Total fee (Rs.)</label><input id="pFee" type="number" min="0" step="1" value="${esc(p?.fee_total||'')}"></div>
+      ${p?'':`<div><label class="f">Starting stage</label><select id="pStage"></select></div>`}
+    </div>
+    <div style="margin-top:12px"><label class="f">Notes</label><textarea id="pNotes">${esc(p?.notes)}</textarea></div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      ${p && S.me.role==='admin'?`<button type="button" class="btn ghost" id="pArchive" style="margin-right:auto;color:var(--red)">${p.archived?'Restore':'Archive'}</button>`:''}
+      <button class="btn primary">${p?'Save changes':'Create project'}</button></div>
+  </form>`;
+}
+
+async function openProject(id){
+  document.body.style.overflow='hidden';
+  const p = id ? S.projects.find(x=>x.id===id) : null;
+  const sv = p?.project_type==='supervision';
+  $('#drawerRoot').innerHTML = `<div class="overlay" id="ov"><div class="drawer ${sv?'sv':''}">
+    <div class="dhead"><div style="flex:1">
+      ${p?`<span class="tag ${sv?'sv':''}">${sv?'Supervision':'Site'} · #${p.id}</span><h2>${esc(p.client_name)}</h2>
+        <div style="font-size:13px;color:var(--muted)">${p.ward_no?'Ward '+p.ward_no:''}${p.location?' · '+esc(p.location):''}
+        ${p.phone?` · <a href="tel:${esc(p.phone)}">📞 ${esc(p.phone)}</a>`:''}
+        ${p.location?` · <a target="_blank" href="https://www.google.com/maps/search/${encodeURIComponent(p.location)}">Map</a>`:''}</div>`
+       :'<h2>New project</h2>'}
+    </div><button class="btn sm" onclick="closeDrawer()">✕</button></div>
+    <div class="dbody">
+      ${p?`<div class="sec"><h4>Stage</h4><div class="stagebar" id="stageBar"></div></div>
+      <div class="sec"><h4>Add update</h4><form id="uForm" class="inline"><textarea id="uNote" required placeholder="What happened? e.g. Site visited, measurements taken"></textarea><button class="btn primary">Post</button></form></div>`:''}
+      <div class="sec"><h4>Details</h4>${infoForm(p)}</div>
+      ${p?`<div class="sec"><h4>Payments</h4><div id="payBox">Loading…</div></div>
+      <div class="sec"><h4>Files & photos <label class="btn sm primary" style="cursor:pointer">Upload<input type="file" id="fileIn" multiple hidden></label></h4><div id="fileBox">Loading…</div></div>
+      <div class="sec"><h4>History</h4><div id="tlBox">Loading…</div></div>`:''}
+    </div></div></div>`;
+  $('#ov').onclick = e => { if(e.target.id==='ov') closeDrawer(); };
+
+  const fillStages = () => { const sel=$('#pStage'); if(!sel) return;
+    sel.innerHTML = stagesOf($('#pType').value).map(s=>`<option value="${s.key}">${esc(s.label)}</option>`).join(''); };
+  fillStages(); $('#pType').onchange = fillStages;
+
+  $('#pForm').onsubmit = async e => { e.preventDefault();
+    const row = { client_name:$('#pName').value.trim(), phone:$('#pPhone').value.trim()||null,
+      ward_no:$('#pWard').value?+$('#pWard').value:null, location:$('#pLoc').value.trim()||null,
+      deadline:$('#pDeadline').value||null, assigned_to:$('#pAssigned').value||null,
+      fee_total:$('#pFee').value?+$('#pFee').value:0, notes:$('#pNotes').value.trim()||null };
+    if(p){ const { error } = await sb.from('projects').update(row).eq('id',p.id); if(error) return fail(error); toast('Saved'); }
+    else {
+      row.project_type=$('#pType').value; row.stage=$('#pStage').value;
+      const { data, error } = await sb.from('projects').insert(row).select().single(); if(error) return fail(error);
+      await sb.from('project_updates').insert({ project_id:data.id, author_id:S.me.id, author_label:S.me.full_name, note:'Project created' });
+      toast('Project created'); await loadAll(); return openProject(data.id);
+    }
+    await loadAll(); openProject(p.id);
+  };
+  if(!p) return;
+
+  const arch=$('#pArchive'); if(arch) arch.onclick = async () => {
+    if(!confirm(p.archived?'Restore this project?':'Archive this project? It will be hidden from the list.')) return;
+    const { error } = await sb.from('projects').update({archived:!p.archived}).eq('id',p.id); if(error) return fail(error);
+    closeDrawer(); loadAll(); };
+
+  // stage bar
+  const ss = stagesOf(p.project_type), curIdx = ss.findIndex(s=>s.key===p.stage);
+  $('#stageBar').innerHTML = ss.map((s,i)=>`<button data-k="${s.key}" class="${i<curIdx?'past':i===curIdx?'cur':''}">${esc(s.label)}</button>`).join('');
+  $('#stageBar').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
+    if(b.dataset.k===p.stage) return;
+    const { error } = await sb.from('projects').update({stage:b.dataset.k}).eq('id',p.id); if(error) return fail(error);
+    toast('Stage → '+stageLabel(p.project_type,b.dataset.k)); await loadAll(); openProject(p.id); });
+
+  $('#uForm').onsubmit = async e => { e.preventDefault();
+    const { error } = await sb.from('project_updates').insert({ project_id:p.id, author_id:S.me.id, author_label:S.me.full_name, note:$('#uNote').value.trim() });
+    if(error) return fail(error); toast('Update posted'); await loadAll(); openProject(p.id); };
+
+  $('#fileIn').onchange = async e => {
+    const files=[...e.target.files]; if(!files.length) return; toast('Uploading '+files.length+' file(s)…');
+    for(const f of files){
+      const path = `${p.id}/${Date.now()}-${f.name.replace(/[^\w.\-]+/g,'_')}`;
+      const up = await sb.storage.from(BUCKET).upload(path, f); if(up.error){ fail(up.error); continue; }
+      const { error } = await sb.from('project_files').insert({ project_id:p.id, storage_path:path, file_name:f.name, kind:f.type.startsWith('image/')?'photo':'file', uploaded_by:S.me.id });
+      if(error) fail(error);
+    }
+    await sb.from('project_updates').insert({ project_id:p.id, author_id:S.me.id, author_label:S.me.full_name, note:`Uploaded ${files.length} file(s): ${files.map(f=>f.name).join(', ')}` });
+    toast('Uploaded'); await loadAll(); openProject(p.id); };
+
+  // load detail data
+  const [pay, fl, up] = await Promise.all([
+    sb.from('payments').select('*').eq('project_id',p.id).order('paid_on',{ascending:false}),
+    sb.from('project_files').select('*').eq('project_id',p.id).order('created_at',{ascending:false}),
+    sb.from('project_updates').select('*').eq('project_id',p.id).order('created_at',{ascending:false})
+  ]);
+
+  // payments
+  const pays = pay.data||[];
+  $('#payBox').innerHTML = `<div class="money3"><div><small>Total fee</small><b>${money(p.fee_total)}</b></div>
+      <div><small>Received</small><b style="color:var(--green)">${money(p.paid_total)}</b></div>
+      <div><small>Balance</small><b style="color:${Number(p.balance)>0?'var(--orange)':'var(--green)'}">${money(p.balance)}</b></div></div>
+    <div class="rows">${pays.map(x=>`<div class="row"><div class="grow"><b>${money(x.amount)}</b> <small>${esc(x.method||'')}</small><br><small>${fdate(x.paid_on)}${x.note?' · '+esc(x.note):''}</small></div>
+      ${S.me.role==='admin'?`<button class="btn sm ghost" data-del="${x.id}">✕</button>`:''}</div>`).join('') || '<small style="color:var(--muted)">No payments recorded yet.</small>'}</div>
+    <form id="payForm" class="inline" style="margin-top:10px">
+      <div><label class="f">Amount</label><input id="payAmt" type="number" min="1" required></div>
+      <div><label class="f">Date</label><input id="payDate" type="date" value="${today()}"></div>
+      <div><label class="f">Method</label><select id="payMethod"><option>Cash</option><option>Bank</option><option>eSewa</option><option>Khalti</option><option>Cheque</option></select></div>
+      <div><label class="f">Note</label><input id="payNote"></div>
+      <button class="btn primary">Add</button></form>`;
+  $('#payForm').onsubmit = async e => { e.preventDefault();
+    const amt=+$('#payAmt').value;
+    const { error } = await sb.from('payments').insert({ project_id:p.id, amount:amt, paid_on:$('#payDate').value, method:$('#payMethod').value, note:$('#payNote').value||null, recorded_by:S.me.id });
+    if(error) return fail(error);
+    await sb.from('project_updates').insert({ project_id:p.id, author_id:S.me.id, author_label:S.me.full_name, note:`Payment received: ${money(amt)} (${$('#payMethod').value})` });
+    toast('Payment recorded'); await loadAll(); openProject(p.id); };
+  $('#payBox').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ if(!confirm('Delete this payment?')) return;
+    const { error } = await sb.from('payments').delete().eq('id',b.dataset.del); if(error) return fail(error); await loadAll(); openProject(p.id); });
+
+  // files
+  const fls = fl.data||[];
+  if(!fls.length) $('#fileBox').innerHTML='<small style="color:var(--muted)">No files yet. Upload drawings, municipality documents or site photos.</small>';
+  else {
+    const { data:signed } = await sb.storage.from(BUCKET).createSignedUrls(fls.map(f=>f.storage_path), 3600);
+    const url = path => (signed||[]).find(s=>s.path===path)?.signedUrl || '#';
+    $('#fileBox').innerHTML = '<div class="files">'+fls.map(f=>{ const ext=(f.file_name.split('.').pop()||'').toUpperCase().slice(0,4);
+      return `<a class="file" href="${url(f.storage_path)}" target="_blank" title="${esc(f.file_name)}">
+        ${f.kind==='photo'?`<img src="${url(f.storage_path)}" alt="">`:`<div class="th">${esc(ext)}</div>`}
+        <div class="n">${esc(f.file_name)}</div></a>`; }).join('')+'</div>';
+  }
+
+  // timeline
+  const ups = up.data||[];
+  $('#tlBox').innerHTML = '<div class="tl">'+ups.map(u=>`<div class="it ${u.stage_to?'stg':''}">
+      ${u.stage_to?`Stage: <b>${esc(stageLabel(p.project_type,u.stage_from))}</b> → <b>${esc(stageLabel(p.project_type,u.stage_to))}</b>`:esc(u.note)}
+      <small>${esc(u.author_label||'')} · ${fdate(u.created_at)} ${new Date(u.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')+'</div>';
+}
+
+/* ---------- TEAM ---------- */
+function renderTeam(){
+  const admin = S.me.role==='admin';
+  $('#teamBody').innerHTML = S.team.map(t=>{
+    const n=S.projects.filter(p=>p.assigned_to===t.id && !isDone(p) && !p.archived).length;
+    return `<tr style="${t.active?'':'opacity:.5'}"><td><b>${esc(t.full_name)}</b>${t.auth_user_id?'':' <small style="color:var(--amber)">(not signed in yet)</small>'}</td>
+      <td>${esc(t.email)}</td><td>${t.phone?`<a href="tel:${esc(t.phone)}">${esc(t.phone)}</a>`:''}</td>
+      <td>${t.role==='admin'?'Admin':'Staff'}</td><td>${n}</td>
+      <td>${admin && t.id!==S.me.id?`<button class="btn sm" data-tog="${t.id}">${t.active?'Deactivate':'Activate'}</button>`:''}</td></tr>`; }).join('');
+  $('#teamBody').querySelectorAll('[data-tog]').forEach(b=>b.onclick=async()=>{
+    const t=S.team.find(x=>x.id===b.dataset.tog);
+    const { error } = await sb.from('team_members').update({active:!t.active}).eq('id',t.id); if(error) return fail(error); loadAll(); });
+}
+$('#memberForm').onsubmit = async e => { e.preventDefault();
+  const { error } = await sb.from('team_members').insert({ full_name:$('#mName').value.trim(), email:$('#mEmail').value.trim().toLowerCase(), phone:$('#mPhone').value.trim()||null, role:$('#mRole').value });
+  if(error) return fail(error); e.target.reset(); toast('Team member added'); loadAll(); };
+
+sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_OUT') boot(); });
+boot();
+</script>
+</body>
+</html>
