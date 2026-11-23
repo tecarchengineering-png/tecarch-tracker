@@ -28,7 +28,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 a{color:var(--green)}
 .hidden{display:none!important}
 
-/* header */
 header{background:#fff;border-bottom:3px solid var(--green);position:sticky;top:0;z-index:20}
 .hbar{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
 .logo{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:20px;letter-spacing:.5px}
@@ -37,20 +36,20 @@ header{background:#fff;border-bottom:3px solid var(--green);position:sticky;top:
 .nav{display:flex;gap:4px;margin-left:12px}
 .nav button{border:0;background:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:500;color:var(--muted)}
 .nav button.on{background:var(--green-l);color:var(--green-d)}
+.nav .badge{background:var(--orange);color:#fff;border-radius:999px;font-size:11px;padding:1px 6px;margin-left:4px}
 .spacer{flex:1}
 .me{font-size:13px;color:var(--muted);text-align:right}
 .me b{color:var(--ink);display:block;font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:16px 16px 90px}
 
-main{max-width:1200px;margin:0 auto;padding:16px}
-
-/* buttons & inputs */
-.btn{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .btn:hover{border-color:#c9d2ce}
 .btn.primary{background:var(--green);border-color:var(--green);color:#fff}
 .btn.primary:hover{background:var(--green-d)}
 .btn.accent{background:var(--orange);border-color:var(--orange);color:#fff}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.ghost{border-color:transparent;background:none}
+.btn.danger{color:var(--red)}
 .btn:disabled{opacity:.55;cursor:default}
 input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;width:100%}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--green-l);border-color:var(--green)}
@@ -60,7 +59,6 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
 
-/* toolbar */
 .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
 .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px}
 .seg button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--muted)}
@@ -70,7 +68,6 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .chk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap}
 .chk input{width:auto}
 
-/* stats */
 .stats{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
 .stat{flex:0 0 auto;min-width:120px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;cursor:pointer;text-align:left}
 .stat .n{font-size:22px;font-weight:700}
@@ -79,18 +76,19 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .stat.warn .n{color:var(--red)}
 .stat.money .n{color:var(--orange);font-size:18px}
 
-/* cards */
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;transition:box-shadow .15s,border-color .15s;position:relative}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
 .card:hover{border-color:#c9d2ce;box-shadow:0 4px 14px rgba(0,0,0,.06)}
 .card .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
 .card h3{margin:0;font-size:16px}
 .card .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .card .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:10px}
 .card .meta b{color:var(--ink);font-weight:600}
+.qa{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--green-l);color:var(--green-d);white-space:nowrap}
 .pill.sv{background:var(--orange-l);color:#a54511}
 .pill.done{background:#eceff1;color:#546e7a}
+.pill.amber{background:var(--amber-l);color:var(--amber)}
 .tag{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
 .tag.sv{color:var(--orange)}
 .od{color:var(--red)!important;font-weight:600}
@@ -98,19 +96,23 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .progress{height:4px;background:var(--line);border-radius:4px;margin-top:12px;overflow:hidden}
 .progress i{display:block;height:100%;background:var(--green)}
 .card.sv .progress i{background:var(--orange)}
-.qa{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.qa .btn{text-decoration:none;color:var(--ink)}
-.empty{text-align:center;color:var(--muted);padding:50px 10px}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.muted{color:var(--muted);font-size:13px}
 
-/* drawer */
 .overlay{position:fixed;inset:0;background:rgba(15,25,20,.35);z-index:40;display:flex;justify-content:flex-end}
-.drawer{background:var(--bg);width:min(620px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.15);animation:slide .18s ease-out}
+.drawer{background:var(--bg);width:min(760px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.15);animation:slide .18s ease-out}
 @keyframes slide{from{transform:translateX(40px);opacity:.5}to{transform:none;opacity:1}}
-.dhead{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;position:sticky;top:0;z-index:2;display:flex;gap:10px;align-items:flex-start}
+.dhead{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px 0;position:sticky;top:0;z-index:2}
+.dhead .row1{display:flex;gap:10px;align-items:flex-start}
 .dhead h2{margin:0;font-size:19px}
+.tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px}
+.tabs button{border:0;background:none;padding:9px 12px;cursor:pointer;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--green-d);border-bottom-color:var(--green)}
+.sv .tabs button.on{color:#a54511;border-bottom-color:var(--orange)}
+.tabs .c{font-size:11px;background:var(--bg);border-radius:999px;padding:1px 6px;margin-left:3px}
 .dbody{padding:16px;display:flex;flex-direction:column;gap:14px}
 .sec{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px}
-.sec h4{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.sec h4{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px}
 .stagebar{display:flex;gap:4px;flex-wrap:wrap}
 .stagebar button{flex:1 1 auto;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 6px;font-size:12px;cursor:pointer;color:var(--muted);font-weight:500}
 .stagebar button.past{background:var(--green-l);color:var(--green-d);border-color:var(--green-l)}
@@ -122,25 +124,30 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .money3 small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600}
 .money3 b{font-size:16px}
 .rows{display:flex;flex-direction:column}
-.row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.row{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
 .row:first-child{border-top:0}
 .row .grow{flex:1;min-width:0}
 .row small{color:var(--muted)}
-.tl{display:flex;flex-direction:column;gap:0}
+.row .th{width:56px;height:56px;border-radius:8px;object-fit:cover;flex:0 0 auto;background:var(--bg)}
 .tl .it{position:relative;padding:0 0 12px 18px;border-left:2px solid var(--line);margin-left:5px}
 .tl .it:before{content:"";position:absolute;left:-6px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--green)}
 .tl .it.stg:before{background:var(--orange)}
 .tl .it small{color:var(--muted);display:block;font-size:12px}
-.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
-.file{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg);font-size:12px;text-decoration:none;color:var(--ink);display:block}
-.file .th{height:80px;display:flex;align-items:center;justify-content:center;background:#eef2f0;font-weight:700;color:var(--muted);font-size:13px}
-.file img{width:100%;height:80px;object-fit:cover;display:block}
-.file div.n{padding:5px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fgroup{margin-top:12px}
+.fgroup h5{margin:0 0 8px;font-size:14px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.file{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg);font-size:12px;position:relative}
+.file a{text-decoration:none;color:var(--ink);display:block}
+.file .ph{height:95px;display:flex;align-items:center;justify-content:center;background:#eef2f0;font-weight:700;color:var(--muted);font-size:13px;position:relative}
+.file img{width:100%;height:95px;object-fit:cover;display:block}
+.file .ph .play{position:absolute;font-size:28px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.file .n{padding:5px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file .x{position:absolute;top:4px;right:4px;background:rgba(255,255,255,.9);border:0;border-radius:6px;cursor:pointer;font-size:12px;padding:2px 6px}
 .inline{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
-.inline > *{flex:1 1 120px}
+.inline > *{flex:1 1 140px}
 .inline > .btn{flex:0 0 auto}
+.speccat{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--orange);margin:12px 0 2px}
 
-/* login */
 .login{max-width:380px;margin:9vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;border-top:4px solid var(--green)}
 .login h1{margin:0 0 4px;font-size:24px}
 .login p{color:var(--muted);margin:0 0 18px;font-size:14px}
@@ -149,24 +156,55 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .msg.err{background:var(--red-l);color:var(--red)}
 .msg.ok{background:var(--green-l);color:var(--green-d)}
 
-/* table (team) */
 table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
 th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa}
+.tablewrap{overflow-x:auto}
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;z-index:60;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
-.fab{position:fixed;right:20px;bottom:20px;z-index:15;border-radius:999px;padding:13px 20px;box-shadow:0 6px 18px rgba(226,97,27,.35)}
 @media(max-width:640px){.me{display:none}.nav{margin-left:auto}.hbar{flex-wrap:wrap}}
+
+/* ---------- PRINT ---------- */
+#printRoot{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff;font-size:11.5pt}
+  body.printing > *:not(#printRoot){display:none!important}
+  body.printing #printRoot{display:block}
+}
+.pb{font-family:Inter,Arial,sans-serif;color:#111;max-width:800px;margin:0 auto}
+.pb .phead{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--green);padding-bottom:8px;margin-bottom:12px}
+.pb .plogo{font-weight:800;font-size:24px;letter-spacing:1px}
+.pb .plogo .t{color:var(--green)} .pb .plogo .a{color:var(--orange)}
+.pb .pco{font-size:9pt;color:#555}
+.pb .ptitle{text-align:right}
+.pb .ptitle b{font-size:16pt;display:block;letter-spacing:1px}
+.pb .ptitle span{font-size:9pt;color:#555}
+.pb h3{font-size:11pt;text-transform:uppercase;letter-spacing:.5px;color:var(--green-d);border-bottom:1px solid #ccc;padding-bottom:3px;margin:16px 0 8px;break-after:avoid}
+.pb .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 14px;font-size:10.5pt}
+.pb .kv div small{display:block;font-size:8pt;color:#666;text-transform:uppercase;font-weight:600}
+.pb .task{border:2px solid var(--orange);border-radius:8px;padding:10px 12px;background:#fff8f3}
+.pb table{border:1px solid #bbb;border-radius:0;font-size:10pt}
+.pb th,.pb td{padding:5px 7px;border:1px solid #ccc;font-size:10pt}
+.pb th{background:#f0f4f2;color:#333}
+.pb td img{width:70px;height:55px;object-fit:cover;display:block}
+.pb .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pb .pgrid figure{margin:0;break-inside:avoid;border:1px solid #ddd;padding:4px}
+.pb .pgrid img{width:100%;height:150px;object-fit:cover;display:block}
+.pb .pgrid figcaption{font-size:8.5pt;color:#333;margin-top:3px}
+.pb .note{white-space:pre-wrap;font-size:10.5pt;border:1px solid #ddd;padding:8px;border-radius:4px;min-height:30px}
+.pb .sign{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px;font-size:10pt;break-inside:avoid}
+.pb .sign div{border-top:1px solid #333;padding-top:4px;text-align:center}
+.pb .pfoot{margin-top:18px;font-size:8pt;color:#777;text-align:center}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginView" class="hidden">
   <div class="login">
     <div class="logo" style="margin-bottom:14px"><span><span class="t">TEC</span><span class="a">ARCH</span></span></div>
     <h1 id="loginTitle">Sign in</h1>
-    <p id="loginSub">Project tracker for the TecArch team.</p>
+    <p>Project tracker for the TecArch team.</p>
     <form id="loginForm">
       <label class="f">Email</label>
       <input id="liEmail" type="email" required autocomplete="email">
@@ -174,7 +212,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
       <input id="liPass" type="password" required minlength="8" autocomplete="current-password">
       <button class="btn primary" style="width:100%;margin-top:4px" id="liBtn">Sign in</button>
     </form>
-    <div style="margin-top:14px;font-size:13px;text-align:center;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <div style="margin-top:14px;font-size:13px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
       <a href="#" id="toggleMode">First time? Create your password</a>
       <a href="#" id="forgotLink">Forgot password?</a>
     </div>
@@ -182,23 +220,22 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
   </div>
 </div>
 
-<!-- NOT A MEMBER -->
 <div id="noAccessView" class="hidden">
   <div class="login">
     <h1>Waiting for access</h1>
-    <p>You're signed in as <b id="naEmail"></b>, but this email hasn't been added to the TecArch team yet. Ask the admin to add you, then refresh.</p>
+    <p>You're signed in as <b id="naEmail"></b>, but this email isn't on the TecArch team yet. Ask the admin to add you, then refresh.</p>
     <button class="btn" onclick="signOut()">Sign out</button>
   </div>
 </div>
 
-<!-- APP -->
 <div id="appView" class="hidden">
   <header>
     <div class="hbar">
       <div class="logo"><span><span class="t">TEC</span><span class="a">ARCH</span></span><small>Project Tracker</small></div>
       <nav class="nav">
         <button data-view="projects" class="on">Projects</button>
-        <button data-view="team" id="navTeam">Team</button>
+        <button data-view="tasks">Tasks<span class="badge hidden" id="taskBadge"></span></button>
+        <button data-view="team">Team</button>
       </nav>
       <div class="spacer"></div>
       <div class="me"><b id="meName"></b><span id="meRole"></span></div>
@@ -224,8 +261,20 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
       <div class="list" id="list"></div>
     </section>
 
+    <section id="tasksView" class="hidden">
+      <div class="toolbar">
+        <h2 style="margin:0;font-size:18px">Tasks</h2>
+        <div class="seg" id="taskSeg">
+          <button data-w="me" class="on">My tasks</button>
+          <button data-w="all">Everyone</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="tDone"> Show done</label>
+      </div>
+      <div class="tablewrap"><table><thead><tr><th>Task</th><th>Project</th><th>Assigned</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody id="taskBody"></tbody></table></div>
+    </section>
+
     <section id="teamView" class="hidden">
-      <div class="toolbar"><h2 style="margin:0;font-size:18px">Team</h2><div class="spacer"></div></div>
+      <div class="toolbar"><h2 style="margin:0;font-size:18px">Team</h2></div>
       <div class="sec" id="addMemberSec" style="margin-bottom:14px">
         <h4>Add team member</h4>
         <form id="memberForm" class="inline">
@@ -235,24 +284,52 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
           <div><label class="f">Role</label><select id="mRole"><option value="staff">Staff</option><option value="admin">Admin</option></select></div>
           <button class="btn primary">Add</button>
         </form>
-        <p style="font-size:13px;color:var(--muted);margin:10px 0 0">After you add them, they open this app, tap “First time? Create your password” and use the same email.</p>
+        <p class="muted" style="margin:10px 0 0">After you add them, they open this app, tap “First time? Create your password” and use the same email.</p>
       </div>
-      <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Projects</th><th></th></tr></thead><tbody id="teamBody"></tbody></table>
+      <div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Projects</th><th>Open tasks</th><th></th></tr></thead><tbody id="teamBody"></tbody></table></div>
     </section>
   </main>
 </div>
 
 <div id="drawerRoot"></div>
+<div id="printRoot"></div>
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const SUPABASE_URL = 'https://cslndhcboybvejwcbhuj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09';
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 const BUCKET = 'project-files';
+const MAX_MB = 50;
 
-const S = { me:null, stages:[], team:[], projects:[], type:'all', stageFilter:null, special:null };
+const FILE_CATS = {
+  site_photo:'Site photos', site_video:'Site videos', requirement:'Client requirements',
+  client_option:'Client options', sample:'Samples / references', drawing:'Drawings',
+  document:'Documents', other:'Other'
+};
+const SPEC_CATS = {
+  'Design style':['Modern','Contemporary','Minimal','Traditional Newari','Colonial','Neo-classical','Mixed'],
+  'Elevation / Facade':['ACP cladding','Stone cladding','Wooden louvers','Exposed brick','Texture paint','Glass facade','HPL panel'],
+  'Column':['Square','Rectangular','Round','Fluted','Cladded (stone)','Cladded (wood)'],
+  'Beam / Cantilever':['Normal','Cantilever balcony','Hidden beam','Projected slab'],
+  'Railing':['SS railing','Glass railing (toughened)','MS railing (painted)','Wooden railing','Glass + SS','RCC parapet','Brick jali'],
+  'Staircase':['Dog-legged','Straight','L-shaped','Spiral','Floating','Granite finish','Wooden finish'],
+  'Main door':['Teak panel door','Sal wood door','Flush door','WPC door','Steel security door','Pivot door'],
+  'Interior door':['Flush door','Panel door','WPC door','UPVC door (bath)','Sliding door','Glass door'],
+  'Window':['UPVC sliding','UPVC casement','Aluminium sliding','Wooden casement','Fixed glass','French window','Corner window'],
+  'Window grill':['MS grill','SS grill','No grill','Decorative grill'],
+  'Flooring':['Vitrified tiles','Marble','Granite','Wooden flooring','Ceramic tiles','Terrazzo','Epoxy'],
+  'Roof':['Flat RCC','Sloped RCC','CGI sheet','Clay tiles','Terrace garden','Truss'],
+  'Wall finish / Colour':['Emulsion paint','Texture paint','Wallpaper','Exposed brick','Putty + paint'],
+  'Ceiling':['Gypsum false ceiling','POP','Wooden ceiling','Plain plaster','PVC panel'],
+  'Kitchen':['Modular kitchen','L-shaped','U-shaped','Island','Granite top','Quartz top'],
+  'Bathroom':['Western','Indian','Wall-hung WC','Glass partition','Bathtub'],
+  'Compound wall / Gate':['Brick wall','Stone wall','MS gate','SS gate','Sliding gate','Wooden gate'],
+  'Other':[]
+};
+const SPEC_STATUS = { proposed:'Proposed', client_approved:'Client approved', final:'Final' };
+const TASK_STATUS = { todo:'To do', doing:'In progress', done:'Done' };
+
+const S = { me:null, stages:[], team:[], projects:[], tasks:[], type:'all', stageFilter:null, special:null, taskWho:'me' };
 const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = n => 'Rs. ' + Number(n||0).toLocaleString('en-IN', {maximumFractionDigits:0});
@@ -265,12 +342,21 @@ function toast(t){ const el=document.createElement('div'); el.className='toast';
 function fail(e){ console.error(e); toast('⚠ ' + (e?.message || e)); }
 const stagesOf = t => S.stages.filter(s=>s.project_type===t).sort((a,b)=>a.sort_order-b.sort_order);
 const stageLabel = (t,k) => (S.stages.find(s=>s.project_type===t && s.key===k)||{}).label || k;
+const memberName = id => (S.team.find(t=>t.id===id)||{}).full_name || 'Unassigned';
 const isDone = p => p.stage === 'completed';
-function deadlineClass(p){ if(!p.deadline || isDone(p)) return ''; const days=(new Date(p.deadline)-new Date(today()))/864e5;
-  return days<0?'od':days<=7?'soon':''; }
+function dueClass(d, done){ if(!d || done) return ''; const days=(new Date(d)-new Date(today()))/864e5; return days<0?'od':days<=7?'soon':''; }
+const log = (project_id, note) => sb.from('project_updates').insert({ project_id, author_id:S.me.id, author_label:S.me.full_name, note });
 window.signOut = async () => { await sb.auth.signOut(); location.reload(); };
 
-/* ---------- AUTH ---------- */
+async function signUrls(files){
+  const paths = files.filter(f=>f.storage_path).map(f=>f.storage_path);
+  if(!paths.length) return {};
+  const { data } = await sb.storage.from(BUCKET).createSignedUrls(paths, 3600);
+  const m = {}; (data||[]).forEach(d=>{ if(d.signedUrl) m[d.path]=d.signedUrl; }); return m;
+}
+const fileUrl = (f, urls) => f.external_url || urls[f.storage_path] || '#';
+
+/* ================= AUTH ================= */
 let signupMode = false;
 $('#toggleMode').onclick = e => { e.preventDefault(); signupMode=!signupMode;
   $('#loginTitle').textContent = signupMode ? 'Create your password' : 'Sign in';
@@ -305,6 +391,7 @@ sb.auth.onAuthStateChange(async (ev)=>{
     if(pw && pw.length>=8){ const { error } = await sb.auth.updateUser({ password: pw }); toast(error? '⚠ '+error.message : 'Password updated'); }
     boot();
   }
+  if(ev==='SIGNED_OUT') boot();
 });
 
 async function boot(){
@@ -321,35 +408,39 @@ async function boot(){
   if(me.role!=='admin' && S.projects.some(p=>p.assigned_to===me.id)){ $('#fAssigned').value='__me'; renderProjects(); }
 }
 
-/* ---------- DATA ---------- */
+/* ================= DATA ================= */
 async function loadAll(){
-  const [st, tm, pr] = await Promise.all([
+  const [st, tm, pr, tk] = await Promise.all([
     sb.from('stages').select('*'),
     sb.from('team_members').select('*').order('full_name'),
-    sb.from('project_overview').select('*').order('updated_at',{ascending:false})
+    sb.from('project_overview').select('*').order('updated_at',{ascending:false}),
+    sb.from('tasks').select('*').order('due_date',{ascending:true, nullsFirst:false})
   ]);
-  if(st.error||tm.error||pr.error) return fail(st.error||tm.error||pr.error);
-  S.stages=st.data; S.team=tm.data; S.projects=pr.data;
+  const err = st.error||tm.error||pr.error||tk.error; if(err) return fail(err);
+  S.stages=st.data; S.team=tm.data; S.projects=pr.data; S.tasks=tk.data;
   const sel=$('#fAssigned'), cur=sel.value;
   sel.innerHTML='<option value="">Everyone</option><option value="__me">Assigned to me</option><option value="__none">Unassigned</option>' +
     S.team.filter(t=>t.active).map(t=>`<option value="${t.id}">${esc(t.full_name)}</option>`).join('');
-  sel.value=cur; renderProjects(); renderTeam();
+  sel.value=cur;
+  const mine = S.tasks.filter(t=>t.assigned_to===S.me.id && t.status!=='done').length;
+  $('#taskBadge').textContent = mine; $('#taskBadge').classList.toggle('hidden', !mine);
+  renderProjects(); renderTasks(); renderTeam();
 }
 
-/* ---------- PROJECT LIST ---------- */
+/* ================= PROJECT LIST ================= */
 function filtered(ignoreStage){
   const q=$('#q').value.trim().toLowerCase(), a=$('#fAssigned').value, showDone=$('#fDone').checked;
   return S.projects.filter(p=>{
     if(p.archived) return false;
     if(S.type!=='all' && p.project_type!==S.type) return false;
-    if(!showDone && isDone(p) && S.stageFilter!=='completed') return false;
+    if(!showDone && isDone(p) && !(S.stageFilter||'').endsWith('|completed')) return false;
     if(a==='__me' && p.assigned_to!==S.me.id) return false;
     if(a==='__none' && p.assigned_to) return false;
     if(a && !a.startsWith('__') && p.assigned_to!==a) return false;
-    if(q){ const hay=[p.client_name,p.location,p.phone,p.notes,p.assigned_name,'ward '+p.ward_no,p.stage_label].join(' ').toLowerCase(); if(!hay.includes(q)) return false; }
+    if(q){ const hay=[p.client_name,p.location,p.phone,p.notes,p.requirements,p.assigned_name,'ward '+p.ward_no,p.stage_label,p.building_use].join(' ').toLowerCase(); if(!hay.includes(q)) return false; }
     if(!ignoreStage){
-      if(S.stageFilter && (S.stageFilter.split('|')[1]!==p.stage || S.stageFilter.split('|')[0]!==p.project_type)) return false;
-      if(S.special==='overdue' && deadlineClass(p)!=='od') return false;
+      if(S.stageFilter){ const [t,k]=S.stageFilter.split('|'); if(p.project_type!==t || p.stage!==k) return false; }
+      if(S.special==='overdue' && dueClass(p.deadline,isDone(p))!=='od') return false;
       if(S.special==='due' && !(Number(p.balance)>0)) return false;
     }
     return true;
@@ -365,7 +456,7 @@ function renderProjects(){
     const k=t+'|'+s.key;
     html += `<button class="stat ${S.stageFilter===k?'on':''}" data-sf="${k}"><div class="n">${n}</div><div class="l">${S.type==='all'?(t==='site'?'Site · ':'Sup. · '):''}${esc(s.label)}</div></button>`;
   }));
-  const overdue = base.filter(p=>deadlineClass(p)==='od').length;
+  const overdue = base.filter(p=>dueClass(p.deadline,isDone(p))==='od').length;
   const due = base.reduce((s,p)=>s+Math.max(0,Number(p.balance)||0),0);
   html += `<button class="stat warn ${S.special==='overdue'?'on':''}" data-sp="overdue"><div class="n">${overdue}</div><div class="l">Overdue deadlines</div></button>`;
   html += `<button class="stat money ${S.special==='due'?'on':''}" data-sp="due"><div class="n">${money(due)}</div><div class="l">Fees still due</div></button>`;
@@ -376,8 +467,8 @@ function renderProjects(){
   const list = filtered(false).sort((a,b)=> (a.project_type.localeCompare(b.project_type)) || (b.stage_order-a.stage_order) || a.client_name.localeCompare(b.client_name));
   if(!list.length){ $('#list').innerHTML='<div class="empty">No projects match.</div>'; return; }
   $('#list').innerHTML = list.map(p=>{
-    const sv=p.project_type==='supervision', total=stagesOf(p.project_type).length;
-    const dc=deadlineClass(p);
+    const sv=p.project_type==='supervision', total=stagesOf(p.project_type).length, dc=dueClass(p.deadline,isDone(p));
+    const nx=stagesOf(p.project_type).find(s=>s.sort_order===p.stage_order+1);
     return `<div class="card ${sv?'sv':''}" data-id="${p.id}">
       <div class="top"><div><span class="tag ${sv?'sv':''}">${sv?'Supervision':'Site'}</span><h3>${esc(p.client_name)}</h3>
         <div class="sub">${p.ward_no?'Ward '+p.ward_no:'Ward —'}${p.location?' · '+esc(p.location):''}</div></div>
@@ -385,18 +476,19 @@ function renderProjects(){
       <div class="meta">
         <span>👤 <b>${esc(p.assigned_name||'Unassigned')}</b></span>
         ${p.deadline?`<span class="${dc}">📅 ${fdate(p.deadline)}</span>`:''}
+        ${Number(p.open_tasks)>0?`<span>✅ ${p.open_tasks} open task${p.open_tasks>1?'s':''}</span>`:''}
+        ${Number(p.file_count)>0?`<span>📎 ${p.file_count}</span>`:''}
         ${Number(p.fee_total)>0?`<span>💰 ${Number(p.balance)>0?'<b style="color:var(--orange)">'+money(p.balance)+' due</b>':'<b style="color:var(--green)">Paid</b>'}</span>`:''}
         <span>🕒 ${ago(p.last_update_at||p.updated_at)}</span>
       </div>
       <div class="progress"><i style="width:${Math.round(p.stage_order/total*100)}%"></i></div>
-      ${(()=>{ const nx=stagesOf(p.project_type).find(s=>s.sort_order===p.stage_order+1);
-        return (p.phone||nx)?`<div class="qa">
-          ${p.phone?`<a class="btn sm" href="tel:${esc(p.phone)}">📞 Call</a>`:''}
-          ${nx?`<button class="btn sm" data-next="${nx.key}">Move to: ${esc(nx.label)} →</button>`:''}</div>`:''; })()}
+      ${(p.phone||nx)?`<div class="qa">
+        ${p.phone?`<a class="btn sm" href="tel:${esc(p.phone)}">📞 Call</a>`:''}
+        ${nx?`<button class="btn sm" data-next="${nx.key}">Move to: ${esc(nx.label)} →</button>`:''}</div>`:''}
     </div>`;}).join('');
   $('#list').querySelectorAll('.card').forEach(c=>c.onclick=e=>{ if(e.target.closest('.qa')) return; openProject(+c.dataset.id); });
   $('#list').querySelectorAll('[data-next]').forEach(b=>b.onclick=async e=>{
-    e.stopPropagation(); const card=b.closest('.card'), p=S.projects.find(x=>x.id===+card.dataset.id);
+    e.stopPropagation(); const p=S.projects.find(x=>x.id===+b.closest('.card').dataset.id);
     if(!confirm(`Move ${p.client_name} to “${stageLabel(p.project_type,b.dataset.next)}”?`)) return;
     b.disabled=true; const { error } = await sb.from('projects').update({stage:b.dataset.next}).eq('id',p.id);
     if(error){ b.disabled=false; return fail(error); } toast('Moved'); loadAll(); });
@@ -405,19 +497,45 @@ $('#typeSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ $('#typeSeg 
 ['#q','#fAssigned','#fDone'].forEach(s=>$(s).addEventListener('input',renderProjects));
 $('#addBtn').onclick=()=>openProject(null);
 
-/* ---------- NAV ---------- */
+/* ================= NAV ================= */
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x===b));
-  $('#projectsView').classList.toggle('hidden', b.dataset.view!=='projects');
-  $('#teamView').classList.toggle('hidden', b.dataset.view!=='team');
+  ['projects','tasks','team'].forEach(v=>$('#'+v+'View').classList.toggle('hidden', b.dataset.view!==v));
 });
 
-/* ---------- DRAWER ---------- */
+/* ================= TASKS (global) ================= */
+function taskStatusSelect(t){ return `<select data-tstat="${t.id}" style="width:auto">${Object.entries(TASK_STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?'selected':''}>${v}</option>`).join('')}</select>`; }
+async function setTaskStatus(id, status){
+  const t=S.tasks.find(x=>x.id===+id);
+  const { error } = await sb.from('tasks').update({ status, done_at: status==='done'? new Date().toISOString() : null }).eq('id',id);
+  if(error) return fail(error);
+  if(t) await log(t.project_id, `Task “${t.title}” → ${TASK_STATUS[status]}`);
+  toast('Task updated'); await loadAll();
+}
+function renderTasks(){
+  const showDone=$('#tDone').checked;
+  const rows = S.tasks.filter(t=>(S.taskWho==='all'||t.assigned_to===S.me.id) && (showDone||t.status!=='done'));
+  $('#taskBody').innerHTML = rows.length ? rows.map(t=>{ const p=S.projects.find(x=>x.id===t.project_id)||{};
+    return `<tr><td><b>${esc(t.title)}</b>${t.details?`<br><small class="muted">${esc(t.details)}</small>`:''}</td>
+      <td><a href="#" data-open="${t.project_id}">${esc(p.client_name||'#'+t.project_id)}</a></td>
+      <td>${esc(memberName(t.assigned_to))}</td>
+      <td class="${dueClass(t.due_date,t.status==='done')}">${fdate(t.due_date)||'—'}</td>
+      <td>${taskStatusSelect(t)}</td>
+      <td><button class="btn sm" data-print="${t.project_id}" data-task="${t.id}">🖨 Work order</button></td></tr>`; }).join('')
+    : `<tr><td colspan="6" class="empty">No tasks here.</td></tr>`;
+  $('#taskBody').querySelectorAll('[data-tstat]').forEach(s=>s.onchange=()=>setTaskStatus(s.dataset.tstat, s.value));
+  $('#taskBody').querySelectorAll('[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); openProject(+a.dataset.open,'tasks'); });
+  $('#taskBody').querySelectorAll('[data-print]').forEach(b=>b.onclick=()=>printBrief(+b.dataset.print, +b.dataset.task));
+}
+$('#taskSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ $('#taskSeg .on').classList.remove('on'); b.classList.add('on'); S.taskWho=b.dataset.w; renderTasks(); });
+$('#tDone').oninput = renderTasks;
+
+/* ================= DRAWER ================= */
 function closeDrawer(){ $('#drawerRoot').innerHTML=''; document.body.style.overflow=''; }
 window.closeDrawer = closeDrawer;
-function teamOptions(sel){ return '<option value="">Unassigned</option>'+S.team.filter(t=>t.active||t.id===sel).map(t=>`<option value="${t.id}" ${t.id===sel?'selected':''}>${esc(t.full_name)}</option>`).join(''); }
+function teamOptions(sel, emptyLabel='Unassigned'){ return `<option value="">${emptyLabel}</option>`+S.team.filter(t=>t.active||t.id===sel).map(t=>`<option value="${t.id}" ${t.id===sel?'selected':''}>${esc(t.full_name)}</option>`).join(''); }
 
-function infoForm(p){
+function detailsForm(p){
   const t=p?.project_type||'site';
   return `<form id="pForm">
     <div class="grid2">
@@ -429,143 +547,305 @@ function infoForm(p){
       <div class="grid2" style="gap:8px"><div><label class="f">Ward no.</label><input id="pWard" type="number" min="1" max="40" value="${esc(p?.ward_no)}"></div>
         <div><label class="f">Deadline</label><input id="pDeadline" type="date" value="${esc(p?.deadline)}"></div></div>
       <div><label class="f">Location</label><input id="pLoc" value="${esc(p?.location)}" placeholder="Tole / area / map link"></div>
-      <div><label class="f">Assigned to</label><select id="pAssigned">${teamOptions(p?.assigned_to)}</select></div>
+      <div><label class="f">Project lead</label><select id="pAssigned">${teamOptions(p?.assigned_to)}</select></div>
       <div><label class="f">Total fee (Rs.)</label><input id="pFee" type="number" min="0" step="1" value="${esc(p?.fee_total||'')}"></div>
       ${p?'':`<div><label class="f">Starting stage</label><select id="pStage"></select></div>`}
     </div>
-    <div style="margin-top:12px"><label class="f">Notes</label><textarea id="pNotes">${esc(p?.notes)}</textarea></div>
+    <div style="margin-top:12px"><label class="f">Internal notes</label><textarea id="pNotes">${esc(p?.notes)}</textarea></div>
     <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-      ${p && S.me.role==='admin'?`<button type="button" class="btn ghost" id="pArchive" style="margin-right:auto;color:var(--red)">${p.archived?'Restore':'Archive'}</button>`:''}
-      <button class="btn primary">${p?'Save changes':'Create project'}</button></div>
+      ${p && S.me.role==='admin'?`<button type="button" class="btn ghost danger" id="pArchive" style="margin-right:auto">${p.archived?'Restore':'Archive'}</button>`:''}
+      <button class="btn primary">${p?'Save details':'Create project'}</button></div>
   </form>`;
 }
 
-async function openProject(id){
+async function openProject(id, startTab='overview'){
   document.body.style.overflow='hidden';
   const p = id ? S.projects.find(x=>x.id===id) : null;
-  const sv = p?.project_type==='supervision';
-  $('#drawerRoot').innerHTML = `<div class="overlay" id="ov"><div class="drawer ${sv?'sv':''}">
-    <div class="dhead"><div style="flex:1">
-      ${p?`<span class="tag ${sv?'sv':''}">${sv?'Supervision':'Site'} · #${p.id}</span><h2>${esc(p.client_name)}</h2>
-        <div style="font-size:13px;color:var(--muted)">${p.ward_no?'Ward '+p.ward_no:''}${p.location?' · '+esc(p.location):''}
-        ${p.phone?` · <a href="tel:${esc(p.phone)}">📞 ${esc(p.phone)}</a>`:''}
-        ${p.location?` · <a target="_blank" href="https://www.google.com/maps/search/${encodeURIComponent(p.location)}">Map</a>`:''}</div>`
-       :'<h2>New project</h2>'}
-    </div><button class="btn sm" onclick="closeDrawer()">✕</button></div>
-    <div class="dbody">
-      ${p?`<div class="sec"><h4>Stage</h4><div class="stagebar" id="stageBar"></div></div>
-      <div class="sec"><h4>Add update</h4><form id="uForm" class="inline"><textarea id="uNote" required placeholder="What happened? e.g. Site visited, measurements taken"></textarea><button class="btn primary">Post</button></form></div>`:''}
-      <div class="sec"><h4>Details</h4>${infoForm(p)}</div>
-      ${p?`<div class="sec"><h4>Payments</h4><div id="payBox">Loading…</div></div>
-      <div class="sec"><h4>Files & photos <label class="btn sm primary" style="cursor:pointer">Upload<input type="file" id="fileIn" multiple hidden></label></h4><div id="fileBox">Loading…</div></div>
-      <div class="sec"><h4>History</h4><div id="tlBox">Loading…</div></div>`:''}
-    </div></div></div>`;
-  $('#ov').onclick = e => { if(e.target.id==='ov') closeDrawer(); };
 
-  const fillStages = () => { const sel=$('#pStage'); if(!sel) return;
-    sel.innerHTML = stagesOf($('#pType').value).map(s=>`<option value="${s.key}">${esc(s.label)}</option>`).join(''); };
-  fillStages(); $('#pType').onchange = fillStages;
-
-  $('#pForm').onsubmit = async e => { e.preventDefault();
-    const row = { client_name:$('#pName').value.trim(), phone:$('#pPhone').value.trim()||null,
-      ward_no:$('#pWard').value?+$('#pWard').value:null, location:$('#pLoc').value.trim()||null,
-      deadline:$('#pDeadline').value||null, assigned_to:$('#pAssigned').value||null,
-      fee_total:$('#pFee').value?+$('#pFee').value:0, notes:$('#pNotes').value.trim()||null };
-    if(p){ const { error } = await sb.from('projects').update(row).eq('id',p.id); if(error) return fail(error); toast('Saved'); }
-    else {
-      row.project_type=$('#pType').value; row.stage=$('#pStage').value;
+  if(!p){ // ---- new project ----
+    $('#drawerRoot').innerHTML = `<div class="overlay" id="ov"><div class="drawer">
+      <div class="dhead" style="padding-bottom:14px"><div class="row1"><h2 style="flex:1">New project</h2><button class="btn sm" onclick="closeDrawer()">✕</button></div></div>
+      <div class="dbody"><div class="sec">${detailsForm(null)}</div></div></div></div>`;
+    $('#ov').onclick = e => { if(e.target.id==='ov') closeDrawer(); };
+    const fill = () => $('#pStage').innerHTML = stagesOf($('#pType').value).map(s=>`<option value="${s.key}">${esc(s.label)}</option>`).join('');
+    fill(); $('#pType').onchange = fill;
+    $('#pForm').onsubmit = async e => { e.preventDefault();
+      const row = readDetails(); row.project_type=$('#pType').value; row.stage=$('#pStage').value;
       const { data, error } = await sb.from('projects').insert(row).select().single(); if(error) return fail(error);
-      await sb.from('project_updates').insert({ project_id:data.id, author_id:S.me.id, author_label:S.me.full_name, note:'Project created' });
-      toast('Project created'); await loadAll(); return openProject(data.id);
-    }
-    await loadAll(); openProject(p.id);
-  };
-  if(!p) return;
+      await log(data.id, 'Project created'); toast('Project created'); await loadAll(); openProject(data.id, 'brief'); };
+    return;
+  }
 
-  const arch=$('#pArchive'); if(arch) arch.onclick = async () => {
-    if(!confirm(p.archived?'Restore this project?':'Archive this project? It will be hidden from the list.')) return;
-    const { error } = await sb.from('projects').update({archived:!p.archived}).eq('id',p.id); if(error) return fail(error);
-    closeDrawer(); loadAll(); };
-
-  // stage bar
-  const ss = stagesOf(p.project_type), curIdx = ss.findIndex(s=>s.key===p.stage);
-  $('#stageBar').innerHTML = ss.map((s,i)=>`<button data-k="${s.key}" class="${i<curIdx?'past':i===curIdx?'cur':''}">${esc(s.label)}</button>`).join('');
-  $('#stageBar').querySelectorAll('button').forEach(b=>b.onclick=async()=>{
-    if(b.dataset.k===p.stage) return;
-    const { error } = await sb.from('projects').update({stage:b.dataset.k}).eq('id',p.id); if(error) return fail(error);
-    toast('Stage → '+stageLabel(p.project_type,b.dataset.k)); await loadAll(); openProject(p.id); });
-
-  $('#uForm').onsubmit = async e => { e.preventDefault();
-    const { error } = await sb.from('project_updates').insert({ project_id:p.id, author_id:S.me.id, author_label:S.me.full_name, note:$('#uNote').value.trim() });
-    if(error) return fail(error); toast('Update posted'); await loadAll(); openProject(p.id); };
-
-  $('#fileIn').onchange = async e => {
-    const files=[...e.target.files]; if(!files.length) return; toast('Uploading '+files.length+' file(s)…');
-    for(const f of files){
-      const path = `${p.id}/${Date.now()}-${f.name.replace(/[^\w.\-]+/g,'_')}`;
-      const up = await sb.storage.from(BUCKET).upload(path, f); if(up.error){ fail(up.error); continue; }
-      const { error } = await sb.from('project_files').insert({ project_id:p.id, storage_path:path, file_name:f.name, kind:f.type.startsWith('image/')?'photo':'file', uploaded_by:S.me.id });
-      if(error) fail(error);
-    }
-    await sb.from('project_updates').insert({ project_id:p.id, author_id:S.me.id, author_label:S.me.full_name, note:`Uploaded ${files.length} file(s): ${files.map(f=>f.name).join(', ')}` });
-    toast('Uploaded'); await loadAll(); openProject(p.id); };
-
-  // load detail data
-  const [pay, fl, up] = await Promise.all([
+  const sv = p.project_type==='supervision';
+  const [pay, fl, up, sp] = await Promise.all([
     sb.from('payments').select('*').eq('project_id',p.id).order('paid_on',{ascending:false}),
     sb.from('project_files').select('*').eq('project_id',p.id).order('created_at',{ascending:false}),
-    sb.from('project_updates').select('*').eq('project_id',p.id).order('created_at',{ascending:false})
+    sb.from('project_updates').select('*').eq('project_id',p.id).order('created_at',{ascending:false}),
+    sb.from('design_specs').select('*').eq('project_id',p.id).order('created_at')
   ]);
+  const D = { pays:pay.data||[], files:fl.data||[], ups:up.data||[], specs:sp.data||[], tasks:S.tasks.filter(t=>t.project_id===p.id) };
+  D.urls = await signUrls(D.files);
 
-  // payments
-  const pays = pay.data||[];
-  $('#payBox').innerHTML = `<div class="money3"><div><small>Total fee</small><b>${money(p.fee_total)}</b></div>
+  const tabs = [['overview','Overview'],['brief','Design brief',D.specs.length],['files','Files & photos',D.files.length],
+    ['tasks','Tasks',D.tasks.filter(t=>t.status!=='done').length],['money','Payments'],['history','History']];
+  $('#drawerRoot').innerHTML = `<div class="overlay" id="ov"><div class="drawer ${sv?'sv':''}">
+    <div class="dhead"><div class="row1"><div style="flex:1">
+      <span class="tag ${sv?'sv':''}">${sv?'Supervision':'Site'} · #${p.id}</span><h2>${esc(p.client_name)}</h2>
+      <div class="muted">${p.ward_no?'Ward '+p.ward_no:''}${p.location?' · '+esc(p.location):''}
+        ${p.phone?` · <a href="tel:${esc(p.phone)}">📞 ${esc(p.phone)}</a>`:''}
+        ${p.location?` · <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/${encodeURIComponent(p.location)}">Map</a>`:''}</div></div>
+      <button class="btn sm primary" id="printBtn">🖨 Print brief</button>
+      <button class="btn sm" onclick="closeDrawer()">✕</button></div>
+      <div class="tabs">${tabs.map(([k,l,c])=>`<button data-tab="${k}">${l}${c?`<span class="c">${c}</span>`:''}</button>`).join('')}</div>
+    </div>
+    <div class="dbody" id="tabBody"></div></div></div>`;
+  $('#ov').onclick = e => { if(e.target.id==='ov') closeDrawer(); };
+  $('#printBtn').onclick = () => printBrief(p.id);
+  const reopen = tab => loadAll().then(()=>openProject(p.id, tab));
+  const show = tab => {
+    document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+    ({overview:tabOverview, brief:tabBrief, files:tabFiles, tasks:tabTasks, money:tabMoney, history:tabHistory})[tab](p, D, reopen);
+  };
+  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  show(startTab);
+}
+
+function readDetails(){
+  return { client_name:$('#pName').value.trim(), phone:$('#pPhone').value.trim()||null,
+    ward_no:$('#pWard').value?+$('#pWard').value:null, location:$('#pLoc').value.trim()||null,
+    deadline:$('#pDeadline').value||null, assigned_to:$('#pAssigned').value||null,
+    fee_total:$('#pFee').value?+$('#pFee').value:0, notes:$('#pNotes').value.trim()||null };
+}
+
+/* ---- Overview tab ---- */
+function tabOverview(p, D, reopen){
+  const ss = stagesOf(p.project_type), cur = ss.findIndex(s=>s.key===p.stage);
+  $('#tabBody').innerHTML = `
+    <div class="sec"><h4>Stage</h4><div class="stagebar">${ss.map((s,i)=>`<button data-k="${s.key}" class="${i<cur?'past':i===cur?'cur':''}">${esc(s.label)}</button>`).join('')}</div></div>
+    <div class="sec"><h4>Post an update</h4><form id="uForm" class="inline"><textarea id="uNote" required placeholder="What happened? e.g. Site visited, measurements taken, client chose UPVC windows"></textarea><button class="btn primary">Post</button></form></div>
+    <div class="sec"><h4>Details</h4>${detailsForm(p)}</div>`;
+  $('#tabBody').querySelectorAll('.stagebar button').forEach(b=>b.onclick=async()=>{
+    if(b.dataset.k===p.stage) return;
+    const { error } = await sb.from('projects').update({stage:b.dataset.k}).eq('id',p.id); if(error) return fail(error);
+    toast('Stage → '+stageLabel(p.project_type,b.dataset.k)); reopen('overview'); });
+  $('#uForm').onsubmit = async e => { e.preventDefault(); const { error } = await log(p.id, $('#uNote').value.trim()); if(error) return fail(error); toast('Update posted'); reopen('overview'); };
+  $('#pForm').onsubmit = async e => { e.preventDefault(); const { error } = await sb.from('projects').update(readDetails()).eq('id',p.id); if(error) return fail(error); toast('Saved'); reopen('overview'); };
+  const arch=$('#pArchive'); if(arch) arch.onclick = async () => {
+    if(!confirm(p.archived?'Restore this project?':'Archive this project? It will be hidden from the list.')) return;
+    const { error } = await sb.from('projects').update({archived:!p.archived}).eq('id',p.id); if(error) return fail(error); closeDrawer(); loadAll(); };
+}
+
+/* ---- Design brief tab ---- */
+function tabBrief(p, D, reopen){
+  const photos = D.files.filter(f=>f.kind==='photo');
+  const byCat = {}; D.specs.forEach(s=>(byCat[s.category] ||= []).push(s));
+  $('#tabBody').innerHTML = `
+    <div class="sec"><h4>Client requirements</h4>
+      <form id="rForm">
+        <div class="grid3">
+          <div><label class="f">Building use</label><select id="rUse">${['','Residential','Commercial','Mixed use','Apartment','Institutional','Other'].map(v=>`<option ${p.building_use===v?'selected':''}>${v}</option>`).join('')}</select></div>
+          <div><label class="f">Floors / storeys</label><input id="rFloors" value="${esc(p.floors)}" placeholder="e.g. 2.5 storey"></div>
+          <div><label class="f">Plot area</label><input id="rPlot" value="${esc(p.plot_area)}" placeholder="e.g. 4 aana / 1,369 sq ft"></div>
+        </div>
+        <div style="margin-top:12px"><label class="f">Requirements (rooms, budget, wishes)</label>
+          <textarea id="rReq" style="min-height:120px" placeholder="e.g. 4 bedrooms (1 master with attached bath), puja room, open kitchen, parking for 1 car, shop on ground floor, budget ~ Rs. 1.2 crore">${esc(p.requirements)}</textarea></div>
+        <div style="margin-top:10px;text-align:right"><button class="btn primary">Save requirements</button></div>
+      </form></div>
+    <div class="sec"><h4>Design details <span class="muted" style="text-transform:none;letter-spacing:0">${D.specs.length} item(s)</span></h4>
+      <div class="rows">${Object.keys(byCat).length ? Object.entries(byCat).map(([cat,items])=>`<div class="speccat">${esc(cat)}</div>`+items.map(s=>{
+        const sf = D.files.find(f=>f.id===s.sample_file_id);
+        return `<div class="row">${sf?`<a href="${fileUrl(sf,D.urls)}" target="_blank"><img class="th" src="${fileUrl(sf,D.urls)}" alt=""></a>`:''}
+          <div class="grow"><b>${esc(s.spec)}</b>${s.item?` <small>· ${esc(s.item)}</small>`:''}${s.notes?`<br><small>${esc(s.notes)}</small>`:''}</div>
+          <select data-sstat="${s.id}" style="width:auto;font-size:13px">${Object.entries(SPEC_STATUS).map(([k,v])=>`<option value="${k}" ${s.status===k?'selected':''}>${v}</option>`).join('')}</select>
+          <button class="btn sm ghost danger" data-sdel="${s.id}">✕</button></div>`; }).join('')).join('')
+        : '<p class="muted" style="margin:0">No design details yet. Add railing, column, door, window types etc. below.</p>'}</div>
+      <form id="sForm" style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
+        <div class="grid3">
+          <div><label class="f">Category</label><select id="sCat">${Object.keys(SPEC_CATS).map(c=>`<option>${c}</option>`).join('')}</select></div>
+          <div><label class="f">Type / specification *</label><input id="sSpec" list="specList" required placeholder="Pick or type"><datalist id="specList"></datalist></div>
+          <div><label class="f">Where (optional)</label><input id="sItem" placeholder="e.g. Front balcony, all bedrooms"></div>
+          <div><label class="f">Sample photo</label><select id="sSample"><option value="">— none —</option>${photos.map(f=>`<option value="${f.id}">${esc(FILE_CATS[f.category]||'')}: ${esc(f.caption||f.file_name)}</option>`).join('')}</select></div>
+          <div><label class="f">…or upload sample</label><input id="sUpload" type="file" accept="image/*"></div>
+          <div><label class="f">Status</label><select id="sStatus">${Object.entries(SPEC_STATUS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+        </div>
+        <div style="margin-top:10px" class="inline"><div><label class="f">Notes</label><input id="sNotes" placeholder="Colour, size, brand, height…"></div><button class="btn primary">+ Add detail</button></div>
+      </form></div>`;
+  const fillList = () => $('#specList').innerHTML = (SPEC_CATS[$('#sCat').value]||[]).map(v=>`<option value="${esc(v)}">`).join('');
+  fillList(); $('#sCat').onchange = fillList;
+  $('#rForm').onsubmit = async e => { e.preventDefault();
+    const { error } = await sb.from('projects').update({ building_use:$('#rUse').value||null, floors:$('#rFloors').value.trim()||null, plot_area:$('#rPlot').value.trim()||null, requirements:$('#rReq').value.trim()||null }).eq('id',p.id);
+    if(error) return fail(error); await log(p.id,'Client requirements updated'); toast('Requirements saved'); reopen('brief'); };
+  $('#sForm').onsubmit = async e => { e.preventDefault();
+    let sample = $('#sSample').value ? +$('#sSample').value : null;
+    const up = $('#sUpload').files[0];
+    if(up){ const rec = await uploadOne(p.id, up, 'sample', `${$('#sCat').value}: ${$('#sSpec').value}`); if(rec) sample = rec.id; }
+    const { error } = await sb.from('design_specs').insert({ project_id:p.id, category:$('#sCat').value, spec:$('#sSpec').value.trim(), item:$('#sItem').value.trim()||null, notes:$('#sNotes').value.trim()||null, sample_file_id:sample, status:$('#sStatus').value, created_by:S.me.id });
+    if(error) return fail(error); await log(p.id, `Design detail added: ${$('#sCat').value} – ${$('#sSpec').value.trim()}`); toast('Added'); reopen('brief'); };
+  $('#tabBody').querySelectorAll('[data-sstat]').forEach(s=>s.onchange=async()=>{
+    const { error } = await sb.from('design_specs').update({status:s.value}).eq('id',s.dataset.sstat); if(error) return fail(error); toast('Status: '+SPEC_STATUS[s.value]); });
+  $('#tabBody').querySelectorAll('[data-sdel]').forEach(b=>b.onclick=async()=>{ if(!confirm('Remove this design detail?')) return;
+    const { error } = await sb.from('design_specs').delete().eq('id',b.dataset.sdel); if(error) return fail(error); reopen('brief'); });
+}
+
+/* ---- Files tab ---- */
+async function uploadOne(projectId, f, category, caption){
+  if(f.size > MAX_MB*1024*1024){ toast(`⚠ ${f.name} is over ${MAX_MB} MB. Upload it to Google Drive/YouTube and use “Add link”.`); return null; }
+  const path = `${projectId}/${Date.now()}-${f.name.replace(/[^\w.\-]+/g,'_')}`;
+  const up = await sb.storage.from(BUCKET).upload(path, f); if(up.error){ fail(up.error); return null; }
+  const kind = f.type.startsWith('image/')?'photo':f.type.startsWith('video/')?'video':'file';
+  const { data, error } = await sb.from('project_files').insert({ project_id:projectId, storage_path:path, file_name:f.name, kind, category, caption:caption||null, uploaded_by:S.me.id }).select().single();
+  if(error){ fail(error); return null; } return data;
+}
+function tabFiles(p, D, reopen){
+  const groups = Object.keys(FILE_CATS).map(c=>[c, D.files.filter(f=>f.category===c)]).filter(([,a])=>a.length);
+  const admin = S.me.role==='admin';
+  $('#tabBody').innerHTML = `
+    <div class="sec"><h4>Upload</h4>
+      <div class="grid3">
+        <div><label class="f">What is it?</label><select id="uCat">${Object.entries(FILE_CATS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+        <div style="grid-column:span 2"><label class="f">Caption (optional)</label><input id="uCap" placeholder="e.g. North side road view / Client likes this railing"></div>
+      </div>
+      <div class="inline" style="margin-top:10px">
+        <label class="btn primary" style="cursor:pointer">📷 Choose photos / videos / files<input type="file" id="uFiles" multiple hidden accept="image/*,video/*,.pdf,.dwg,.dxf,.doc,.docx,.xls,.xlsx,.skp,.zip"></label>
+        <span class="muted">Max ${MAX_MB} MB each. For big videos use a link →</span>
+      </div>
+      <form id="lForm" class="inline" style="margin-top:10px"><div><label class="f">Video / Drive link</label><input id="lUrl" type="url" placeholder="https://drive.google.com/… or YouTube"></div><button class="btn">+ Add link</button></form>
+    </div>
+    <div class="sec"><h4>Files & photos</h4>
+      ${groups.length ? groups.map(([c,arr])=>`<div class="fgroup"><h5>${FILE_CATS[c]} <span class="muted">(${arr.length})</span></h5><div class="files">${arr.map(f=>{
+        const u=fileUrl(f,D.urls), ext=(f.file_name.split('.').pop()||'').toUpperCase().slice(0,4);
+        const th = f.kind==='photo' ? `<img src="${u}" alt="" loading="lazy">`
+          : f.kind==='video' ? `<div class="ph">VIDEO<span class="play">▶</span></div>`
+          : f.kind==='link' ? `<div class="ph">🔗 LINK</div>` : `<div class="ph">${esc(ext)}</div>`;
+        return `<div class="file"><a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(f.file_name)}">${th}<div class="n">${esc(f.caption||f.file_name)}</div></a>
+          ${admin?`<button class="x" data-fdel="${f.id}" title="Delete">✕</button>`:''}</div>`; }).join('')}</div></div>`).join('')
+        : '<p class="muted" style="margin:0">Nothing uploaded yet.</p>'}
+    </div>`;
+  $('#uFiles').onchange = async e => {
+    const files=[...e.target.files]; if(!files.length) return;
+    const cat=$('#uCat').value, cap=$('#uCap').value.trim(); toast('Uploading '+files.length+' file(s)…');
+    let ok=0; for(const f of files){ if(await uploadOne(p.id, f, cat, cap)) ok++; }
+    if(ok) await log(p.id, `Uploaded ${ok} file(s) to ${FILE_CATS[cat]}${cap?': '+cap:''}`);
+    toast(`Uploaded ${ok} of ${files.length}`); reopen('files'); };
+  $('#lForm').onsubmit = async e => { e.preventDefault();
+    const url=$('#lUrl').value.trim(), cat=$('#uCat').value, cap=$('#uCap').value.trim();
+    const { error } = await sb.from('project_files').insert({ project_id:p.id, external_url:url, file_name:url, kind:'link', category:cat, caption:cap||null, uploaded_by:S.me.id });
+    if(error) return fail(error); await log(p.id, `Link added to ${FILE_CATS[cat]}`); toast('Link added'); reopen('files'); };
+  $('#tabBody').querySelectorAll('[data-fdel]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Delete this file permanently?')) return; const f=D.files.find(x=>x.id===+b.dataset.fdel);
+    if(f.storage_path){ const r=await sb.storage.from(BUCKET).remove([f.storage_path]); if(r.error) return fail(r.error); }
+    const { error } = await sb.from('project_files').delete().eq('id',f.id); if(error) return fail(error); reopen('files'); });
+}
+
+/* ---- Tasks tab ---- */
+function tabTasks(p, D, reopen){
+  $('#tabBody').innerHTML = `
+    <div class="sec"><h4>Assign work</h4>
+      <form id="tForm">
+        <div class="grid3">
+          <div style="grid-column:span 2"><label class="f">Task *</label><input id="tTitle" required placeholder="e.g. Prepare 3D elevation with SS railing & UPVC windows"></div>
+          <div><label class="f">Assign to</label><select id="tWho">${teamOptions(p.assigned_to,'— choose —')}</select></div>
+          <div><label class="f">Due date</label><input id="tDue" type="date"></div>
+          <div style="grid-column:span 2"><label class="f">Instructions</label><input id="tDet" placeholder="Details for the person doing it"></div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+          <button class="btn" name="andprint" value="1">Assign & print work order</button>
+          <button class="btn primary">Assign</button></div>
+      </form></div>
+    <div class="sec"><h4>Tasks</h4><div class="rows">${D.tasks.length ? D.tasks.map(t=>`<div class="row">
+        <div class="grow"><b style="${t.status==='done'?'text-decoration:line-through;color:var(--muted)':''}">${esc(t.title)}</b>
+          <br><small>👤 ${esc(memberName(t.assigned_to))} · <span class="${dueClass(t.due_date,t.status==='done')}">${t.due_date?'Due '+fdate(t.due_date):'No due date'}</span>${t.details?' · '+esc(t.details):''}</small></div>
+        ${taskStatusSelect(t)}<button class="btn sm" data-print="${t.id}" title="Print work order">🖨</button></div>`).join('')
+      : '<p class="muted" style="margin:0">No tasks yet.</p>'}</div></div>`;
+  $('#tForm').onsubmit = async e => { e.preventDefault();
+    const andPrint = e.submitter?.name==='andprint';
+    const row = { project_id:p.id, title:$('#tTitle').value.trim(), details:$('#tDet').value.trim()||null, assigned_to:$('#tWho').value||null, due_date:$('#tDue').value||null, created_by:S.me.id };
+    const { data, error } = await sb.from('tasks').insert(row).select().single(); if(error) return fail(error);
+    await log(p.id, `Task assigned to ${memberName(row.assigned_to)}: ${row.title}`); toast('Task assigned');
+    await loadAll(); await openProject(p.id,'tasks'); if(andPrint) printBrief(p.id, data.id); };
+  $('#tabBody').querySelectorAll('[data-tstat]').forEach(s=>s.onchange=async()=>{ await setTaskStatus(s.dataset.tstat, s.value); openProject(p.id,'tasks'); });
+  $('#tabBody').querySelectorAll('[data-print]').forEach(b=>b.onclick=()=>printBrief(p.id, +b.dataset.print));
+}
+
+/* ---- Payments tab ---- */
+function tabMoney(p, D, reopen){
+  $('#tabBody').innerHTML = `<div class="sec"><h4>Payments</h4>
+    <div class="money3"><div><small>Total fee</small><b>${money(p.fee_total)}</b></div>
       <div><small>Received</small><b style="color:var(--green)">${money(p.paid_total)}</b></div>
       <div><small>Balance</small><b style="color:${Number(p.balance)>0?'var(--orange)':'var(--green)'}">${money(p.balance)}</b></div></div>
-    <div class="rows">${pays.map(x=>`<div class="row"><div class="grow"><b>${money(x.amount)}</b> <small>${esc(x.method||'')}</small><br><small>${fdate(x.paid_on)}${x.note?' · '+esc(x.note):''}</small></div>
-      ${S.me.role==='admin'?`<button class="btn sm ghost" data-del="${x.id}">✕</button>`:''}</div>`).join('') || '<small style="color:var(--muted)">No payments recorded yet.</small>'}</div>
+    <p class="muted" style="margin:0 0 8px">Set the total fee on the Overview tab.</p>
+    <div class="rows">${D.pays.map(x=>`<div class="row"><div class="grow"><b>${money(x.amount)}</b> <small>${esc(x.method||'')}</small><br><small>${fdate(x.paid_on)}${x.note?' · '+esc(x.note):''}</small></div>
+      ${S.me.role==='admin'?`<button class="btn sm ghost danger" data-del="${x.id}">✕</button>`:''}</div>`).join('') || '<small class="muted">No payments recorded yet.</small>'}</div>
     <form id="payForm" class="inline" style="margin-top:10px">
       <div><label class="f">Amount</label><input id="payAmt" type="number" min="1" required></div>
       <div><label class="f">Date</label><input id="payDate" type="date" value="${today()}"></div>
       <div><label class="f">Method</label><select id="payMethod"><option>Cash</option><option>Bank</option><option>eSewa</option><option>Khalti</option><option>Cheque</option></select></div>
       <div><label class="f">Note</label><input id="payNote"></div>
-      <button class="btn primary">Add</button></form>`;
-  $('#payForm').onsubmit = async e => { e.preventDefault();
-    const amt=+$('#payAmt').value;
+      <button class="btn primary">Add</button></form></div>`;
+  $('#payForm').onsubmit = async e => { e.preventDefault(); const amt=+$('#payAmt').value;
     const { error } = await sb.from('payments').insert({ project_id:p.id, amount:amt, paid_on:$('#payDate').value, method:$('#payMethod').value, note:$('#payNote').value||null, recorded_by:S.me.id });
-    if(error) return fail(error);
-    await sb.from('project_updates').insert({ project_id:p.id, author_id:S.me.id, author_label:S.me.full_name, note:`Payment received: ${money(amt)} (${$('#payMethod').value})` });
-    toast('Payment recorded'); await loadAll(); openProject(p.id); };
-  $('#payBox').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ if(!confirm('Delete this payment?')) return;
-    const { error } = await sb.from('payments').delete().eq('id',b.dataset.del); if(error) return fail(error); await loadAll(); openProject(p.id); });
-
-  // files
-  const fls = fl.data||[];
-  if(!fls.length) $('#fileBox').innerHTML='<small style="color:var(--muted)">No files yet. Upload drawings, municipality documents or site photos.</small>';
-  else {
-    const { data:signed } = await sb.storage.from(BUCKET).createSignedUrls(fls.map(f=>f.storage_path), 3600);
-    const url = path => (signed||[]).find(s=>s.path===path)?.signedUrl || '#';
-    $('#fileBox').innerHTML = '<div class="files">'+fls.map(f=>{ const ext=(f.file_name.split('.').pop()||'').toUpperCase().slice(0,4);
-      return `<a class="file" href="${url(f.storage_path)}" target="_blank" title="${esc(f.file_name)}">
-        ${f.kind==='photo'?`<img src="${url(f.storage_path)}" alt="">`:`<div class="th">${esc(ext)}</div>`}
-        <div class="n">${esc(f.file_name)}</div></a>`; }).join('')+'</div>';
-  }
-
-  // timeline
-  const ups = up.data||[];
-  $('#tlBox').innerHTML = '<div class="tl">'+ups.map(u=>`<div class="it ${u.stage_to?'stg':''}">
-      ${u.stage_to?`Stage: <b>${esc(stageLabel(p.project_type,u.stage_from))}</b> → <b>${esc(stageLabel(p.project_type,u.stage_to))}</b>`:esc(u.note)}
-      <small>${esc(u.author_label||'')} · ${fdate(u.created_at)} ${new Date(u.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')+'</div>';
+    if(error) return fail(error); await log(p.id, `Payment received: ${money(amt)} (${$('#payMethod').value})`); toast('Payment recorded'); reopen('money'); };
+  $('#tabBody').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ if(!confirm('Delete this payment?')) return;
+    const { error } = await sb.from('payments').delete().eq('id',b.dataset.del); if(error) return fail(error); reopen('money'); });
 }
 
-/* ---------- TEAM ---------- */
+/* ---- History tab ---- */
+function tabHistory(p, D){
+  $('#tabBody').innerHTML = `<div class="sec"><h4>History</h4><div class="tl">${D.ups.map(u=>`<div class="it ${u.stage_to?'stg':''}">
+      ${u.stage_to?`Stage: <b>${esc(stageLabel(p.project_type,u.stage_from))}</b> → <b>${esc(stageLabel(p.project_type,u.stage_to))}</b>`:esc(u.note)}
+      <small>${esc(u.author_label||'')} · ${fdate(u.created_at)} ${new Date(u.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</small></div>`).join('')}</div></div>`;
+}
+
+/* ================= PRINT BRIEF / WORK ORDER ================= */
+async function printBrief(projectId, taskId){
+  toast('Preparing print…');
+  const p = S.projects.find(x=>x.id===projectId);
+  const [fl, sp] = await Promise.all([
+    sb.from('project_files').select('*').eq('project_id',projectId).order('created_at'),
+    sb.from('design_specs').select('*').eq('project_id',projectId).order('created_at')
+  ]);
+  const files=fl.data||[], specs=sp.data||[], urls=await signUrls(files);
+  const tasks = S.tasks.filter(t=>t.project_id===projectId && t.status!=='done');
+  const task = taskId ? S.tasks.find(t=>t.id===taskId) : null;
+  const photoCats = ['site_photo','requirement','client_option','sample','drawing','other'];
+  const kv = (l,v) => `<div><small>${l}</small>${esc(v||'—')}</div>`;
+  const specRows = specs.map(s=>{ const sf=files.find(f=>f.id===s.sample_file_id);
+    return `<tr><td>${esc(s.category)}</td><td>${esc(s.item||'')}</td><td><b>${esc(s.spec)}</b></td><td>${SPEC_STATUS[s.status]}</td><td>${esc(s.notes||'')}</td><td>${sf?`<img src="${fileUrl(sf,urls)}">`:''}</td></tr>`; }).join('');
+  const photoSections = photoCats.map(c=>{ const arr=files.filter(f=>f.category===c && f.kind==='photo'); if(!arr.length) return '';
+    return `<h3>${FILE_CATS[c]}</h3><div class="pgrid">${arr.map(f=>`<figure><img src="${fileUrl(f,urls)}"><figcaption>${esc(f.caption||f.file_name)}</figcaption></figure>`).join('')}</div>`; }).join('');
+  const others = files.filter(f=>f.kind!=='photo');
+  $('#printRoot').innerHTML = `<div class="pb">
+    <div class="phead"><div><div class="plogo"><span class="t">TEC</span><span class="a">ARCH</span></div><div class="pco">TecArch · www.tecarch.com.np · info@tecarch.com.np</div></div>
+      <div class="ptitle"><b>${task?'WORK ORDER':'PROJECT WORK BRIEF'}</b><span>Project #${p.id} · Printed ${fdate(new Date())} by ${esc(S.me.full_name)}</span></div></div>
+    ${task?`<div class="task"><div class="kv">${kv('Task',task.title)}${kv('Assigned to',memberName(task.assigned_to))}${kv('Due date',fdate(task.due_date))}</div>
+      ${task.details?`<div style="margin-top:6px;font-size:10.5pt"><small style="font-size:8pt;color:#666;font-weight:600">INSTRUCTIONS</small><br>${esc(task.details)}</div>`:''}</div>`:''}
+    <h3>Project</h3><div class="kv">
+      ${kv('Client',p.client_name)}${kv('Phone',p.phone)}${kv('Type',p.project_type==='site'?'Site (drawing / file)':'Supervision')}
+      ${kv('Ward / Location',[p.ward_no?'Ward '+p.ward_no:'',p.location].filter(Boolean).join(', '))}${kv('Building use',p.building_use)}${kv('Floors',p.floors)}
+      ${kv('Plot area',p.plot_area)}${kv('Current stage',p.stage_label)}${kv('Project lead',p.assigned_name)}${kv('Deadline',fdate(p.deadline))}</div>
+    <h3>Client requirements</h3><div class="note">${esc(p.requirements||'—')}</div>
+    ${specs.length?`<h3>Design details</h3><table><thead><tr><th>Category</th><th>Where</th><th>Type / specification</th><th>Status</th><th>Notes</th><th>Sample</th></tr></thead><tbody>${specRows}</tbody></table>`:''}
+    ${!task && tasks.length?`<h3>Open tasks</h3><table><thead><tr><th>Task</th><th>Assigned to</th><th>Due</th><th>Instructions</th></tr></thead><tbody>${tasks.map(t=>`<tr><td>${esc(t.title)}</td><td>${esc(memberName(t.assigned_to))}</td><td>${fdate(t.due_date)}</td><td>${esc(t.details||'')}</td></tr>`).join('')}</tbody></table>`:''}
+    ${photoSections}
+    ${others.length?`<h3>Other files, videos & links</h3><table><tbody>${others.map(f=>`<tr><td>${FILE_CATS[f.category]||''}</td><td>${esc(f.caption||f.file_name)}</td><td style="font-size:8.5pt;word-break:break-all">${f.kind==='link'?esc(f.external_url):'In app: '+esc(f.file_name)}</td></tr>`).join('')}</tbody></table>`:''}
+    ${p.notes?`<h3>Internal notes</h3><div class="note">${esc(p.notes)}</div>`:''}
+    <div class="sign"><div>Prepared / assigned by</div><div>${task?'Received by: '+esc(memberName(task.assigned_to)):'Team member'}</div><div>Client approval</div></div>
+    <div class="pfoot">Generated from TecArch Project Tracker</div></div>`;
+  const imgs=[...$('#printRoot').querySelectorAll('img')];
+  await Promise.all(imgs.map(i=>i.complete?null:new Promise(r=>{ i.onload=i.onerror=r; })));
+  document.body.classList.add('printing');
+  setTimeout(()=>{ window.print(); document.body.classList.remove('printing'); }, 150);
+}
+
+/* ================= TEAM ================= */
 function renderTeam(){
   const admin = S.me.role==='admin';
   $('#teamBody').innerHTML = S.team.map(t=>{
     const n=S.projects.filter(p=>p.assigned_to===t.id && !isDone(p) && !p.archived).length;
+    const k=S.tasks.filter(x=>x.assigned_to===t.id && x.status!=='done').length;
     return `<tr style="${t.active?'':'opacity:.5'}"><td><b>${esc(t.full_name)}</b>${t.auth_user_id?'':' <small style="color:var(--amber)">(not signed in yet)</small>'}</td>
       <td>${esc(t.email)}</td><td>${t.phone?`<a href="tel:${esc(t.phone)}">${esc(t.phone)}</a>`:''}</td>
-      <td>${t.role==='admin'?'Admin':'Staff'}</td><td>${n}</td>
+      <td>${t.role==='admin'?'Admin':'Staff'}</td><td>${n}</td><td>${k}</td>
       <td>${admin && t.id!==S.me.id?`<button class="btn sm" data-tog="${t.id}">${t.active?'Deactivate':'Activate'}</button>`:''}</td></tr>`; }).join('');
   $('#teamBody').querySelectorAll('[data-tog]').forEach(b=>b.onclick=async()=>{
     const t=S.team.find(x=>x.id===b.dataset.tog);
@@ -575,7 +855,6 @@ $('#memberForm').onsubmit = async e => { e.preventDefault();
   const { error } = await sb.from('team_members').insert({ full_name:$('#mName').value.trim(), email:$('#mEmail').value.trim().toLowerCase(), phone:$('#mPhone').value.trim()||null, role:$('#mRole').value });
   if(error) return fail(error); e.target.reset(); toast('Team member added'); loadAll(); };
 
-sb.auth.onAuthStateChange((ev)=>{ if(ev==='SIGNED_OUT') boot(); });
 boot();
 </script>
 </body>
