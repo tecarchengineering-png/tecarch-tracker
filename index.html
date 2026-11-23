@@ -635,56 +635,131 @@ function tabOverview(p, D, reopen){
     const { error } = await sb.from('projects').update({archived:!p.archived}).eq('id',p.id); if(error) return fail(error); closeDrawer(); loadAll(); };
 }
 
-/* ---- Design brief tab ---- */
-function tabBrief(p, D, reopen){
+/* ---- Design brief tab (numbered checklists) ---- */
+const ROOM_ITEMS = [
+  ['bedroom','Bedrooms'],['master_bed','Master bedroom (attached bath)'],['bathroom','Bathrooms / toilets'],
+  ['kitchen','Kitchen'],['living','Living room'],['dining','Dining'],['puja','Puja room'],['store','Store room'],
+  ['guest','Guest room'],['study','Study / office room'],['family','Family / TV lounge'],['laundry','Laundry / wash area'],
+  ['staff','Staff / servant room'],['balcony','Balconies'],['terrace','Terrace / roof garden'],
+  ['shop','Shops / commercial units'],['car_park','Car parking'],['bike_park','Bike parking'],['lift','Lift'],
+  ['water_tank','Underground water tank'],['septic','Septic tank / soak pit'],['solar','Solar water heater']
+];
+async function loadRoomProgram(id){ const { data } = await sb.from('projects').select('room_program').eq('id',id).single(); return data?.room_program||{}; }
+
+async function tabBrief(p, D, reopen){
+  const rp = await loadRoomProgram(p.id);
   const photos = D.files.filter(f=>f.kind==='photo');
-  const byCat = {}; D.specs.forEach(s=>(byCat[s.category] ||= []).push(s));
+  const cats = Object.keys(SPEC_CATS);
+  const filledRooms = ROOM_ITEMS.filter(([k])=>rp[k]!==undefined && rp[k]!=='' && rp[k]!==null).length;
+  const filledCats = cats.filter(c=>D.specs.some(s=>s.category===c)).length;
+  const sampleOpts = sel => `<option value="">— sample —</option>`+photos.map(f=>`<option value="${f.id}" ${f.id===sel?'selected':''}>${esc(f.caption||f.file_name)}</option>`).join('');
+  const specRow = (cat, num, s) => {
+    const sf = s?.sample_file_id ? D.files.find(f=>f.id===s.sample_file_id) : null;
+    return `<tr class="srow" data-cat="${esc(cat)}" data-id="${s?.id||''}">
+      <td class="num">${num}</td>
+      <td><b>${esc(cat)}</b></td>
+      <td><input class="sSpec" list="dl${cats.indexOf(cat)}" value="${esc(s?.spec)}" placeholder="Type or pick…"></td>
+      <td><input class="sItem" value="${esc(s?.item)}" placeholder="Where"></td>
+      <td><input class="sNotes" value="${esc(s?.notes)}" placeholder="Colour / size / brand"></td>
+      <td><select class="sStatus">${Object.entries(SPEC_STATUS).map(([k,v])=>`<option value="${k}" ${s?.status===k?'selected':''}>${v}</option>`).join('')}</select></td>
+      <td style="white-space:nowrap">${sf?`<a href="${fileUrl(sf,D.urls)}" target="_blank"><img class="th" style="width:38px;height:38px;vertical-align:middle" src="${fileUrl(sf,D.urls)}"></a>`:''}
+        <select class="sSample" style="width:110px">${sampleOpts(s?.sample_file_id)}</select>
+        <label class="btn sm ghost" title="Upload sample photo" style="cursor:pointer">📷<input type="file" accept="image/*" class="sUp" hidden></label></td>
+    </tr>`;
+  };
+  let specRows = '';
+  cats.forEach((c,i)=>{ const list = D.specs.filter(s=>s.category===c);
+    if(!list.length) specRows += specRow(c, i+1, null);
+    else list.forEach((s,j)=> specRows += specRow(c, list.length>1? `${i+1}${String.fromCharCode(97+j)}` : i+1, s));
+  });
+
   $('#tabBody').innerHTML = `
-    <div class="sec"><h4>Client requirements</h4>
-      <form id="rForm">
-        <div class="grid3">
-          <div><label class="f">Building use</label><select id="rUse">${['','Residential','Commercial','Mixed use','Apartment','Institutional','Other'].map(v=>`<option ${p.building_use===v?'selected':''}>${v}</option>`).join('')}</select></div>
-          <div><label class="f">Floors / storeys</label><input id="rFloors" value="${esc(p.floors)}" placeholder="e.g. 2.5 storey"></div>
-          <div><label class="f">Plot area</label><input id="rPlot" value="${esc(p.plot_area)}" placeholder="e.g. 4 aana / 1,369 sq ft"></div>
-        </div>
-        <div style="margin-top:12px"><label class="f">Requirements (rooms, budget, wishes)</label>
-          <textarea id="rReq" style="min-height:120px" placeholder="e.g. 4 bedrooms (1 master with attached bath), puja room, open kitchen, parking for 1 car, shop on ground floor, budget ~ Rs. 1.2 crore">${esc(p.requirements)}</textarea></div>
-        <div style="margin-top:10px;text-align:right"><button class="btn primary">Save requirements</button></div>
-      </form></div>
-    <div class="sec"><h4>Design details <span class="muted" style="text-transform:none;letter-spacing:0">${D.specs.length} item(s)</span></h4>
-      <div class="rows">${Object.keys(byCat).length ? Object.entries(byCat).map(([cat,items])=>`<div class="speccat">${esc(cat)}</div>`+items.map(s=>{
-        const sf = D.files.find(f=>f.id===s.sample_file_id);
-        return `<div class="row">${sf?`<a href="${fileUrl(sf,D.urls)}" target="_blank"><img class="th" src="${fileUrl(sf,D.urls)}" alt=""></a>`:''}
-          <div class="grow"><b>${esc(s.spec)}</b>${s.item?` <small>· ${esc(s.item)}</small>`:''}${s.notes?`<br><small>${esc(s.notes)}</small>`:''}</div>
-          <select data-sstat="${s.id}" style="width:auto;font-size:13px">${Object.entries(SPEC_STATUS).map(([k,v])=>`<option value="${k}" ${s.status===k?'selected':''}>${v}</option>`).join('')}</select>
-          <button class="btn sm ghost danger" data-sdel="${s.id}">✕</button></div>`; }).join('')).join('')
-        : '<p class="muted" style="margin:0">No design details yet. Add railing, column, door, window types etc. below.</p>'}</div>
-      <form id="sForm" style="margin-top:14px;border-top:1px dashed var(--line);padding-top:12px">
-        <div class="grid3">
-          <div><label class="f">Category</label><select id="sCat">${Object.keys(SPEC_CATS).map(c=>`<option>${c}</option>`).join('')}</select></div>
-          <div><label class="f">Type / specification *</label><input id="sSpec" list="specList" required placeholder="Pick or type"><datalist id="specList"></datalist></div>
-          <div><label class="f">Where (optional)</label><input id="sItem" placeholder="e.g. Front balcony, all bedrooms"></div>
-          <div><label class="f">Sample photo</label><select id="sSample"><option value="">— none —</option>${photos.map(f=>`<option value="${f.id}">${esc(FILE_CATS[f.category]||'')}: ${esc(f.caption||f.file_name)}</option>`).join('')}</select></div>
-          <div><label class="f">…or upload sample</label><input id="sUpload" type="file" accept="image/*"></div>
-          <div><label class="f">Status</label><select id="sStatus">${Object.entries(SPEC_STATUS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
-        </div>
-        <div style="margin-top:10px" class="inline"><div><label class="f">Notes</label><input id="sNotes" placeholder="Colour, size, brand, height…"></div><button class="btn primary">+ Add detail</button></div>
-      </form></div>`;
-  const fillList = () => $('#specList').innerHTML = (SPEC_CATS[$('#sCat').value]||[]).map(v=>`<option value="${esc(v)}">`).join('');
-  fillList(); $('#sCat').onchange = fillList;
-  $('#rForm').onsubmit = async e => { e.preventDefault();
-    const { error } = await sb.from('projects').update({ building_use:$('#rUse').value||null, floors:$('#rFloors').value.trim()||null, plot_area:$('#rPlot').value.trim()||null, requirements:$('#rReq').value.trim()||null }).eq('id',p.id);
-    if(error) return fail(error); await log(p.id,'Client requirements updated'); toast('Requirements saved'); reopen('brief'); };
-  $('#sForm').onsubmit = async e => { e.preventDefault();
-    let sample = $('#sSample').value ? +$('#sSample').value : null;
-    const up = $('#sUpload').files[0];
-    if(up){ const rec = await uploadOne(p.id, up, 'sample', `${$('#sCat').value}: ${$('#sSpec').value}`); if(rec) sample = rec.id; }
-    const { error } = await sb.from('design_specs').insert({ project_id:p.id, category:$('#sCat').value, spec:$('#sSpec').value.trim(), item:$('#sItem').value.trim()||null, notes:$('#sNotes').value.trim()||null, sample_file_id:sample, status:$('#sStatus').value, created_by:S.me.id });
-    if(error) return fail(error); await log(p.id, `Design detail added: ${$('#sCat').value} – ${$('#sSpec').value.trim()}`); toast('Added'); reopen('brief'); };
-  $('#tabBody').querySelectorAll('[data-sstat]').forEach(s=>s.onchange=async()=>{
-    const { error } = await sb.from('design_specs').update({status:s.value}).eq('id',s.dataset.sstat); if(error) return fail(error); toast('Status: '+SPEC_STATUS[s.value]); });
-  $('#tabBody').querySelectorAll('[data-sdel]').forEach(b=>b.onclick=async()=>{ if(!confirm('Remove this design detail?')) return;
-    const { error } = await sb.from('design_specs').delete().eq('id',b.dataset.sdel); if(error) return fail(error); reopen('brief'); });
+  <style>
+    .ck{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+    .ck td,.ck th{padding:6px 8px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+    .ck th{font-size:11px;text-transform:uppercase;color:var(--muted);background:#fafbfa;text-align:left}
+    .ck td.num{width:34px;text-align:center;font-weight:700;color:var(--muted)}
+    .ck input,.ck select{padding:6px 8px;font-size:13px}
+    .ck tr.filled td.num{color:#fff;background:var(--green)}
+    .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
+    .ritem{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:5px 8px;background:#fff}
+    .ritem .rn{width:24px;height:24px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex:0 0 auto}
+    .ritem.filled .rn{background:var(--green);color:#fff}
+    .ritem span{flex:1;font-size:13px}
+    .ritem input{width:64px;padding:5px 6px;text-align:center}
+    .prog{font-size:12px;font-weight:600;color:var(--green-d);background:var(--green-l);padding:2px 8px;border-radius:999px;text-transform:none;letter-spacing:0}
+  </style>
+  <form id="briefForm">
+  <div class="sec"><h4>A. Basic information</h4>
+    <div class="grid3">
+      <div><label class="f">Building use</label><select id="rUse">${['','Residential','Commercial','Mixed use','Apartment','Institutional','Other'].map(v=>`<option ${p.building_use===v?'selected':''}>${v}</option>`).join('')}</select></div>
+      <div><label class="f">Floors / storeys</label><input id="rFloors" value="${esc(p.floors)}" placeholder="e.g. 2.5 storey"></div>
+      <div><label class="f">Plot area</label><input id="rPlot" value="${esc(p.plot_area)}" placeholder="e.g. 4 aana"></div>
+    </div></div>
+
+  <div class="sec"><h4>B. Requirement checklist (numbers) <span class="prog" id="rProg">${filledRooms} / ${ROOM_ITEMS.length} filled</span></h4>
+    <p class="muted" style="margin:0 0 8px">Enter a number only where needed. Leave blank if not required.</p>
+    <div class="rgrid">${ROOM_ITEMS.map(([k,l],i)=>{ const v=rp[k]??''; return `<label class="ritem ${v!==''?'filled':''}"><span class="rn">${i+1}</span><span>${l}</span>
+      <input type="number" min="0" step="1" data-room="${k}" value="${esc(v)}" placeholder="—"></label>`; }).join('')}</div>
+    <div style="margin-top:10px"><label class="f">Other requirements / client wishes</label>
+      <textarea id="rReq" placeholder="e.g. Vastu facing east, budget ~ Rs. 1.2 crore, open kitchen, double-height living">${esc(p.requirements)}</textarea></div>
+  </div>
+
+  <div class="sec"><h4>C. Design checklist <span class="prog" id="sProg">${filledCats} / ${cats.length} filled</span></h4>
+    <p class="muted" style="margin:0 0 8px">Fill only what is decided. Blank lines print as blanks to fill by hand.</p>
+    ${cats.map((c,i)=>`<datalist id="dl${i}">${SPEC_CATS[c].map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`).join('')}
+    <div class="tablewrap"><table class="ck"><thead><tr><th>#</th><th>Item</th><th>Type / specification</th><th>Where</th><th>Notes</th><th>Status</th><th>Sample</th></tr></thead>
+      <tbody id="ckBody">${specRows}</tbody></table></div>
+    <div style="margin-top:8px" class="inline"><div><label class="f">Add another line for</label><select id="addCat">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div><button type="button" class="btn sm" id="addLine">+ Add line</button></div>
+  </div>
+  <div style="position:sticky;bottom:0;background:var(--bg);padding:10px 0;display:flex;gap:8px;justify-content:flex-end">
+    <button type="button" class="btn" id="briefPrint">🖨 Print brief</button>
+    <button class="btn primary" id="briefSave">💾 Save brief</button></div>
+  </form>`;
+
+  const markFilled = () => {
+    $('#tabBody').querySelectorAll('.srow').forEach(r=>r.classList.toggle('filled', !!r.querySelector('.sSpec').value.trim()));
+    $('#tabBody').querySelectorAll('.ritem').forEach(r=>r.classList.toggle('filled', r.querySelector('input').value!==''));
+    $('#rProg').textContent = `${[...$('#tabBody').querySelectorAll('[data-room]')].filter(i=>i.value!=='').length} / ${ROOM_ITEMS.length} filled`;
+    $('#sProg').textContent = `${new Set([...$('#tabBody').querySelectorAll('.srow')].filter(r=>r.querySelector('.sSpec').value.trim()).map(r=>r.dataset.cat)).size} / ${cats.length} filled`;
+  };
+  markFilled(); $('#tabBody').addEventListener('input', markFilled);
+  let dirty=false; $('#briefForm').addEventListener('input', ()=>dirty=true);
+
+  $('#addLine').onclick = () => {
+    const c=$('#addCat').value, rows=[...$('#ckBody').querySelectorAll('.srow')].filter(r=>r.dataset.cat===c);
+    const tmp=document.createElement('tbody'); tmp.innerHTML=specRow(c, `${cats.indexOf(c)+1}+`, null);
+    rows[rows.length-1].after(tmp.firstElementChild); bindUploads();
+  };
+  const bindUploads = () => $('#ckBody').querySelectorAll('.sUp').forEach(inp=>inp.onchange=async()=>{
+    const f=inp.files[0]; if(!f) return; const row=inp.closest('tr');
+    toast('Uploading sample…');
+    const rec = await uploadOne(p.id, f, 'sample', `${row.dataset.cat}: ${row.querySelector('.sSpec').value||''}`.trim());
+    if(!rec) return; D.files.push(rec); photos.push(rec);
+    $('#ckBody').querySelectorAll('.sSample').forEach(s=>{ const o=document.createElement('option'); o.value=rec.id; o.textContent=rec.caption||rec.file_name; s.appendChild(o); });
+    row.querySelector('.sSample').value = rec.id; dirty=true; toast('Sample attached — remember to Save'); });
+  bindUploads();
+
+  async function saveBrief(){
+    const room_program = {}; $('#tabBody').querySelectorAll('[data-room]').forEach(i=>{ if(i.value!=='') room_program[i.dataset.room]=+i.value; });
+    const { error:e1 } = await sb.from('projects').update({ building_use:$('#rUse').value||null, floors:$('#rFloors').value.trim()||null,
+      plot_area:$('#rPlot').value.trim()||null, requirements:$('#rReq').value.trim()||null, room_program }).eq('id',p.id);
+    if(e1) return fail(e1);
+    const ins=[], ops=[];
+    $('#ckBody').querySelectorAll('.srow').forEach(r=>{
+      const spec=r.querySelector('.sSpec').value.trim(), id=r.dataset.id;
+      const row={ category:r.dataset.cat, spec, item:r.querySelector('.sItem').value.trim()||null, notes:r.querySelector('.sNotes').value.trim()||null,
+        status:r.querySelector('.sStatus').value, sample_file_id:r.querySelector('.sSample').value?+r.querySelector('.sSample').value:null };
+      if(id && !spec) ops.push(sb.from('design_specs').delete().eq('id',id));
+      else if(id) ops.push(sb.from('design_specs').update(row).eq('id',id));
+      else if(spec) ins.push({ ...row, project_id:p.id, created_by:S.me.id });
+    });
+    if(ins.length) ops.push(sb.from('design_specs').insert(ins));
+    const res = await Promise.all(ops); const bad = res.find(r=>r.error); if(bad) return fail(bad.error);
+    await log(p.id, 'Design brief updated'); dirty=false; toast('Brief saved'); return true;
+  }
+  $('#briefForm').onsubmit = async e => { e.preventDefault(); if(await saveBrief()) reopen('brief'); };
+  $('#briefPrint').onclick = async () => { if(dirty){ if(!(await saveBrief())) return; await loadAll(); } printBrief(p.id); };
 }
 
 /* ---- Files tab ---- */
@@ -800,34 +875,61 @@ function tabHistory(p, D){
 async function printBrief(projectId, taskId){
   toast('Preparing print…');
   const p = S.projects.find(x=>x.id===projectId);
-  const [fl, sp] = await Promise.all([
+  const [fl, sp, rpr] = await Promise.all([
     sb.from('project_files').select('*').eq('project_id',projectId).order('created_at'),
-    sb.from('design_specs').select('*').eq('project_id',projectId).order('created_at')
+    sb.from('design_specs').select('*').eq('project_id',projectId).order('created_at'),
+    sb.from('projects').select('room_program').eq('id',projectId).single()
   ]);
-  const files=fl.data||[], specs=sp.data||[], urls=await signUrls(files);
+  const files=fl.data||[], specs=sp.data||[], rp=rpr.data?.room_program||{}, urls=await signUrls(files);
   const tasks = S.tasks.filter(t=>t.project_id===projectId && t.status!=='done');
   const task = taskId ? S.tasks.find(t=>t.id===taskId) : null;
-  const photoCats = ['site_photo','requirement','client_option','sample','drawing','other'];
   const kv = (l,v) => `<div><small>${l}</small>${esc(v||'—')}</div>`;
-  const specRows = specs.map(s=>{ const sf=files.find(f=>f.id===s.sample_file_id);
-    return `<tr><td>${esc(s.category)}</td><td>${esc(s.item||'')}</td><td><b>${esc(s.spec)}</b></td><td>${SPEC_STATUS[s.status]}</td><td>${esc(s.notes||'')}</td><td>${sf?`<img src="${fileUrl(sf,urls)}">`:''}</td></tr>`; }).join('');
+  const blank = '<span class="blank"></span>';
+  const box = on => `<span class="cbox">${on?'✔':''}</span>`;
+
+  // B. requirement checklist: 2 columns
+  const half = Math.ceil(ROOM_ITEMS.length/2);
+  const roomRow = i => { const it=ROOM_ITEMS[i]; if(!it) return '<td colspan="3"></td>'; const v=rp[it[0]];
+    return `<td class="n">${i+1}</td><td>${box(v!==undefined)} ${esc(it[1])}</td><td class="v">${v!==undefined?'<b>'+esc(v)+'</b>':blank}</td>`; };
+  let roomRows=''; for(let i=0;i<half;i++) roomRows += `<tr>${roomRow(i)}${roomRow(i+half)}</tr>`;
+
+  // C. design checklist: every category numbered
+  let specRows='';
+  Object.keys(SPEC_CATS).forEach((c,i)=>{ const list=specs.filter(s=>s.category===c);
+    if(!list.length){ specRows += `<tr><td class="n">${i+1}</td><td>${box(false)} ${esc(c)}</td><td>${blank}</td><td></td><td></td><td></td><td></td></tr>`; return; }
+    list.forEach((s,j)=>{ const sf=files.find(f=>f.id===s.sample_file_id);
+      specRows += `<tr><td class="n">${list.length>1?(i+1)+String.fromCharCode(97+j):i+1}</td><td>${box(true)} ${esc(c)}</td><td><b>${esc(s.spec)}</b></td><td>${esc(s.item||'')}</td><td>${esc(s.notes||'')}</td><td>${SPEC_STATUS[s.status]}</td><td>${sf?`<img src="${fileUrl(sf,urls)}">`:''}</td></tr>`; });
+  });
+
+  const photoCats = ['site_photo','requirement','client_option','sample','drawing','other'];
   const photoSections = photoCats.map(c=>{ const arr=files.filter(f=>f.category===c && f.kind==='photo'); if(!arr.length) return '';
-    return `<h3>${FILE_CATS[c]}</h3><div class="pgrid">${arr.map(f=>`<figure><img src="${fileUrl(f,urls)}"><figcaption>${esc(f.caption||f.file_name)}</figcaption></figure>`).join('')}</div>`; }).join('');
+    return `<h3>${FILE_CATS[c]}</h3><div class="pgrid">${arr.map((f,i)=>`<figure><img src="${fileUrl(f,urls)}"><figcaption><b>${i+1}.</b> ${esc(f.caption||f.file_name)}</figcaption></figure>`).join('')}</div>`; }).join('');
   const others = files.filter(f=>f.kind!=='photo');
-  $('#printRoot').innerHTML = `<div class="pb">
+
+  $('#printRoot').innerHTML = `<style>
+      .pb .ck th,.pb .ck td{padding:4px 6px;font-size:9.5pt}
+      .pb td.n{width:26px;text-align:center;font-weight:700;color:#555}
+      .pb td.v{width:60px;text-align:center}
+      .pb .blank{display:inline-block;min-width:110px;border-bottom:1px solid #999;height:12px}
+      .pb td.v .blank{min-width:40px}
+      .pb .cbox{display:inline-block;width:11px;height:11px;border:1px solid #333;font-size:9px;line-height:11px;text-align:center;margin-right:3px;vertical-align:middle}
+    </style><div class="pb">
     <div class="phead"><div><div class="plogo"><span class="t">TEC</span><span class="a">ARCH</span></div><div class="pco">TecArch · www.tecarch.com.np · info@tecarch.com.np</div></div>
-      <div class="ptitle"><b>${task?'WORK ORDER':'PROJECT WORK BRIEF'}</b><span>Project #${p.id} · Printed ${fdate(new Date())} by ${esc(S.me.full_name)}</span></div></div>
+      <div class="ptitle"><b>${task?'WORK ORDER':'PROJECT DESIGN BRIEF'}</b><span>Project #${p.id} · Printed ${fdate(new Date())} by ${esc(S.me.full_name)}</span></div></div>
     ${task?`<div class="task"><div class="kv">${kv('Task',task.title)}${kv('Assigned to',memberName(task.assigned_to))}${kv('Due date',fdate(task.due_date))}</div>
       ${task.details?`<div style="margin-top:6px;font-size:10.5pt"><small style="font-size:8pt;color:#666;font-weight:600">INSTRUCTIONS</small><br>${esc(task.details)}</div>`:''}</div>`:''}
-    <h3>Project</h3><div class="kv">
+    <h3>A. Project information</h3><div class="kv">
       ${kv('Client',p.client_name)}${kv('Phone',p.phone)}${kv('Type',p.project_type==='site'?'Site (drawing / file)':'Supervision')}
       ${kv('Ward / Location',[p.ward_no?'Ward '+p.ward_no:'',p.location].filter(Boolean).join(', '))}${kv('Building use',p.building_use)}${kv('Floors',p.floors)}
       ${kv('Plot area',p.plot_area)}${kv('Current stage',p.stage_label)}${kv('Project lead',p.assigned_name)}${kv('Deadline',fdate(p.deadline))}</div>
-    <h3>Client requirements</h3><div class="note">${esc(p.requirements||'—')}</div>
-    ${specs.length?`<h3>Design details</h3><table><thead><tr><th>Category</th><th>Where</th><th>Type / specification</th><th>Status</th><th>Notes</th><th>Sample</th></tr></thead><tbody>${specRows}</tbody></table>`:''}
-    ${!task && tasks.length?`<h3>Open tasks</h3><table><thead><tr><th>Task</th><th>Assigned to</th><th>Due</th><th>Instructions</th></tr></thead><tbody>${tasks.map(t=>`<tr><td>${esc(t.title)}</td><td>${esc(memberName(t.assigned_to))}</td><td>${fdate(t.due_date)}</td><td>${esc(t.details||'')}</td></tr>`).join('')}</tbody></table>`:''}
+    <h3>B. Requirement checklist</h3>
+    <table class="ck"><thead><tr><th>#</th><th>Requirement</th><th>No.</th><th>#</th><th>Requirement</th><th>No.</th></tr></thead><tbody>${roomRows}</tbody></table>
+    <div style="margin-top:6px"><small style="font-size:8pt;color:#666;font-weight:600">OTHER REQUIREMENTS / CLIENT WISHES</small><div class="note">${esc(p.requirements||'')}</div></div>
+    <h3>C. Design checklist</h3>
+    <table class="ck"><thead><tr><th>#</th><th>Item</th><th>Type / specification</th><th>Where</th><th>Notes</th><th>Status</th><th>Sample</th></tr></thead><tbody>${specRows}</tbody></table>
+    ${!task && tasks.length?`<h3>D. Open tasks</h3><table><thead><tr><th>#</th><th>Task</th><th>Assigned to</th><th>Due</th><th>Instructions</th></tr></thead><tbody>${tasks.map((t,i)=>`<tr><td>${i+1}</td><td>${esc(t.title)}</td><td>${esc(memberName(t.assigned_to))}</td><td>${fdate(t.due_date)}</td><td>${esc(t.details||'')}</td></tr>`).join('')}</tbody></table>`:''}
     ${photoSections}
-    ${others.length?`<h3>Other files, videos & links</h3><table><tbody>${others.map(f=>`<tr><td>${FILE_CATS[f.category]||''}</td><td>${esc(f.caption||f.file_name)}</td><td style="font-size:8.5pt;word-break:break-all">${f.kind==='link'?esc(f.external_url):'In app: '+esc(f.file_name)}</td></tr>`).join('')}</tbody></table>`:''}
+    ${others.length?`<h3>Other files, videos & links</h3><table><tbody>${others.map((f,i)=>`<tr><td>${i+1}</td><td>${FILE_CATS[f.category]||''}</td><td>${esc(f.caption||f.file_name)}</td><td style="font-size:8.5pt;word-break:break-all">${f.kind==='link'?esc(f.external_url):'In app: '+esc(f.file_name)}</td></tr>`).join('')}</tbody></table>`:''}
     ${p.notes?`<h3>Internal notes</h3><div class="note">${esc(p.notes)}</div>`:''}
     <div class="sign"><div>Prepared / assigned by</div><div>${task?'Received by: '+esc(memberName(task.assigned_to)):'Team member'}</div><div>Client approval</div></div>
     <div class="pfoot">Generated from TecArch Project Tracker</div></div>`;
