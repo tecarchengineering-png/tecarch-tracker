@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="TecArch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="lib/shell.css?v=20261128g">
+<link rel="stylesheet" href="lib/shell.css?v=20261128h">
 <style>
 :root{
   --green:#2c5282; --green-d:#1e3a5f; --green-l:#eaf0f8;
@@ -334,8 +334,8 @@ tbody tr:hover td{background:#fbfbfa}
 <div id="printRoot"></div>
 
 <script type="module">
-import { mountShell } from './lib/shell.js?v=20261128g';
-import { passwordProblem } from './lib/validate.js?v=20261128g';
+import { mountShell } from './lib/shell.js?v=20261128h';
+import { passwordProblem } from './lib/validate.js?v=20261128h';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
@@ -668,6 +668,7 @@ async function openProject(id, startTab='overview'){
   const reopen = tab => loadAll().then(()=>openProject(p.id, tab));
   const show = tab => {
     document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+    S.tabSeq = (S.tabSeq || 0) + 1;
     ({overview:tabOverview, brief:tabBrief, files:tabFiles, tasks:tabTasks, money:tabMoney, history:tabHistory})[tab](p, D, reopen);
   };
   document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.tab));
@@ -711,7 +712,9 @@ const ROOM_ITEMS = [
 async function loadRoomProgram(id){ const { data } = await sb.from('projects').select('room_program').eq('id',id).single(); return data?.room_program||{}; }
 
 async function tabBrief(p, D, reopen){
+  const seq = S.tabSeq;
   const rp = await loadRoomProgram(p.id);
+  if(seq !== S.tabSeq || !$('#tabBody')) return;   // closed or switched tab while loading
   const photos = D.files.filter(f=>f.kind==='photo');
   const cats = Object.keys(SPEC_CATS);
   const filledRooms = ROOM_ITEMS.filter(([k])=>rp[k]!==undefined && rp[k]!=='' && rp[k]!==null).length;
@@ -912,7 +915,9 @@ function tabTasks(p, D, reopen){
 async function tabMoney(p, D, reopen){
   const fin = ['admin','accountant'].includes(S.me.role);
   let recs = [];
+  const body0 = $('#tabBody'), seq = S.tabSeq;
   if(fin && p.fin_job_id){ const r = await sb.from('fin_receipts').select('id,amount,vat_amount,received_on,mode,note').eq('job_id',p.fin_job_id).order('received_on',{ascending:false}); recs = r.data||[]; }
+  if(!body0 || !body0.isConnected || $('#tabBody') !== body0 || seq !== S.tabSeq) return;   // the project was closed or another tab opened meanwhile
   const legacy = D.pays.filter(x=>!x.fin_receipt_id);
   const rows = [
     ...recs.map(r=>({amt:r.amount-(r.vat_amount||0), m:r.mode.replace('_',' '), d:r.received_on, n:r.note, del: D.pays.find(x=>x.fin_receipt_id===r.id)?.id })),
