@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TecArch · Project Tracker</title>
-<meta name="theme-color" content="#0f7a5c">
+<meta name="theme-color" content="#1d2128">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
@@ -12,12 +12,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="TecArch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --green:#0f7a5c; --green-d:#0a5a44; --green-l:#e6f3ee;
-  --orange:#e2611b; --orange-l:#fdeee4;
-  --ink:#1b2420; --muted:#6b7772; --line:#e3e8e5; --bg:#f5f7f6; --card:#fff;
+  --green:#2c5282; --green-d:#1e3a5f; --green-l:#eaf0f8;
+  --orange:#f37321; --orange-l:#fff1e7;
+  --ink:#1d2128; --muted:#6a707a; --line:#e5e6e9; --bg:#f6f6f4; --card:#fff;
+  --head:Montserrat,Inter,system-ui,sans-serif;
   --red:#c62828; --red-l:#fdecec; --amber:#b26a00; --amber-l:#fff4e0;
   --radius:12px;
 }
@@ -26,35 +27,45 @@ html,body{margin:0;padding:0}
 body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
 button,input,select,textarea{font:inherit;color:inherit}
 a{color:var(--green)}
+h1,h2,h3,.ptitle{font-family:var(--head);letter-spacing:-.01em}
 .hidden{display:none!important}
 
-header{background:#fff;border-bottom:3px solid var(--green);position:sticky;top:0;z-index:20}
-.hbar{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
-.logo{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:20px;letter-spacing:.5px}
-.logo .t{color:var(--green)} .logo .a{color:var(--orange)}
-.logo small{font-weight:500;font-size:13px;color:var(--muted);letter-spacing:0}
-.nav{display:flex;gap:4px;margin-left:12px}
-.nav button{border:0;background:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:500;color:var(--muted)}
-.nav button.on{background:var(--green-l);color:var(--green-d)}
-.nav .navlink{padding:8px 12px;border-radius:8px;font-weight:500;color:var(--muted);text-decoration:none}
-.nav .navlink:hover{background:var(--green-l);color:var(--green-d)}
-.nav .badge{background:var(--orange);color:#fff;border-radius:999px;font-size:11px;padding:1px 6px;margin-left:4px}
-.spacer{flex:1}
-.me{font-size:13px;color:var(--muted);text-align:right}
-.me b{color:var(--ink);display:block;font-weight:600}
-main{max-width:1200px;margin:0 auto;padding:16px 16px 90px}
+/* ---------- TecArch Workspace: shared top bar (Project Tracker + Watermark Studio) ---------- */
+.ab{background:#1d2128;color:#fff;position:sticky;top:0;z-index:30;border-bottom:1px solid #0f1215;box-shadow:0 1px 0 rgba(255,255,255,.04)}
+.ab-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:0 20px;min-height:60px}
+.ab-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;flex:none}
+.ab-brand img{height:30px;width:auto;display:block}
+.ab-brand span{font:600 11px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#aab0ba;border-left:1px solid #3a404a;padding-left:12px}
+.ab-nav{display:flex;gap:2px;align-self:stretch;margin:0}
+.ab-nav a,.ab-nav button{font:500 14px Montserrat,sans-serif;color:#c3c8d0;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:3px 14px 0;display:flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer;border-radius:0;min-height:60px;white-space:nowrap}
+.ab-nav a:hover,.ab-nav button:hover{color:#fff;background:rgba(255,255,255,.06)}
+.ab-nav .on,.ab-nav .on:hover{color:#fff;border-bottom-color:#f37321;background:none}
+.ab-nav a:focus-visible,.ab-nav button:focus-visible,.ab-out:focus-visible{outline:2px solid #f37321;outline-offset:-2px}
+.ab-badge{background:#f37321;color:#fff;border-radius:999px;font:600 11px/1.4 Inter,sans-serif;padding:1px 6px}
+.ab-sp{flex:1}
+.ab-me{font:400 12px/1.25 Inter,sans-serif;color:#aab0ba;text-align:right}.ab-me b{display:block;color:#fff;font-weight:600;font-size:13px}
+.ab-out{font:500 13px Inter,sans-serif;color:#fff;background:transparent;border:1px solid #4a515c;border-radius:8px;padding:7px 12px;cursor:pointer;min-height:36px;width:auto}
+.ab-out:hover{border-color:#fff;background:transparent}
+@media(max-width:760px){.ab-long{display:none}.ab-in{flex-wrap:wrap;gap:0 12px;padding:8px 14px 0;min-height:0}.ab-nav{order:3;width:100%;overflow-x:auto}.ab-nav a,.ab-nav button{min-height:46px;padding:0 12px}.ab-me{display:none}.ab-brand span{display:none}}
+.me{font-size:13px}
+main{max-width:1240px;margin:0 auto;padding:26px 20px 90px}
+.phead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px}
+.phead h1{margin:0;font-size:26px;font-weight:700}
+.phead p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.ic{width:15px;height:15px;flex:none;vertical-align:-3px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 .btn{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .btn:hover{border-color:#c9d2ce}
-.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
-.btn.primary:hover{background:var(--green-d)}
-.btn.accent{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#000}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:600}
+.btn.accent:hover{background:#d95f12;border-color:#d95f12}
 .btn.sm{padding:5px 10px;font-size:13px}
 .btn.ghost{border-color:transparent;background:none}
 .btn.danger{color:var(--red)}
 .btn:disabled{opacity:.55;cursor:default}
 input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;width:100%}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--green-l);border-color:var(--green)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--orange-l);border-color:var(--orange)}
 textarea{resize:vertical;min-height:70px}
 label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -64,31 +75,34 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
 .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px}
 .seg button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--muted)}
-.seg button.on{background:var(--green);color:#fff}
+.seg button.on{background:var(--ink);color:#fff}
 .toolbar input[type=search]{max-width:260px}
 .toolbar select{width:auto}
 .chk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap}
 .chk input{width:auto}
 
 .stats{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
-.stat{flex:0 0 auto;min-width:120px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:10px 14px;cursor:pointer;text-align:left}
-.stat .n{font-size:22px;font-weight:700}
+.stat{flex:0 0 auto;min-width:128px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;cursor:pointer;text-align:left;transition:border-color .15s}
+.stat:hover{border-color:#c8cbd1}
+.stat .n{font-size:24px;font-weight:700;font-family:var(--head)}
 .stat .l{font-size:12px;color:var(--muted)}
-.stat.on{border-color:var(--green);box-shadow:0 0 0 2px var(--green-l)}
+.stat.on{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--orange)}
 .stat.warn .n{color:var(--red)}
 .stat.money .n{color:var(--orange);font-size:18px}
 
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
-.card:hover{border-color:#c9d2ce;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:var(--radius);padding:16px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.card.sv{border-left-color:var(--orange)}
+.card:hover{box-shadow:0 8px 24px rgba(29,33,40,.08)}
 .card .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
-.card h3{margin:0;font-size:16px}
+.card h3{margin:2px 0 0;font-size:16px;font-weight:600}
 .card .sub{font-size:13px;color:var(--muted);margin-top:2px}
-.card .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:10px}
+.card .meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted);margin-top:12px}
+.card .meta span{display:inline-flex;align-items:center;gap:5px}
 .card .meta b{color:var(--ink);font-weight:600}
 .qa{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--green-l);color:var(--green-d);white-space:nowrap}
-.pill.sv{background:var(--orange-l);color:#a54511}
+.pill.sv{background:var(--orange-l);color:#b4510f}
 .pill.done{background:#eceff1;color:#546e7a}
 .pill.amber{background:var(--amber-l);color:var(--amber)}
 .tag{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
@@ -150,7 +164,16 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 .inline > .btn{flex:0 0 auto}
 .speccat{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--orange);margin:12px 0 2px}
 
-.login{max-width:380px;margin:9vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:28px;border-top:4px solid var(--green)}
+.login{max-width:400px;margin:9vh auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px;border-top:4px solid var(--orange)}
+.auth{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.auth .brandside{background:#1d2128;color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between;border-right:4px solid var(--orange)}
+.auth .brandside img{height:46px;width:auto;align-self:flex-start}
+.auth .brandside h2{font-size:34px;line-height:1.15;margin:0 0 12px;font-weight:700;max-width:14ch}
+.auth .brandside p{color:#aab0ba;margin:0;max-width:40ch}
+.auth .brandside small{color:#7d838d;font-size:12px}
+.auth .formside{display:flex;align-items:center;justify-content:center;padding:24px}
+.auth .login{margin:0;width:100%;border-top:0;box-shadow:0 10px 40px rgba(29,33,40,.06)}
+@media(max-width:820px){.auth{grid-template-columns:1fr}.auth .brandside{padding:28px;border-right:0;border-bottom:4px solid var(--orange);gap:24px}.auth .brandside h2{font-size:24px}}
 .login h1{margin:0 0 4px;font-size:24px}
 .login p{color:var(--muted);margin:0 0 18px;font-size:14px}
 .login .f + input{margin-bottom:12px}
@@ -160,11 +183,12 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-b
 
 table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
 th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
-th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:#f8f8f6;font-weight:600}
+tbody tr:hover td{background:#fbfbfa}
 .tablewrap{overflow-x:auto}
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;z-index:60;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
-@media(max-width:640px){.me{display:none}.nav{margin-left:auto}.hbar{flex-wrap:wrap}}
+
 
 /* ---------- PRINT ---------- */
 #printRoot{display:none}
@@ -203,10 +227,16 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
 <body>
 
 <div id="loginView" class="hidden">
+ <div class="auth">
+  <div class="brandside">
+    <img src="brand/tecarch-logo.png" alt="TecArch">
+    <div><h2>TecArch Workspace</h2><p>Projects, tasks and branded design images for the TecArch team, in one place.</p></div>
+    <small>TecArch Engineering and Construction Pvt. Ltd. · Pokhara, Nepal</small>
+  </div>
+  <div class="formside">
   <div class="login">
-    <div class="logo" style="margin-bottom:14px"><span><span class="t">TEC</span><span class="a">ARCH</span></span></div>
     <h1 id="loginTitle">Sign in</h1>
-    <p>Project tracker for the TecArch team.</p>
+    <p>Use your TecArch team email.</p>
     <form id="loginForm">
       <label class="f">Email</label>
       <input id="liEmail" type="email" required autocomplete="email">
@@ -220,6 +250,8 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
     </div>
     <div id="liMsg"></div>
   </div>
+  </div>
+ </div>
 </div>
 
 <div id="noAccessView" class="hidden">
@@ -231,23 +263,24 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
 </div>
 
 <div id="appView" class="hidden">
-  <header>
-    <div class="hbar">
-      <div class="logo"><span><span class="t">TEC</span><span class="a">ARCH</span></span><small>Project Tracker</small></div>
-      <nav class="nav">
+  <header class="ab">
+    <div class="ab-in">
+      <a class="ab-brand" href="./"><img src="brand/tecarch-logo.png" alt="TecArch"><span>Workspace</span></a>
+      <nav class="nav ab-nav" aria-label="Main">
         <button data-view="projects" class="on">Projects</button>
-        <button data-view="tasks">Tasks<span class="badge hidden" id="taskBadge"></span></button>
+        <button data-view="tasks">Tasks<span class="ab-badge hidden" id="taskBadge"></span></button>
         <button data-view="team">Team</button>
-        <a href="watermark/" class="navlink">Watermark</a>
+        <a href="watermark/"><span>Watermark<span class="ab-long"> Studio</span></span></a>
       </nav>
-      <div class="spacer"></div>
-      <div class="me"><b id="meName"></b><span id="meRole"></span></div>
-      <button class="btn sm" onclick="signOut()">Sign out</button>
+      <div class="ab-sp"></div>
+      <div class="ab-me"><b id="meName"></b><span id="meRole"></span></div>
+      <button class="ab-out" onclick="signOut()">Sign out</button>
     </div>
   </header>
 
   <main>
     <section id="projectsView">
+      <div class="phead"><div><h1>Projects</h1><p>Site drawings and supervision work, with stages, deadlines and fees.</p></div></div>
       <div class="toolbar">
         <div class="seg" id="typeSeg">
           <button data-t="all" class="on">All</button>
@@ -265,8 +298,8 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
     </section>
 
     <section id="tasksView" class="hidden">
+      <div class="phead"><div><h1>Tasks</h1><p>Who is doing what, and when it's due.</p></div></div>
       <div class="toolbar">
-        <h2 style="margin:0;font-size:18px">Tasks</h2>
         <div class="seg" id="taskSeg">
           <button data-w="me" class="on">My tasks</button>
           <button data-w="all">Everyone</button>
@@ -277,7 +310,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
     </section>
 
     <section id="teamView" class="hidden">
-      <div class="toolbar"><h2 style="margin:0;font-size:18px">Team</h2></div>
+      <div class="phead"><div><h1>Team</h1><p>People who can sign in to the TecArch Workspace.</p></div></div>
       <div class="sec" id="addMemberSec" style="margin-bottom:14px">
         <h4>Add team member</h4>
         <form id="memberForm" class="inline">
@@ -330,6 +363,8 @@ const SPEC_CATS = {
   'Other':[]
 };
 const SPEC_STATUS = { proposed:'Proposed', client_approved:'Client approved', final:'Final' };
+const ICONS={user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',check:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12l3 3 5-6"/>',clip:'<path d="M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 7"/>',money:'<rect x="2" y="6" width="20" height="13" rx="2"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 9.5v6M18 9.5v6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>',print:'<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/>',camera:'<path d="M4 7h3l2-3h6l2 3h3a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z"/><circle cx="12" cy="13" r="4"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>',link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>'};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`;
 const TASK_STATUS = { todo:'To do', doing:'In progress', done:'Done' };
 
 const S = { me:null, stages:[], team:[], projects:[], tasks:[], type:'all', stageFilter:null, special:null, taskWho:'me' };
@@ -409,6 +444,7 @@ async function boot(){
   $('#appView').classList.remove('hidden');
   await loadAll();
   if(me.role!=='admin' && S.projects.some(p=>p.assigned_to===me.id)){ $('#fAssigned').value='__me'; renderProjects(); }
+  openFromHash();
 }
 
 /* ================= DATA ================= */
@@ -477,16 +513,16 @@ function renderProjects(){
         <div class="sub">${p.ward_no?'Ward '+p.ward_no:'Ward —'}${p.location?' · '+esc(p.location):''}</div></div>
         <span class="pill ${sv?'sv':''} ${isDone(p)?'done':''}">${esc(p.stage_label)}</span></div>
       <div class="meta">
-        <span>👤 <b>${esc(p.assigned_name||'Unassigned')}</b></span>
-        ${p.deadline?`<span class="${dc}">📅 ${fdate(p.deadline)}</span>`:''}
-        ${Number(p.open_tasks)>0?`<span>✅ ${p.open_tasks} open task${p.open_tasks>1?'s':''}</span>`:''}
-        ${Number(p.file_count)>0?`<span>📎 ${p.file_count}</span>`:''}
-        ${Number(p.fee_total)>0?`<span>💰 ${Number(p.balance)>0?'<b style="color:var(--orange)">'+money(p.balance)+' due</b>':'<b style="color:var(--green)">Paid</b>'}</span>`:''}
-        <span>🕒 ${ago(p.last_update_at||p.updated_at)}</span>
+        <span>${ic('user')}<b>${esc(p.assigned_name||'Unassigned')}</b></span>
+        ${p.deadline?`<span class="${dc}">${ic('cal')}${fdate(p.deadline)}</span>`:''}
+        ${Number(p.open_tasks)>0?`<span>${ic('check')}${p.open_tasks} open task${p.open_tasks>1?'s':''}</span>`:''}
+        ${Number(p.file_count)>0?`<span>${ic('clip')}${p.file_count}</span>`:''}
+        ${Number(p.fee_total)>0?`<span>${ic('money')}${Number(p.balance)>0?'<b style="color:var(--orange)">'+money(p.balance)+' due</b>':'<b style="color:var(--green)">Paid</b>'}</span>`:''}
+        <span>${ic('clock')}${ago(p.last_update_at||p.updated_at)}</span>
       </div>
       <div class="progress"><i style="width:${Math.round(p.stage_order/total*100)}%"></i></div>
       ${(p.phone||nx)?`<div class="qa">
-        ${p.phone?`<a class="btn sm" href="tel:${esc(p.phone)}">📞 Call</a>`:''}
+        ${p.phone?`<a class="btn sm" href="tel:${esc(p.phone)}">${ic('phone')}Call</a>`:''}
         ${nx?`<button class="btn sm" data-next="${nx.key}">Move to: ${esc(nx.label)} →</button>`:''}</div>`:''}
     </div>`;}).join('');
   $('#list').querySelectorAll('.card').forEach(c=>c.onclick=e=>{ if(e.target.closest('.qa')) return; openProject(+c.dataset.id); });
@@ -504,7 +540,10 @@ $('#addBtn').onclick=()=>openProject(null);
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x===b));
   ['projects','tasks','team'].forEach(v=>$('#'+v+'View').classList.toggle('hidden', b.dataset.view!==v));
+  history.replaceState(null,'',b.dataset.view==='projects'?location.pathname:'#'+b.dataset.view);
 });
+function openFromHash(){ const v=location.hash.slice(1); const b=document.querySelector(`.nav button[data-view="${v}"]`); if(b) b.click(); }
+window.addEventListener('hashchange',openFromHash);
 
 /* ================= TASKS (global) ================= */
 function taskStatusSelect(t){ return `<select data-tstat="${t.id}" style="width:auto">${Object.entries(TASK_STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?'selected':''}>${v}</option>`).join('')}</select>`; }
@@ -524,7 +563,7 @@ function renderTasks(){
       <td>${esc(memberName(t.assigned_to))}</td>
       <td class="${dueClass(t.due_date,t.status==='done')}">${fdate(t.due_date)||'—'}</td>
       <td>${taskStatusSelect(t)}</td>
-      <td><button class="btn sm" data-print="${t.project_id}" data-task="${t.id}">🖨 Work order</button></td></tr>`; }).join('')
+      <td><button class="btn sm" data-print="${t.project_id}" data-task="${t.id}">${ic('print')}Work order</button></td></tr>`; }).join('')
     : `<tr><td colspan="6" class="empty">No tasks here.</td></tr>`;
   $('#taskBody').querySelectorAll('[data-tstat]').forEach(s=>s.onchange=()=>setTaskStatus(s.dataset.tstat, s.value));
   $('#taskBody').querySelectorAll('[data-open]').forEach(a=>a.onclick=e=>{ e.preventDefault(); openProject(+a.dataset.open,'tasks'); });
@@ -595,9 +634,9 @@ async function openProject(id, startTab='overview'){
     <div class="dhead"><div class="row1"><div style="flex:1">
       <span class="tag ${sv?'sv':''}">${sv?'Supervision':'Site'} · #${p.id}</span><h2>${esc(p.client_name)}</h2>
       <div class="muted">${p.ward_no?'Ward '+p.ward_no:''}${p.location?' · '+esc(p.location):''}
-        ${p.phone?` · <a href="tel:${esc(p.phone)}">📞 ${esc(p.phone)}</a>`:''}
+        ${p.phone?` · <a href="tel:${esc(p.phone)}">${ic('phone')}${esc(p.phone)}</a>`:''}
         ${p.location?` · <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/${encodeURIComponent(p.location)}">Map</a>`:''}</div></div>
-      <button class="btn sm primary" id="printBtn">🖨 Print brief</button>
+      <button class="btn sm primary" id="printBtn">${ic('print')}Print brief</button>
       <button class="btn sm" onclick="closeDrawer()">✕</button></div>
       <div class="tabs">${tabs.map(([k,l,c])=>`<button data-tab="${k}">${l}${c?`<span class="c">${c}</span>`:''}</button>`).join('')}</div>
     </div>
@@ -667,7 +706,7 @@ async function tabBrief(p, D, reopen){
       <td><select class="sStatus">${Object.entries(SPEC_STATUS).map(([k,v])=>`<option value="${k}" ${s?.status===k?'selected':''}>${v}</option>`).join('')}</select></td>
       <td style="white-space:nowrap">${sf?`<a href="${fileUrl(sf,D.urls)}" target="_blank"><img class="th" style="width:38px;height:38px;vertical-align:middle" src="${fileUrl(sf,D.urls)}"></a>`:''}
         <select class="sSample" style="width:110px">${sampleOpts(s?.sample_file_id)}</select>
-        <label class="btn sm ghost" title="Upload sample photo" style="cursor:pointer">📷<input type="file" accept="image/*" class="sUp" hidden></label></td>
+        <label class="btn sm ghost" title="Upload sample photo" style="cursor:pointer">${ic('camera')}<input type="file" accept="image/*" class="sUp" hidden></label></td>
     </tr>`;
   };
   let specRows = '';
@@ -718,8 +757,8 @@ async function tabBrief(p, D, reopen){
     <div style="margin-top:8px" class="inline"><div><label class="f">Add another line for</label><select id="addCat">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div><button type="button" class="btn sm" id="addLine">+ Add line</button></div>
   </div>
   <div style="position:sticky;bottom:0;background:var(--bg);padding:10px 0;display:flex;gap:8px;justify-content:flex-end">
-    <button type="button" class="btn" id="briefPrint">🖨 Print brief</button>
-    <button class="btn primary" id="briefSave">💾 Save brief</button></div>
+    <button type="button" class="btn" id="briefPrint">${ic('print')}Print brief</button>
+    <button class="btn primary" id="briefSave">${ic('save')}Save brief</button></div>
   </form>`;
 
   const markFilled = () => {
@@ -786,7 +825,7 @@ function tabFiles(p, D, reopen){
         <div style="grid-column:span 2"><label class="f">Caption (optional)</label><input id="uCap" placeholder="e.g. North side road view / Client likes this railing"></div>
       </div>
       <div class="inline" style="margin-top:10px">
-        <label class="btn primary" style="cursor:pointer">📷 Choose photos / videos / files<input type="file" id="uFiles" multiple hidden accept="image/*,video/*,.pdf,.dwg,.dxf,.doc,.docx,.xls,.xlsx,.skp,.zip"></label>
+        <label class="btn primary" style="cursor:pointer">${ic('camera')} Choose photos / videos / files<input type="file" id="uFiles" multiple hidden accept="image/*,video/*,.pdf,.dwg,.dxf,.doc,.docx,.xls,.xlsx,.skp,.zip"></label>
         <span class="muted">Max ${MAX_MB} MB each. For big videos use a link →</span>
       </div>
       <form id="lForm" class="inline" style="margin-top:10px"><div><label class="f">Video / Drive link</label><input id="lUrl" type="url" placeholder="https://drive.google.com/… or YouTube"></div><button class="btn">+ Add link</button></form>
@@ -796,7 +835,7 @@ function tabFiles(p, D, reopen){
         const u=fileUrl(f,D.urls), ext=(f.file_name.split('.').pop()||'').toUpperCase().slice(0,4);
         const th = f.kind==='photo' ? `<img src="${u}" alt="" loading="lazy">`
           : f.kind==='video' ? `<div class="ph">VIDEO<span class="play">▶</span></div>`
-          : f.kind==='link' ? `<div class="ph">🔗 LINK</div>` : `<div class="ph">${esc(ext)}</div>`;
+          : f.kind==='link' ? `<div class="ph">${ic('link')}LINK</div>` : `<div class="ph">${esc(ext)}</div>`;
         return `<div class="file"><a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(f.file_name)}">${th}<div class="n">${esc(f.caption||f.file_name)}</div></a>
           ${admin?`<button class="x" data-fdel="${f.id}" title="Delete">✕</button>`:''}</div>`; }).join('')}</div></div>`).join('')
         : '<p class="muted" style="margin:0">Nothing uploaded yet.</p>'}
@@ -834,8 +873,8 @@ function tabTasks(p, D, reopen){
       </form></div>
     <div class="sec"><h4>Tasks</h4><div class="rows">${D.tasks.length ? D.tasks.map(t=>`<div class="row">
         <div class="grow"><b style="${t.status==='done'?'text-decoration:line-through;color:var(--muted)':''}">${esc(t.title)}</b>
-          <br><small>👤 ${esc(memberName(t.assigned_to))} · <span class="${dueClass(t.due_date,t.status==='done')}">${t.due_date?'Due '+fdate(t.due_date):'No due date'}</span>${t.details?' · '+esc(t.details):''}</small></div>
-        ${taskStatusSelect(t)}<button class="btn sm" data-print="${t.id}" title="Print work order">🖨</button></div>`).join('')
+          <br><small>${ic('user')}${esc(memberName(t.assigned_to))} · <span class="${dueClass(t.due_date,t.status==='done')}">${t.due_date?'Due '+fdate(t.due_date):'No due date'}</span>${t.details?' · '+esc(t.details):''}</small></div>
+        ${taskStatusSelect(t)}<button class="btn sm" data-print="${t.id}" title="Print work order">${ic('print')}</button></div>`).join('')
       : '<p class="muted" style="margin:0">No tasks yet.</p>'}</div></div>`;
   $('#tForm').onsubmit = async e => { e.preventDefault();
     const andPrint = e.submitter?.name==='andprint';
