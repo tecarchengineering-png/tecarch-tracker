@@ -226,7 +226,7 @@ table.ed td{padding:5px 6px}table.ed input{padding:6px 8px}
 .vdoc .sum td:nth-child(3){text-align:right;min-width:120px;font-variant-numeric:tabular-nums}.vdoc .sum tr.b td{font-weight:700}.vdoc .sum tr.big td{font-size:11.5pt;border-top:1.5px solid #111;padding-top:6px}
 .vdoc .vsig{margin-top:56px;width:260px;font-size:10.5pt;line-height:1.5}
 </style>
-<link rel="stylesheet" href="../lib/shell.css?v=20261128f">
+<link rel="stylesheet" href="../lib/shell.css?v=20261128g">
 </head>
 <body>
 <div id="gate" class="gate"><div class="gbox"><img src="../brand/tecarch-logo.png" alt="TecArch"><h2>Quotations</h2><p id="gateMsg">Checking your sign-in…</p><a class="btn" id="gateLink" href="../" style="display:none">Open the TecArch Workspace</a></div></div>
@@ -235,9 +235,9 @@ table.ed td{padding:5px 6px}table.ed input{padding:6px 8px}
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import * as BS from '../lib/bs.js?v=20261128f';
-import { mountShell } from '../lib/shell.js?v=20261128f';
-import { printOnLetterhead } from '../lib/print.js?v=20261128f';
+import * as BS from '../lib/bs.js?v=20261128g';
+import { mountShell } from '../lib/shell.js?v=20261128g';
+import { printOnLetterhead } from '../lib/print.js?v=20261128g';
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 
 const $ = s => document.querySelector(s);
@@ -401,7 +401,7 @@ function edit(id, copyFrom){
     <div><label class="f">Date (BS)</label><input id="issue_bs" value="${esc(BS.bsIso(x.issue_date))}"></div>
     <div><label class="f">Valid for (days)</label><input id="valid_days" inputmode="numeric" value="${x.valid_days ?? 30}"></div>
     <div class="w3"><label class="f">Short note under the totals</label><input id="about" value="${esc(x.about || '')}"></div>
-    <div class="w3"><label class="f">Terms &amp; conditions (one per line)</label><textarea id="terms" rows="6">${esc(x.terms || '')}</textarea></div>
+    <div class="w3"><label class="f" style="display:flex;justify-content:space-between;align-items:center">Terms &amp; conditions (one per line, "Heading: text") <button type="button" class="btn sm" id="stdTerms">Use standard terms</button></label><textarea id="terms" rows="8">${esc(x.terms || '')}</textarea></div>
     <div class="w3"><label class="f">Internal notes (not printed)</label><textarea id="notes">${esc(x.notes || '')}</textarea></div>
    </div></div>
   </div>
@@ -451,6 +451,9 @@ function edit(id, copyFrom){
   if($('#bAccept')) $('#bAccept').onclick = () => acceptDialog(x);
   if($('#bDel')) $('#bDel').onclick = async () => { if(!confirm(`Delete ${x.number}? The number won't be reused.`)) return; const { error } = await sb.from('quotes').delete().eq('id', id); if(error) return fail(error); toast('Deleted'); await load(); badges(); location.hash = ''; };
   if(id) history_(id);
+  if($('#stdTerms')) $('#stdTerms').onclick = () => {
+    const t = $('#terms'); if(t.value.trim() && !confirm('Replace the terms in this quotation with the standard terms?')) return;
+    t.value = S.set.quote_terms || ''; t.dispatchEvent(new Event('input', { bubbles:true })); toast('Standard terms added. {days} and {advance} fill in from this quotation when printed.'); };
   $('#qf').onsubmit = async e => {
     e.preventDefault();
     const its = items().filter(i => i.desc || N(i.rate));
@@ -506,7 +509,11 @@ async function history_(id){
 function printQuote(x){
   // Layout follows TecArch_Modern_Editable_Quotation.docx (the office's own quotation format).
   const c = calc(x), st = S.set, until = addDays(x.issue_date, N(x.valid_days) || 30);
-  const terms = String(x.terms || '').split('\n').map(t => t.replace(/^\s*(?:[•\-–*]\s*|\d+[.)]\s+)/, '').trim()).filter(Boolean);
+  const fill = t => t.replace(/\{days\}/g, N(x.valid_days) || 30).replace(/\{advance\}/g, N(x.advance_pct) || 0);
+  let terms = String(x.terms || '').split('\n').map(t => fill(t.replace(/^\s*(?:[•\-–*]\s*|\d+[.)]\s+)/, '').trim())).filter(Boolean);
+  if(!terms.length) terms = ['Validity: This quotation is valid for ' + (N(x.valid_days) || 30) + ' days from the date of issue.'];
+  if(x.project_type === 'supervision' && !terms.some(t => /^supervision\s*:/i.test(t))) terms.splice(Math.min(2, terms.length), 0, 'Supervision: Site visits follow the agreed stages (foundation, each slab, finishing); extra visits are charged as agreed.');
+  const term = t => { const m = t.match(/^([^:]{2,28}):\s*(.+)$/); return m ? `<li><b>${esc(m[1])}.</b> ${esc(m[2])}</li>` : `<li>${esc(t)}</li>`; };
   const hasUnit = (x.items || []).some(i => String(i.unit || '').trim() && !/^lump\s*sum$/i.test(i.unit));
   const phone = st.company_phone || '+977 9769494047', mail = st.company_email || 'info@tecarch.com.np', web = st.company_web || 'www.tecarch.com.np';
   const town = (st.company_address || 'Pokhara, Nepal').toUpperCase();
@@ -529,42 +536,43 @@ function printQuote(x){
     <div class="qtot"><small>Total quoted amount</small><div class="big">NPR ${money(c.total)}</div><div class="w">In words: Rupees ${esc(words(c.total))} Only</div>
      <div class="l">Subtotal: ${money(c.sub)}${N(x.discount) ? ` <em>|</em> Discount: − ${money(x.discount)}` : ''} <em>|</em> ${c.vat ? `VAT 13%: ${money(c.vat)}` : 'Tax / Others: —'}</div>
      <div class="l">Advance Payment (${N(x.advance_pct)}%): ${money(c.adv)} <em>|</em> Balance Due: ${money(c.bal)}</div></div></div>
-   <div class="qkeep lh-keep">${sec('03', 'Terms &amp; Payment')}
-   <div class="qtp"><ul>${(terms.length ? terms : ['The prices above are estimates for the listed services and are valid for ' + (N(x.valid_days) || 30) + ' days from the date of issue.']).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
-    <div class="qqr"><small>Payment QR</small><img src="../brand/fonepay-qr.png" alt="FonePay QR"><b>Scan to pay via Fonepay</b>
-     <p>${esc(st.company_name || 'TecArch Engineering and Construction Pvt. Ltd.')}<br>Terminal: ${esc(st.fonepay_terminal || '2222240018943456')} &nbsp;|&nbsp; ${esc(st.fonepay_branch || 'Bagar Branch')}</p></div></div></div>
-   <div class="qkeep lh-keep">${sec('04', 'Acceptance &amp; Approval')}
-   <div class="qsg"><div><i></i>Client signature / printed name / date</div><div><i></i>Authorized TecArch representative / date</div></div>
-   <div class="qcf">Please confirm your acceptance of this quotation before services commence.</div></div></div>`;
+   <div class="qkeep lh-keep">${sec('03', 'Terms &amp; Conditions')}
+   <ol class="qtc">${terms.map(term).join('')}</ol></div>
+   <div class="qkeep lh-keep">${sec('04', 'Payment &amp; Acceptance')}
+   <div class="qpa"><div class="qqr"><img src="../brand/fonepay-qr.png" alt="FonePay QR"><div><small>Payment QR</small><b>Scan to pay via Fonepay</b>
+     <p>${esc(st.company_name || 'TecArch Engineering and Construction Pvt. Ltd.')}<br>Terminal: ${esc(st.fonepay_terminal || '2222240018943456')} &nbsp;|&nbsp; ${esc(st.fonepay_branch || 'Bagar Branch')}${st.bank_details ? `<br>${esc(st.bank_details)}` : ''}</p></div></div>
+    <div class="qsg"><div><i></i>Client signature / printed name / date</div><div><i></i>Authorized TecArch representative / date</div></div></div>
+   <div class="qcf">Please confirm your acceptance of this quotation before services commence.</div></div></div></div>`;
   const css = `
     #lhPrint .qf{font:9pt/1.45 Inter,Arial,sans-serif;color:#142F46}
     #lhPrint .qf .qrule{display:flex;height:3px;margin-bottom:2.5mm}#lhPrint .qf .qrule i{flex:6;background:#142F46}#lhPrint .qf .qrule b{flex:4;background:#F39330}
     #lhPrint .qf .qhd{display:flex;justify-content:space-between;align-items:flex-start;gap:10mm}
-    #lhPrint .qf .qlogo{width:56mm;height:auto;margin:-1mm 0 0 -1mm}
+    #lhPrint .qf .qlogo{width:50mm;height:auto;margin:-1mm 0 0 -1mm}
     #lhPrint .qf .qhr{text-align:right}#lhPrint .qf .qt{font:800 25pt/1.05 Inter,Arial,sans-serif;color:#142F46;letter-spacing:.02em}
     #lhPrint .qf .qps{font-size:7.5pt;font-weight:700;letter-spacing:.06em;color:#176AA0;margin:4px 0 7px}
     #lhPrint .qf .qno{font-size:8.5pt;color:#607488;margin-top:2px}#lhPrint .qf .qno b{color:#142F46}#lhPrint .qf .qno span{font-size:7.5pt}#lhPrint .qf em{font-style:normal;color:#C2DDED;margin:0 7px}
-    #lhPrint .qf .qbar{display:flex;justify-content:space-between;gap:8px;background:#F3F8FC;color:#176AA0;font-size:7.5pt;padding:2mm 3mm;margin:2.5mm 0 0}
-    #lhPrint .qf .qsec{display:flex;align-items:baseline;margin:3.2mm 0 1.8mm;border-bottom:1px solid #DAEAF3;padding-bottom:1.5mm}
+    #lhPrint .qf .qbar{display:flex;justify-content:space-between;gap:8px;background:#F3F8FC;color:#176AA0;font-size:7.5pt;padding:2mm 3mm;margin:2mm 0 0}
+    #lhPrint .qf .qsec{display:flex;align-items:baseline;margin:2.6mm 0 1.4mm;border-bottom:1px solid #DAEAF3;padding-bottom:1.5mm}
     #lhPrint .qf .qsec span{color:#F39330;font-weight:700;font-size:8pt;width:50%}#lhPrint .qf .qsec h4{margin:0;font-size:9.5pt;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#142F46}
     #lhPrint .qf .qcp{display:grid;grid-template-columns:1fr 1fr;background:#F3F8FC;border-bottom:2px solid #DAEAF3}
-    #lhPrint .qf .qcp > div{padding:2.5mm 4mm}#lhPrint .qf small{display:block;font-size:7pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#176AA0;margin-bottom:2px}
-    #lhPrint .qf .qcp b{display:block;font-size:12pt;font-weight:700;color:#142F46;margin:1mm 0}#lhPrint .qf .qcp p{margin:1px 0;color:#607488;font-size:8.5pt}
-    #lhPrint .qf table.qit{width:100%;border-collapse:collapse;border:0;border-radius:0!important;overflow:visible;box-shadow:none}#lhPrint .qf .qit th:first-child,#lhPrint .qf .qit th:last-child{border-radius:0!important}#lhPrint .qf .qit th{background:#142F46;color:#fff;font-size:7.5pt;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:2.3mm 3mm;border:0;white-space:nowrap}
-    #lhPrint .qf .qit td{padding:2mm 3mm;border:0;border-bottom:1px solid #DAEAF3;color:#142F46;font-size:8.8pt;background:#fff}#lhPrint .qf .qit tbody tr:nth-child(odd) td{background:#F3F8FC}
+    #lhPrint .qf .qcp > div{padding:2mm 4mm}#lhPrint .qf small{display:block;font-size:7pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#176AA0;margin-bottom:2px}
+    #lhPrint .qf .qcp b{display:block;font-size:11.5pt;font-weight:700;color:#142F46;margin:.6mm 0}#lhPrint .qf .qcp p{margin:1px 0;color:#607488;font-size:8.5pt}
+    #lhPrint .qf table.qit{width:100%;border-collapse:collapse;border:0;border-radius:0!important;overflow:visible;box-shadow:none}#lhPrint .qf .qit th:first-child,#lhPrint .qf .qit th:last-child{border-radius:0!important}#lhPrint .qf .qit th{background:#142F46;color:#fff;font-size:7.5pt;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:2mm 3mm;border:0;white-space:nowrap}
+    #lhPrint .qf .qit td{padding:1.6mm 3mm;border:0;border-bottom:1px solid #DAEAF3;color:#142F46;font-size:8.8pt;background:#fff}#lhPrint .qf .qit tbody tr:nth-child(odd) td{background:#F3F8FC}
     #lhPrint .qf .r{text-align:right}#lhPrint .qf .c{text-align:center}
     #lhPrint .qf .qtt{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-top:2.5mm;break-inside:avoid}
-    #lhPrint .qf .qab{background:#F3F8FC;padding:3mm 4mm}#lhPrint .qf .qab p{margin:1.5mm 0 0}#lhPrint .qf .qab p.m{color:#607488;font-size:8pt}
-    #lhPrint .qf .qtot{background:#142F46;color:#fff;padding:3mm 4mm}#lhPrint .qf .qtot small{color:#DAEAF3}
-    #lhPrint .qf .qtot .big{font:800 19pt/1.15 Inter,Arial,sans-serif;margin:1.5mm 0 2mm}#lhPrint .qf .qtot .w{font-style:italic;font-size:8pt;margin-bottom:2mm}
+    #lhPrint .qf .qab{background:#F3F8FC;padding:2.5mm 4mm;font-size:8.3pt}#lhPrint .qf .qab p{margin:1.5mm 0 0}#lhPrint .qf .qab p.m{color:#607488;font-size:8pt}
+    #lhPrint .qf .qtot{background:#142F46;color:#fff;padding:2.5mm 4mm}#lhPrint .qf .qtot small{color:#DAEAF3}
+    #lhPrint .qf .qtot .big{font:800 18pt/1.1 Inter,Arial,sans-serif;margin:1mm 0 1.5mm}#lhPrint .qf .qtot .w{font-style:italic;font-size:8pt;margin-bottom:2mm}
     #lhPrint .qf .qtot .l{font-size:7.8pt;color:#DAEAF3;margin-top:1mm}#lhPrint .qf .qtot em{color:#607488}
     #lhPrint .qf .qkeep{break-inside:avoid}
-    #lhPrint .qf .qtp{display:grid;grid-template-columns:1fr 1fr;gap:5mm;align-items:start}
-    #lhPrint .qf .qtp ul{margin:0;padding-left:4mm;font-size:8.2pt;color:#142F46}#lhPrint .qf .qtp li{margin:0 0 1.6mm}
-    #lhPrint .qf .qqr{text-align:center;border-bottom:1px solid #DAEAF3;padding-bottom:2mm}#lhPrint .qf .qqr img{width:23mm;height:23mm;display:block;margin:1mm auto}
-    #lhPrint .qf .qqr b{display:block;color:#176AA0;font-size:8pt;margin:1mm 0;border-bottom:1px solid #DAEAF3;padding-bottom:1.5mm}#lhPrint .qf .qqr p{margin:1mm 0 0;color:#607488;font-size:7.5pt;line-height:1.5}
-    #lhPrint .qf .qsg{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:9mm;font-size:8pt;color:#607488}#lhPrint .qf .qsg i{display:block;border-top:1px solid #142F46;margin-bottom:1.5mm}
-    #lhPrint .qf .qcf{text-align:center;color:#176AA0;font-weight:700;font-size:8.5pt;margin-top:3mm}
+    #lhPrint .qf .qtc{columns:2;column-gap:7mm;margin:0;padding-left:4.5mm;font-size:7.3pt;line-height:1.36;color:#142F46}
+    #lhPrint .qf .qtc li{margin:0 0 1mm;break-inside:avoid;padding-left:.5mm}#lhPrint .qf .qtc li::marker{color:#F39330;font-weight:700}#lhPrint .qf .qtc b{color:#176AA0}
+    #lhPrint .qf .qpa{display:grid;grid-template-columns:1fr 1.25fr;gap:7mm;align-items:end}
+    #lhPrint .qf .qqr{display:flex;gap:3.5mm;align-items:center;background:#F3F8FC;padding:2.5mm 3mm}#lhPrint .qf .qqr img{width:19mm;height:19mm;flex:none}
+    #lhPrint .qf .qqr b{display:block;color:#176AA0;font-size:8.5pt;margin:.5mm 0 1mm}#lhPrint .qf .qqr p{margin:0;color:#607488;font-size:7.3pt;line-height:1.5}
+    #lhPrint .qf .qsg{display:grid;grid-template-columns:1fr 1fr;gap:7mm;font-size:7.5pt;color:#607488}#lhPrint .qf .qsg i{display:block;border-top:1px solid #142F46;margin-bottom:1.5mm}
+    #lhPrint .qf .qcf{text-align:center;color:#176AA0;font-weight:700;font-size:8.2pt;margin-top:2.5mm}
     #lhPrint .qf .nw{white-space:nowrap}`;
   printOnLetterhead({ html, title:`${x.number} ${x.client_name} quotation`, base:'../', css, letterhead:false, footer:`${st.company_name || 'TecArch Engineering & Construction Pvt. Ltd.'}  •  ${st.company_address || 'Pokhara, Nepal'}` });
 }

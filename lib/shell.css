@@ -125,3 +125,12 @@ body.sx .empty{color:var(--muted)}
 @media print{ body.sx::before{display:none!important} .sx-side,.sx-top{display:none!important} .sx-main{margin:0;padding:0} body.sx{background:#fff} }
 
 .sx-b.hidden{display:none}
+
+/* phones/tablets: collapsed grids must not grow wider than the screen; wide tables scroll inside their card */
+.vgrid > *, .cols > *, .fg > *, .fg3 > *, .kpis > * { min-width: 0 }
+@media (max-width: 1000px){ .vgrid{ grid-template-columns: minmax(0,1fr) !important } }
+@media (max-width: 980px){ .cols{ grid-template-columns: minmax(0,1fr) !important } }
+@media (max-width: 640px){
+  .fg, .fg3{ grid-template-columns: minmax(0,1fr) !important }
+  .fg > [style*="span"], .fg3 > [style*="span"]{ grid-column: auto !important }
+}
