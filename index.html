@@ -36,6 +36,8 @@ header{background:#fff;border-bottom:3px solid var(--green);position:sticky;top:
 .nav{display:flex;gap:4px;margin-left:12px}
 .nav button{border:0;background:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:500;color:var(--muted)}
 .nav button.on{background:var(--green-l);color:var(--green-d)}
+.nav .navlink{padding:8px 12px;border-radius:8px;font-weight:500;color:var(--muted);text-decoration:none}
+.nav .navlink:hover{background:var(--green-l);color:var(--green-d)}
 .nav .badge{background:var(--orange);color:#fff;border-radius:999px;font-size:11px;padding:1px 6px;margin-left:4px}
 .spacer{flex:1}
 .me{font-size:13px;color:var(--muted);text-align:right}
@@ -236,6 +238,7 @@ th{font-size:12px;text-transform:uppercase;color:var(--muted);background:#fafbfa
         <button data-view="projects" class="on">Projects</button>
         <button data-view="tasks">Tasks<span class="badge hidden" id="taskBadge"></span></button>
         <button data-view="team">Team</button>
+        <a href="watermark/" class="navlink">Watermark</a>
       </nav>
       <div class="spacer"></div>
       <div class="me"><b id="meName"></b><span id="meRole"></span></div>
