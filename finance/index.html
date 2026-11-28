@@ -135,6 +135,7 @@ th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu
 tbody tr.click{cursor:pointer}
 tbody tr.click:hover td{background:#fbfbfa}
 tfoot td{font-weight:700;background:#f8f8f6}
+tr.tot td{font-weight:700;background:#fafaf8}
 .tablewrap{overflow-x:auto;border-radius:var(--radius)}
 td .sub2{display:block;font-size:12.5px;color:var(--muted)}
 
@@ -213,6 +214,7 @@ td .sub2{display:block;font-size:12.5px;color:var(--muted)}
       <a href="../#tasks">Tasks</a>
       <a href="../#team">Team</a>
       <a href="./" class="on" aria-current="page">Finance</a>
+      <a href="../valuation/">Valuation</a>
       <a href="../watermark/"><span>Watermark<span class="ab-long"> Studio</span></span></a>
     </nav>
     <div class="ab-sp"></div>
@@ -227,6 +229,7 @@ td .sub2{display:block;font-size:12.5px;color:var(--muted)}
   <button data-v="tx">Transactions</button>
   <button data-v="accounts">Accounts</button>
   <button data-v="contacts">Contacts</button>
+  <button data-v="loans">Loans</button>
   <button data-v="reports">Reports</button>
   <button data-v="review">To check <span class="badge hidden" id="revBadge"></span></button>
 </div></div>
@@ -237,6 +240,7 @@ td .sub2{display:block;font-size:12.5px;color:var(--muted)}
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import * as BS from '../lib/bs.js';
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 
 /* ================= helpers ================= */
@@ -247,8 +251,11 @@ const N = v => Number(v || 0);
 const money = n => 'Rs ' + N(n).toLocaleString('en-IN', {maximumFractionDigits:0});
 const today = () => { const t = new Date(); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
 const addDays = (d, n) => { const t = new Date(d + 'T00:00:00'); t.setDate(t.getDate() + n); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
-const fdate = d => d ? new Date(String(d).slice(0,10) + 'T00:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) : '';
-const month = d => new Date(String(d).slice(0,10) + 'T00:00:00').toLocaleDateString('en-GB', {month:'short', year:'numeric'});
+const adFmt = d => d ? new Date(String(d).slice(0,10) + 'T00:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) : '';
+const fdate = d => d ? (BS.bsLong(String(d).slice(0,10)) || adFmt(d)) : '';
+const fboth = d => d ? (BS.bsLong(String(d).slice(0,10)) ? `${BS.bsLong(String(d).slice(0,10))} (${adFmt(d)})` : adFmt(d)) : '';
+const CUR_FY = BS.fyStartYear(new Date());
+const inFy = (d, f) => !!d && String(d).slice(0,10) >= f.from && String(d).slice(0,10) <= f.to;
 function toast(t){ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(), 2800); }
 function fail(e){ console.error(e); toast('⚠ ' + (e?.message || e)); }
 const val = id => { const el = document.getElementById(id); if(!el) return null; if(el.type==='checkbox') return el.checked; const v = el.value.trim(); return v === '' ? null : v; };
@@ -260,9 +267,9 @@ const JOB_STATUS = {quote:'Quote', active:'Active', completed:'Completed', on_ho
 const KINDS = {client:'Client', partner:'Partner firm / referrer', outsourced:'Outsourced professional', supplier:'Supplier', staff:'Staff', other:'Other'};
 const ACC_KIND = {company_bank:'Company bank', personal_bank:'Personal bank (director)', cash:'Cash', wallet:'Wallet / QR'};
 const WORK_TYPES = ['Structure','Estimation','3D visualisation','Drafting / drawings','Site supervision','Sanitary / plumbing','Electrical','Interior','Survey','Other'];
-const EXP_CATS = ['Office rent','Salary / wages','Printing & stationery','Fuel & travel','Software & subscriptions','Internet & phone','Municipality / government fees','Marketing','Bank charges','Tax payment','Other'];
+const expCats = () => S.cats.filter(c => c.active).map(c => c.name);
 
-const S = { me:null, view:'dash', jobsFilter:'open', jobsQ:'', jobsPayer:'', workWorker:'', workOpen:true, txType:'all', txAcc:'', contactsKind:'client', contactsQ:'', repTab:'monthly' };
+const S = { me:null, view:'dash', jobsFilter:'open', jobsQ:'', jobsPayer:'', workWorker:'', workOpen:true, txType:'all', txAcc:'', contactsKind:'client', contactsQ:'', repTab:'fy', fy:CUR_FY };
 
 /* ================= boot ================= */
 const gm = t => { $('#gateMsg').textContent = t; $('#gateLink').style.display = ''; };
@@ -289,10 +296,11 @@ async function loadAll(){
     t('fin_milestone_status','due_date'), t('fin_invoices','id',{ascending:false}), t('fin_receipts','id',{ascending:false}),
     t('fin_work_order_summary','id'), t('fin_payouts','id',{ascending:false}), t('fin_expenses','spent_on',{ascending:false}),
     t('fin_transfers','moved_on',{ascending:false}), t('fin_alerts'), t('fin_monthly','month'), t('fin_settings'),
+    t('fin_expense_categories','sort_order'), t('fin_loan_summary','start_date',{ascending:false}), t('fin_loan_payments','paid_on',{ascending:false}), t('fin_fy_closings','fy_start'),
     sb.from('projects').select('id,client_name,project_type').order('client_name')
   ]);
   const err = res.find(r => r.error); if(err) throw err.error;
-  [S.parties, S.accounts, S.jobs, S.milestones, S.invoices, S.receipts, S.wos, S.payouts, S.expenses, S.transfers, S.alerts, S.monthly, S.settingsRows, S.projects] = res.map(r => r.data || []);
+  [S.parties, S.accounts, S.jobs, S.milestones, S.invoices, S.receipts, S.wos, S.payouts, S.expenses, S.transfers, S.alerts, S.monthly, S.settingsRows, S.cats, S.loans, S.loanPays, S.closings, S.projects] = res.map(r => r.data || []);
   S.set = Object.fromEntries(S.settingsRows.map(r => [r.key, r.value || '']));
   S.P = new Map(S.parties.map(p => [p.id, p])); S.A = new Map(S.accounts.map(a => [a.id, a])); S.J = new Map(S.jobs.map(j => [j.id, j])); S.W = new Map(S.wos.map(w => [w.id, w]));
   const rev = S.jobs.filter(j => j.needs_review).length + S.wos.filter(w => w.needs_review).length;
@@ -306,13 +314,13 @@ window.addEventListener('hashchange', route);
 function route(){
   const h = location.hash.slice(1) || 'dash';
   const [v, arg] = h.split('=');
-  const views = ['dash','jobs','work','tx','accounts','contacts','reports','review'];
+  const views = ['dash','jobs','work','tx','accounts','contacts','loans','reports','review'];
   if(views.includes(v)){ S.view = v; render(); }
   else if(v === 'job' && arg){ S.view = 'jobs'; render(); openJob(Number(arg)); }
 }
 function render(){
   $$('#subnav button').forEach(b => b.classList.toggle('on', b.dataset.v === S.view));
-  ({dash:renderDash, jobs:renderJobs, work:renderWork, tx:renderTx, accounts:renderAccounts, contacts:renderContacts, reports:renderReports, review:renderReview})[S.view]();
+  ({dash:renderDash, jobs:renderJobs, work:renderWork, tx:renderTx, accounts:renderAccounts, contacts:renderContacts, loans:renderLoans, reports:renderReports, review:renderReview})[S.view]();
 }
 
 /* ================= shared bits ================= */
@@ -397,9 +405,10 @@ function renderDash(){
   const open = openJobs();
   const toCollect = sum(open, 'due');
   const toPay = sum(S.wos.filter(w => w.status !== 'cancelled'), 'balance');
-  const m0 = today().slice(0,7);
-  const inMonth = sum(S.receipts.filter(r => (r.received_on || '').startsWith(m0)), 'amount');
-  const outMonth = sum(S.payouts.filter(p => (p.paid_on || '').startsWith(m0)), 'net_amount') + sum(S.expenses.filter(e => (e.spent_on || '').startsWith(m0)), 'amount');
+  const bm = BS.adToBs(today()); const mFrom = BS.bsToAd(bm.y, bm.m, 1), mTo = BS.bsToAd(bm.y, bm.m, BS.daysInMonth(bm.y, bm.m)); const inM = d => !!d && d >= mFrom && d <= mTo;
+  const inMonth = sum(S.receipts.filter(r => inM(r.received_on)), 'amount');
+  const outMonth = sum(S.payouts.filter(p => inM(p.paid_on)), 'net_amount') + sum(S.expenses.filter(e => inM(e.spent_on)), 'amount');
+  const fyNow = fyStatement(BS.fy(CUR_FY));
   const cash = sum(S.accounts.filter(a => a.active), 'balance');
   const rev = S.jobs.filter(j => j.needs_review).length + S.wos.filter(w => w.needs_review).length;
   const sevRank = {overdue:0, due_soon:1, no_due_date:2};
@@ -415,12 +424,13 @@ function renderDash(){
   const noAcc = S.receipts.filter(r => !r.account_id).length;
 
   $('#main').innerHTML = `
-  <div class="phead"><div><h1>Finance overview</h1><p>${esc(S.set.company_name)} · ${fdate(today())}</p></div>
+  <div class="phead"><div><h1>Finance overview</h1><p>${esc(S.set.company_name)} · ${fboth(today())} · FY ${BS.fy(CUR_FY).label}</p></div>
     <div class="acts"><button class="btn accent" id="qIn">+ Payment received</button><button class="btn" id="qOut">+ Pay outsourced work</button><button class="btn" id="qJob">+ New job</button><button class="btn" id="qExp">+ Expense</button></div></div>
   <div class="kpis">
     <button class="kpi in" data-go="jobs"><div class="l">To collect</div><div class="n">${money(toCollect)}</div><div class="s">${open.filter(j => N(j.due) > 0).length} jobs with money due</div></button>
     <button class="kpi out" data-go="work"><div class="l">To pay outsourced</div><div class="n">${money(toPay)}</div><div class="s">${payL.length} people waiting</div></button>
-    <button class="kpi" data-go="tx"><div class="l">Received this month</div><div class="n">${money(inMonth)}</div><div class="s">Paid out ${money(outMonth)}</div></button>
+    <button class="kpi" data-go="tx"><div class="l">Received in ${BS.MONTHS[bm.m - 1]}</div><div class="n">${money(inMonth)}</div><div class="s">Paid out ${money(outMonth)}</div></button>
+    <button class="kpi ${fyNow.net < 0 ? 'warn' : 'in'}" data-go="reports"><div class="l">FY ${BS.fy(CUR_FY).label} so far</div><div class="n">${money(fyNow.net)}</div><div class="s">In ${money(fyNow.income)} · Out ${money(fyNow.spent)}</div></button>
     <button class="kpi" data-go="accounts"><div class="l">Recorded in accounts</div><div class="n">${money(cash)}</div><div class="s">Across ${S.accounts.filter(a => a.active).length} accounts</div></button>
     <button class="kpi ${rev ? 'warn' : ''}" data-go="review"><div class="l">To check</div><div class="n">${rev}</div><div class="s">Imported rows to confirm</div></button>
   </div>
@@ -657,7 +667,7 @@ function printInvoice(i){
   const j = S.J.get(i.job_id); const party = S.P.get(i.bill_to_id) || S.P.get(j.client_id);
   const tax = i.kind === 'tax_invoice';
   printDoc(`${letterhead()}
-  <div class="ttl"><h1>${tax ? 'TAX INVOICE' : 'PAYMENT REQUEST'}</h1><div class="meta"><b>${esc(i.number)}</b><br>Date: ${fdate(i.issue_date)}${i.due_date ? `<br>Pay by: <b>${fdate(i.due_date)}</b>` : ''}</div></div>
+  <div class="ttl"><h1>${tax ? 'TAX INVOICE' : 'PAYMENT REQUEST'}</h1><div class="meta"><b>${esc(i.number)}</b><br>Date: ${fboth(i.issue_date)}${i.due_date ? `<br>Pay by: <b>${fboth(i.due_date)}</b>` : ''}</div></div>
   <div class="two"><div class="box"><small>Bill to</small><b>${esc(party?.name || j.bill_to_name)}</b>${party?.address ? '<br>' + esc(party.address) : ''}${party?.phone ? '<br>' + esc(party.phone) : ''}${party?.pan_vat ? '<br>PAN/VAT: ' + esc(party.pan_vat) : ''}</div>
   <div class="box"><small>Project</small><b>${esc(j.title)}</b>${j.code ? ' (' + esc(j.code) + ')' : ''}${j.client_id !== (i.bill_to_id || j.client_id) ? '<br>Owner: ' + esc(j.client_name) : ''}${j.location ? '<br>' + esc(j.location) : ''}${j.application_no ? '<br>File: ' + esc(j.application_no) : ''}</div></div>
   <table><thead><tr><th style="width:40px">S.N.</th><th>Description</th><th style="width:140px;text-align:right">Amount (Rs)</th></tr></thead><tbody><tr><td>1</td><td>${esc(i.description || '')}</td><td style="text-align:right">${N(i.subtotal).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr></tbody></table>
@@ -674,7 +684,7 @@ function printInvoice(i){
 }
 function printReceipt(r){
   const j = S.J.get(r.job_id);
-  printDoc(`${letterhead()}<div class="ttl"><h1>PAYMENT RECEIPT</h1><div class="meta"><b>RCPT-${String(r.id).padStart(5, '0')}</b><br>Date: ${fdate(r.received_on || r.created_at)}</div></div>
+  printDoc(`${letterhead()}<div class="ttl"><h1>PAYMENT RECEIPT</h1><div class="meta"><b>RCPT-${String(r.id).padStart(5, '0')}</b><br>Date: ${fboth(r.received_on || r.created_at)}</div></div>
   <div class="two"><div class="box"><small>Received from</small><b>${esc(pname(r.payer_id) || j.bill_to_name)}</b>${r.paid_by_name ? '<br>Paid by: ' + esc(r.paid_by_name) : ''}</div><div class="box"><small>Project</small><b>${esc(j.title)}</b>${j.code ? ' (' + esc(j.code) + ')' : ''}${j.location ? '<br>' + esc(j.location) : ''}</div></div>
   <table class="tot" style="width:100%"><tr class="big"><td>Amount received</td><td style="text-align:right">Rs ${N(r.amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr>
   <tr><td>Payment method</td><td style="text-align:right">${MODES[r.mode] || '—'}${r.reference ? ' · Ref ' + esc(r.reference) : ''}</td></tr>
@@ -821,7 +831,7 @@ function openPayout(id, woId){
 }
 function printVoucher(p){
   const w = S.W.get(p.work_order_id); const worker = S.P.get(p.worker_id);
-  printDoc(`${letterhead()}<div class="ttl"><h1>PAYMENT VOUCHER</h1><div class="meta"><b>PV-${String(p.id).padStart(5, '0')}</b><br>Date: ${fdate(p.paid_on || p.created_at)}</div></div>
+  printDoc(`${letterhead()}<div class="ttl"><h1>PAYMENT VOUCHER</h1><div class="meta"><b>PV-${String(p.id).padStart(5, '0')}</b><br>Date: ${fboth(p.paid_on || p.created_at)}</div></div>
   <div class="two"><div class="box"><small>Paid to</small><b>${esc(worker?.name)}</b>${worker?.pan_vat ? '<br>PAN: ' + esc(worker.pan_vat) : ''}${worker?.phone ? '<br>' + esc(worker.phone) : ''}</div><div class="box"><small>For</small><b>${esc(w?.work_type || '')}</b><br>${esc(w?.job_title || w?.client_label || '')}${w?.job_code ? ' (' + esc(w.job_code) + ')' : ''}</div></div>
   <table class="tot" style="width:100%"><tr><td>Gross amount</td><td style="text-align:right">${N(p.gross_amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr><tr><td>Less: TDS</td><td style="text-align:right">${N(p.tds_amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr>
   <tr class="big"><td>Net paid</td><td style="text-align:right">Rs ${N(p.net_amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr><tr><td>Method</td><td style="text-align:right">${MODES[p.mode] || '—'}${p.reference ? ' · ' + esc(p.reference) : ''}</td></tr></table>
@@ -836,32 +846,35 @@ function txRows(){
   S.payouts.forEach(p => { const w = S.W.get(p.work_order_id); rows.push({type:'out', date:p.paid_on, label:pname(p.worker_id), sub:`${w?.work_type || ''} · ${w?.job_title || w?.client_label || ''}${N(p.tds_amount) ? ' · TDS ' + money(p.tds_amount) : ''}`, acc:p.account_id, mode:p.mode, amt:-N(p.net_amount), open:() => openPayout(p.id)}); });
   S.expenses.forEach(e => rows.push({type:'exp', date:e.spent_on, label:e.category, sub:[pname(e.party_id), e.note, e.bill_no ? 'Bill ' + e.bill_no : ''].filter(Boolean).join(' · '), acc:e.account_id, mode:e.mode, amt:-N(e.amount), open:() => openExpense(e.id)}));
   S.transfers.forEach(t => { rows.push({type:'tr', date:t.moved_on, label:`${S.A.get(t.from_account_id)?.name} → ${S.A.get(t.to_account_id)?.name}`, sub:t.note || 'Transfer', acc:t.from_account_id, acc2:t.to_account_id, mode:null, amt:N(t.amount), open:() => openTransfer(null, t.id)}); });
+  S.loans.forEach(l => rows.push({type:'loan', date:l.start_date, label:(l.direction === 'taken' ? 'Loan from ' : 'Loan to ') + l.party_name, sub:l.purpose || 'Loan', acc:l.account_id, mode:l.mode, amt:l.direction === 'taken' ? N(l.principal) : -N(l.principal), open:() => openLoan(l.id)}));
+  S.loanPays.forEach(p => { const l = S.loans.find(x => x.id === p.loan_id); if(!l) return; const t = N(p.principal_amount) + N(p.interest_amount);
+    rows.push({type:'loan', date:p.paid_on, label:(l.direction === 'taken' ? 'Repaid to ' : 'Received back from ') + l.party_name, sub:`Principal ${money(p.principal_amount)}${N(p.interest_amount) ? ' · interest ' + money(p.interest_amount) : ''}`, acc:p.account_id, mode:p.mode, amt:l.direction === 'taken' ? -t : t, open:() => openLoan(l.id)}); });
   return rows.sort((a, b) => (b.date || '0').localeCompare(a.date || '0'));
 }
 function renderTx(){
   const all = txRows();
   const list = all.filter(r => (S.txType === 'all' || r.type === S.txType) && (!S.txAcc || String(r.acc) === S.txAcc || String(r.acc2) === S.txAcc));
-  const T = {in:'<span class="pill ok">In</span>', out:'<span class="pill orange">Outsourcing</span>', exp:'<span class="pill red">Expense</span>', tr:'<span class="pill grey">Transfer</span>'};
+  const T = {in:'<span class="pill ok">In</span>', out:'<span class="pill orange">Outsourcing</span>', exp:'<span class="pill red">Expense</span>', tr:'<span class="pill grey">Transfer</span>', loan:'<span class="pill amber">Loan</span>'};
   $('#main').innerHTML = `<div class="phead"><div><h1>Transactions</h1><p>Every rupee in and out, newest first.</p></div>
    <div class="acts"><button class="btn" id="tCsv">Export CSV</button><button class="btn" id="tTr">+ Transfer</button><button class="btn" id="tExp">+ Expense</button><button class="btn" id="tOut">+ Pay outsourced</button><button class="btn accent" id="tIn">+ Payment received</button></div></div>
-  <div class="toolbar"><div class="seg" id="tSeg">${[['all','All'],['in','Money in'],['out','Outsourcing'],['exp','Expenses'],['tr','Transfers']].map(([k, l]) => `<button data-k="${k}" class="${S.txType === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+  <div class="toolbar"><div class="seg" id="tSeg">${[['all','All'],['in','Money in'],['out','Outsourcing'],['exp','Expenses'],['loan','Loans'],['tr','Transfers']].map(([k, l]) => `<button data-k="${k}" class="${S.txType === k ? 'on' : ''}">${l}</button>`).join('')}</div>
   <select id="tAcc"><option value="">All accounts</option>${S.accounts.map(a => `<option value="${a.id}" ${String(a.id) === S.txAcc ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></div>
   <div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Details</th><th>Account</th><th>Method</th><th class="num">Amount</th></tr></thead><tbody>
-  ${list.map((r, i) => `<tr class="click" data-i="${i}"><td>${fdate(r.date) || '<span class="muted">no date</span>'}</td><td>${T[r.type]}</td><td><b>${esc(r.label)}</b><span class="sub2">${esc(r.sub)}</span></td><td>${esc(S.A.get(r.acc)?.name || '—')}${r.acc2 ? ' → ' + esc(S.A.get(r.acc2)?.name) : ''}</td><td>${MODES[r.mode] || ''}</td><td class="num" style="color:${r.type === 'in' ? 'var(--green)' : r.type === 'tr' ? 'inherit' : 'var(--red)'}">${r.type === 'in' ? '+' : r.type === 'tr' ? '' : '−'}${money(Math.abs(r.amt))}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">No transactions.</td></tr>'}
-  </tbody><tfoot><tr><td colspan="5">${list.length} transactions${S.txType === 'all' ? ' · net (excluding transfers)' : ''}</td><td class="num">${money(sum(list.filter(r => r.type !== 'tr'), 'amt'))}</td></tr></tfoot></table></div>`;
+  ${list.map((r, i) => `<tr class="click" data-i="${i}"><td>${fdate(r.date) || '<span class="muted">no date</span>'}</td><td>${T[r.type]}</td><td><b>${esc(r.label)}</b><span class="sub2">${esc(r.sub)}</span></td><td>${esc(S.A.get(r.acc)?.name || '—')}${r.acc2 ? ' → ' + esc(S.A.get(r.acc2)?.name) : ''}</td><td>${MODES[r.mode] || ''}</td><td class="num" style="color:${r.type === 'tr' ? 'inherit' : r.amt >= 0 ? 'var(--green)' : 'var(--red)'}">${r.type === 'tr' ? '' : r.amt >= 0 ? '+' : '−'}${money(Math.abs(r.amt))}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">No transactions.</td></tr>'}
+  </tbody><tfoot><tr><td colspan="5">${list.length} transactions${S.txType === 'all' ? ' · net (excluding transfers and loans)' : ''}</td><td class="num">${money(sum(list.filter(r => r.type !== 'tr' && (S.txType === 'loan' || r.type !== 'loan')), 'amt'))}</td></tr></tfoot></table></div>`;
   $$('#tSeg button').forEach(b => b.onclick = () => { S.txType = b.dataset.k; renderTx(); });
   $('#tAcc').onchange = e => { S.txAcc = e.target.value; renderTx(); };
   $$('tr[data-i]').forEach(t => t.onclick = () => list[Number(t.dataset.i)].open());
   $('#tIn').onclick = () => openReceipt(null, null); $('#tOut').onclick = () => openPayout(null, null); $('#tExp').onclick = () => openExpense(null); $('#tTr').onclick = () => openTransfer();
-  $('#tCsv').onclick = () => csv('tecarch-transactions-' + today(), [['Date','Type','Details','Job / note','Account','Method','Amount'], ...list.map(r => [r.date, ({in:'Money in', out:'Outsourcing', exp:'Expense', tr:'Transfer'})[r.type], r.label, r.sub, S.A.get(r.acc)?.name, MODES[r.mode], r.amt])]);
+  $('#tCsv').onclick = () => csv('tecarch-transactions-' + today(), [['Date','Type','Details','Job / note','Account','Method','Amount'], ...list.map(r => [r.date, ({in:'Money in', out:'Outsourcing', exp:'Expense', tr:'Transfer', loan:'Loan'})[r.type], r.label, r.sub, S.A.get(r.acc)?.name, MODES[r.mode], r.amt])]);
 }
 function openExpense(id){
   const e = id ? S.expenses.find(x => x.id === id) : null;
   drawer(dhead(e ? 'Expense' : 'Record an expense', 'Office and project costs other than outsourced work') + `<div class="dbody"><div class="sec"><form id="eForm" class="fg">
-    <div><label class="f">Category</label><select id="eCat">${EXP_CATS.map(c => `<option ${c === e?.category ? 'selected' : ''}>${c}</option>`).join('')}${e && !EXP_CATS.includes(e.category) ? `<option selected>${esc(e.category)}</option>` : ''}</select></div>
+    <div><label class="f">Category</label><select id="eCat">${expCats().map(c => `<option ${c === e?.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}${e && !expCats().includes(e.category) ? `<option selected>${esc(e.category)}</option>` : ''}<option value="__new">+ New category…</option></select></div>
     <div><label class="f">Amount (Rs)</label><input id="eAmt" required inputmode="decimal" value="${e?.amount ?? ''}"></div>
     <div><label class="f">Date</label><input id="eDate" type="date" required value="${e?.spent_on || today()}"></div>
-    <div><label class="f">VAT in this bill (Rs)</label><input id="eVat" inputmode="decimal" value="${N(e?.vat_amount) || ''}"><div class="hint">For VAT bills you can claim back.</div></div>
+    <div><label class="f">VAT in this bill (Rs)</label><input id="eVat" inputmode="decimal" value="${N(e?.vat_amount) || ''}"><div class="hint">For VAT bills you can claim back. Loan interest goes on the loan, not here.</div></div>
     <div><label class="f">Method</label><select id="eMode">${modeOptions(e?.mode)}</select></div>
     <div><label class="f">Paid from</label><select id="eAcc">${accOptions(e?.account_id)}</select></div>
     <div><label class="f">Paid to (shop / person)</label><input id="eParty" list="dlE" value="${esc(pname(e?.party_id))}"></div>
@@ -870,6 +883,9 @@ function openExpense(id){
     <div class="w2"><label class="f">Note</label><input id="eNote" value="${esc(e?.note || '')}"></div>${partyList('dlE', ['supplier','staff','other'])}
     <div class="w2 formfoot">${e && S.admin ? '<button type="button" class="btn ghost danger left" id="eDel">Delete</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save</button></div></form></div></div>`);
   $('#eMode').onchange = () => { const a = defaultAcc(val('eMode')); if(a && !val('eAcc')) $('#eAcc').value = a; };
+  $('#eCat').onchange = async () => { if(val('eCat') !== '__new') return; const n = (prompt('Name of the new expense category') || '').trim(); if(!n){ $('#eCat').selectedIndex = 0; return; }
+    const { data, error } = await sb.from('fin_expense_categories').insert({ name:n, grp:'other' }).select().single(); if(error){ fail(error); $('#eCat').selectedIndex = 0; return; }
+    S.cats.push(data); const o = new Option(n, n, true, true); $('#eCat').insertBefore(o, $('#eCat').lastElementChild); toast('Category added'); };
   if($('#eDel')) $('#eDel').onclick = async () => { if(await remove('fin_expenses', e.id, 'this expense')){ await refresh(); closeDrawer(); } };
   $('#eForm').onsubmit = async ev => { ev.preventDefault();
     try{ const obj = { category:val('eCat'), amount:numv('eAmt'), spent_on:val('eDate'), vat_amount:numv('eVat') || 0, mode:val('eMode'), account_id:val('eAcc') ? Number(val('eAcc')) : null, party_id:await resolveParty(val('eParty'), 'supplier'), bill_no:val('eBill'), job_id:val('eJob') ? Number(val('eJob')) : null, note:val('eNote') };
@@ -983,7 +999,7 @@ function openParty(id){
 function printStatement(p, jobs, wo){
   const rc = S.receipts.filter(r => jobs.some(j => j.id === r.job_id && (j.bill_to_id || j.client_id) === p.id)).sort((a, b) => (a.received_on || '').localeCompare(b.received_on || ''));
   const mine = jobs.filter(j => (j.bill_to_id || j.client_id) === p.id && j.status !== 'cancelled');
-  printDoc(`${letterhead()}<div class="ttl"><h1>STATEMENT OF ACCOUNT</h1><div class="meta"><b>${esc(p.name)}</b><br>As on ${fdate(today())}</div></div>
+  printDoc(`${letterhead()}<div class="ttl"><h1>STATEMENT OF ACCOUNT</h1><div class="meta"><b>${esc(p.name)}</b><br>As on ${fboth(today())}</div></div>
   ${mine.length ? `<h3>Jobs</h3><table><thead><tr><th>Code</th><th>Job</th><th style="text-align:right">Agreed</th><th style="text-align:right">Received</th><th style="text-align:right">Balance</th></tr></thead><tbody>${mine.map(j => `<tr><td>${esc(j.code || '')}</td><td>${esc(j.title)}${j.scope ? ' · ' + esc(j.scope) : ''}</td><td style="text-align:right">${money(j.contract_amount)}</td><td style="text-align:right">${money(j.received)}</td><td style="text-align:right">${money(j.due)}</td></tr>`).join('')}
    <tr><td colspan="2"><b>Total</b></td><td style="text-align:right"><b>${money(sum(mine, 'contract_amount'))}</b></td><td style="text-align:right"><b>${money(sum(mine, 'received'))}</b></td><td style="text-align:right"><b>${money(sum(mine, 'due'))}</b></td></tr></tbody></table>` : ''}
   ${rc.length ? `<h3>Payments received</h3><table><thead><tr><th>Date</th><th>Job</th><th>Method</th><th style="text-align:right">Amount</th></tr></thead><tbody>${rc.map(r => `<tr><td>${fdate(r.received_on) || '—'}</td><td>${esc(S.J.get(r.job_id)?.title || '')}</td><td>${MODES[r.mode] || '—'}</td><td style="text-align:right">${money(r.amount)}</td></tr>`).join('')}</tbody></table>` : ''}
@@ -995,36 +1011,19 @@ function printStatement(p, jobs, wo){
 
 /* ================= REPORTS ================= */
 function renderReports(){
-  const tabs = [['monthly','Monthly in & out'],['profit','Profit by job'],['payers','Outstanding by payer'],['vat','VAT'],['tds','TDS']];
+  const tabs = [['fy','FY statement'],['monthly','Month by month'],['profit','Profit by job'],['payers','Outstanding by payer'],['vat','VAT'],['tds','TDS']];
   $('#main').innerHTML = `<div class="phead"><div><h1>Reports</h1><p>For you, your auditor and tax filing. Each one can be exported to CSV.</p></div><div class="acts"><button class="btn" id="repCsv">Export CSV</button><button class="btn" id="repPrint">Print</button></div></div>
-  <div class="toolbar"><div class="seg" id="repSeg">${tabs.map(([k, l]) => `<button data-k="${k}" class="${S.repTab === k ? 'on' : ''}">${l}</button>`).join('')}</div></div><div id="repBody"></div>`;
+  <div class="toolbar"><select id="repFy" style="width:auto">${fyOptions()}</select><div class="seg" id="repSeg">${tabs.map(([k, l]) => `<button data-k="${k}" class="${S.repTab === k ? 'on' : ''}">${l}</button>`).join('')}</div></div><div id="repBody"></div>`;
   $$('#repSeg button').forEach(b => b.onclick = () => { S.repTab = b.dataset.k; renderReports(); });
-  const R = ({monthly:repMonthly, profit:repProfit, payers:repPayers, vat:repVat, tds:repTds})[S.repTab]();
+  $('#repFy').onchange = e => { S.fy = Number(e.target.value); renderReports(); };
+  const R = ({fy:repFy, monthly:repMonthly, profit:repProfit, payers:repPayers, vat:repVat, tds:repTds})[S.repTab]();
   $('#repBody').innerHTML = R.html;
-  $('#repCsv').onclick = () => csv(`tecarch-${S.repTab}-${today()}`, R.rows);
-  $('#repPrint').onclick = () => printDoc(letterhead() + `<div class="ttl"><h1>${tabs.find(t => t[0] === S.repTab)[1].toUpperCase()}</h1><div class="meta">As on ${fdate(today())}</div></div>` + R.html.replace(/<svg[\s\S]*?<\/svg>/, ''), `TecArch ${S.repTab} ${today()}`);
+  $('#repCsv').onclick = () => csv(`tecarch-${S.repTab}-FY${BS.fy(S.fy).short.replace('/','-')}-${today()}`, R.rows);
+  if(R.mount) R.mount();
+  $('#repPrint').onclick = () => printDoc(letterhead() + `<div class="ttl"><h1>${tabs.find(t => t[0] === S.repTab)[1].toUpperCase()}</h1><div class="meta">FY ${BS.fy(S.fy).label}<br>Printed ${fboth(today())}</div></div>` + R.html.replace(/<svg[\s\S]*?<\/svg>/, '').replace(/<button[\s\S]*?<\/button>/g, ''), `TecArch ${S.repTab} ${today()}`);
 }
 function tableHtml(head, rows, numCols=[], foot){
   return `<div class="tablewrap"><table><thead><tr>${head.map((h, i) => `<th class="${numCols.includes(i) ? 'num' : ''}">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${numCols.includes(i) ? 'num' : ''}">${c}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${head.length}" class="empty">No data yet.</td></tr>`}</tbody>${foot ? `<tfoot><tr>${foot.map((c, i) => `<td class="${numCols.includes(i) ? 'num' : ''}">${c}</td>`).join('')}</tr></tfoot>` : ''}</table></div>`;
-}
-function repMonthly(){
-  const m = S.monthly.slice(-12);
-  const undated = S.receipts.filter(r => !r.received_on);
-  const W = 760, H = 220, pad = 34, max = Math.max(1, ...m.map(x => Math.max(N(x.income), N(x.outsourcing) + N(x.expenses))));
-  const bw = m.length ? (W - pad - 10) / m.length : 0;
-  const svg = m.length ? `<svg class="chart" viewBox="0 0 ${W} ${H + 24}" role="img" aria-label="Monthly income and spending">
-    ${[0, .5, 1].map(f => `<line x1="${pad}" x2="${W}" y1="${H - f * (H - 10)}" y2="${H - f * (H - 10)}" stroke="#e5e6e9"/><text x="${pad - 4}" y="${H - f * (H - 10) + 4}" font-size="10" text-anchor="end" fill="#6a707a">${f ? Math.round(max * f / 1000) + 'k' : '0'}</text>`).join('')}
-    ${m.map((x, i) => { const x0 = pad + i * bw + bw * .15, w2 = bw * .33; const hi = N(x.income) / max * (H - 10), ho = N(x.outsourcing) / max * (H - 10), he = N(x.expenses) / max * (H - 10);
-      return `<rect x="${x0}" y="${H - hi}" width="${w2}" height="${hi}" fill="#2c5282" rx="2"><title>${month(x.month)} income ${money(x.income)}</title></rect>
-      <rect x="${x0 + w2 + 2}" y="${H - ho}" width="${w2}" height="${ho}" fill="#f37321" rx="2"><title>Outsourcing ${money(x.outsourcing)}</title></rect>
-      <rect x="${x0 + w2 + 2}" y="${H - ho - he}" width="${w2}" height="${he}" fill="#c62828" rx="2"><title>Expenses ${money(x.expenses)}</title></rect>
-      <text x="${x0 + w2}" y="${H + 16}" font-size="10" text-anchor="middle" fill="#6a707a">${month(x.month)}</text>`; }).join('')}</svg>
-    <div class="legend"><span><i style="background:#2c5282"></i>Money in</span><span><i style="background:#f37321"></i>Outsourcing paid</span><span><i style="background:#c62828"></i>Expenses</span></div>` : '';
-  const rows = S.monthly.slice().reverse();
-  return { html: `<div class="sec">${svg || '<p class="muted">No dated transactions yet.</p>'}</div>
-    ${undated.length ? `<div class="note">${undated.length} imported payments (${money(sum(undated, 'amount'))}) have no date, so they are not in this chart. Add dates where you know them.</div>` : ''}
-    ${tableHtml(['Month','Money in','Outsourcing paid','Expenses','Net'], rows.map(x => [month(x.month), money(x.income), money(x.outsourcing), money(x.expenses), money(x.net)]), [1,2,3,4], ['Total', money(sum(rows, 'income')), money(sum(rows, 'outsourcing')), money(sum(rows, 'expenses')), money(sum(rows, 'net'))])}`,
-    rows: [['Month','Money in','Outsourcing paid','Expenses','Net'], ...rows.map(x => [x.month, x.income, x.outsourcing, x.expenses, x.net])] };
 }
 function repProfit(){
   const list = S.jobs.filter(j => j.status !== 'cancelled' && (N(j.contract_amount) || N(j.outsourcing_cost))).sort((a, b) => N(a.profit) / Math.max(1, N(a.contract_amount)) - N(b.profit) / Math.max(1, N(b.contract_amount)));
@@ -1078,6 +1077,174 @@ function renderReview(){
   $$('[data-wok]').forEach(b => b.onclick = async () => { await sb.from('fin_work_orders').update({needs_review:false}).eq('id', b.dataset.wok); refresh(); });
   $$('[data-link]').forEach(s => s.onchange = async () => { if(!s.value) return; const { error } = await sb.from('fin_work_orders').update({job_id:Number(s.value), needs_review:false}).eq('id', s.dataset.link); if(error) return fail(error); toast('Linked'); refresh(); });
 }
+
+/* ================= FISCAL YEAR ================= */
+function fyOptions(){
+  const ys = new Set([CUR_FY]);
+  [...S.receipts.map(r => r.received_on), ...S.payouts.map(p => p.paid_on), ...S.expenses.map(e => e.spent_on), ...S.loans.map(l => l.start_date)].forEach(d => { const y = d && BS.fyStartYear(d); if(y) ys.add(y); });
+  return [...ys].sort((a, b) => b - a).map(y => `<option value="${y}" ${y === S.fy ? 'selected' : ''}>FY ${BS.fy(y).label}${S.closings.some(c => c.fy_start === y) ? ' (closed)' : y === CUR_FY ? ' (current)' : ''}</option>`).join('');
+}
+function fyStatement(f){
+  const rc = S.receipts.filter(r => inFy(r.received_on, f));
+  const po = S.payouts.filter(p => inFy(p.paid_on, f));
+  const ex = S.expenses.filter(e => inFy(e.spent_on, f));
+  const lp = S.loanPays.filter(p => inFy(p.paid_on, f)).map(p => ({...p, dir:S.loans.find(l => l.id === p.loan_id)?.direction}));
+  const fees = sum(rc, r => N(r.amount) - N(r.vat_amount));
+  const intIn = sum(lp.filter(p => p.dir === 'given'), 'interest_amount');
+  const outs = sum(po, 'gross_amount');
+  const byCat = {}; ex.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + N(e.amount) - N(e.vat_amount); });
+  const intOut = sum(lp.filter(p => p.dir === 'taken'), 'interest_amount');
+  const income = fees + intIn, spent = outs + sum(Object.values(byCat)) + intOut;
+  const undated = S.receipts.filter(r => !r.received_on).length + S.payouts.filter(p => !p.paid_on).length;
+  return { f, fees, intIn, outs, byCat, intOut, income, spent, net: income - spent, vatOut: sum(rc, 'vat_amount'), vatIn: sum(ex, 'vat_amount'), tds: sum(po, 'tds_amount'), undated,
+    counts:{ receipts:rc.length, payouts:po.length, expenses:ex.length } };
+}
+function repFy(){
+  const f = BS.fy(S.fy), st = fyStatement(f), closed = S.closings.find(c => c.fy_start === S.fy);
+  const ended = today() > f.to;
+  const loansT = S.loans.filter(l => l.direction === 'taken' && l.status === 'open'), loansG = S.loans.filter(l => l.direction === 'given' && l.status === 'open');
+  const cats = Object.entries(st.byCat).sort((a, b) => b[1] - a[1]);
+  const line = (l, v, cls='') => `<tr class="${cls}"><td>${l}</td><td class="num">${money(v)}</td></tr>`;
+  const html = `
+  <div class="note ${closed ? '' : 'blue'}">${closed ? `<b>FY ${f.label} is closed</b> (${fboth(closed.closed_at)}). Entries dated in this year are locked. ${S.admin ? '<button class="btn sm" id="fyReopen" style="margin-left:6px">Reopen year</button>' : ''}`
+    : `FY ${f.label}: ${fboth(f.from)} → ${fboth(f.to)} (1 Shrawan – end of Ashadh). Cash basis: money actually received and paid in the year. ${S.admin ? `<button class="btn sm" id="fyClose" style="margin-left:6px">${ended ? 'Close this year' : 'Close year early…'}</button>` : ''}`}</div>
+  ${st.undated ? `<div class="note">${st.undated} older imported entries have no date, so they are in no year's statement. Add dates where you know them.</div>` : ''}
+  <div class="cols"><div>
+   <div class="sec"><h3>Income &amp; expenditure <small>FY ${f.label}</small></h3><div class="tablewrap"><table>
+    <tbody>
+     <tr><td colspan="2"><b>Income</b></td></tr>
+     ${line('Fees received from clients &amp; partners (excl. VAT)', st.fees)}${st.intIn ? line('Interest received on loans given', st.intIn) : ''}
+     ${line('<b>Total income</b>', st.income, 'tot')}
+     <tr><td colspan="2"><b>Expenditure</b></td></tr>
+     ${line('Outsourced professionals (gross, incl. TDS)', st.outs)}
+     ${cats.map(([c, v]) => line(esc(c), v)).join('')}
+     ${st.intOut ? line('Interest paid on loans taken', st.intOut) : ''}
+     ${line('<b>Total expenditure</b>', st.spent, 'tot')}
+    </tbody><tfoot><tr><td>${st.net >= 0 ? 'Surplus (profit before tax)' : 'Deficit (loss)'}</td><td class="num" style="color:${st.net >= 0 ? 'var(--green)' : 'var(--red)'}">${money(st.net)}</td></tr></tfoot></table></div></div>
+  </div><div>
+   <div class="sec"><h3>Tax summary <small>FY ${f.label}</small></h3><div class="rows">
+    <div class="row"><div class="grow">VAT collected on receipts</div><div class="amt">${money(st.vatOut)}</div></div>
+    <div class="row"><div class="grow">VAT paid on expense bills</div><div class="amt">${money(st.vatIn)}</div></div>
+    <div class="row"><div class="grow"><b>Net VAT</b></div><div class="amt">${money(st.vatOut - st.vatIn)}</div></div>
+    <div class="row"><div class="grow">TDS withheld from professionals</div><div class="amt">${money(st.tds)}</div></div></div></div>
+   <div class="sec"><h3>Position today <small>not limited to this year</small></h3><div class="rows">
+    <div class="row"><div class="grow">Clients &amp; partners owe TecArch</div><div class="amt">${money(sum(openJobs(), 'due'))}</div></div>
+    <div class="row"><div class="grow">TecArch owes outsourced professionals</div><div class="amt">${money(sum(S.wos.filter(w => w.status !== 'cancelled'), 'balance'))}</div></div>
+    <div class="row"><div class="grow">Loans TecArch has to repay</div><div class="amt">${money(sum(loansT, 'outstanding'))}</div></div>
+    <div class="row"><div class="grow">Loans TecArch has to get back</div><div class="amt">${money(sum(loansG, 'outstanding'))}</div></div>
+    <div class="row"><div class="grow">Money recorded in accounts</div><div class="amt">${money(sum(S.accounts.filter(a => a.active), 'balance'))}</div></div></div></div>
+   <div class="sec"><h3>Entries counted</h3><p class="muted" style="margin:0">${st.counts.receipts} receipts · ${st.counts.payouts} payments to professionals · ${st.counts.expenses} expenses</p></div>
+  </div></div>`;
+  const rows = [['FY ' + f.label, ''], ['Fees received (excl. VAT)', st.fees], ['Interest received', st.intIn], ['Total income', st.income], ['Outsourced professionals', st.outs], ...cats.map(([c, v]) => [c, v]), ['Interest paid', st.intOut], ['Total expenditure', st.spent], ['Net', st.net], ['VAT collected', st.vatOut], ['VAT paid', st.vatIn], ['TDS withheld', st.tds]];
+  return { html, rows, mount(){
+    if($('#fyClose')) $('#fyClose').onclick = async () => {
+      if(!ended && !confirm(`FY ${f.label} only ends on ${fboth(f.to)}. Close it early anyway?`)) return;
+      if(!confirm(`Close FY ${f.label}? Entries dated ${fdate(f.from)} – ${fdate(f.to)} will be locked. You can reopen it later as admin.`)) return;
+      const { error } = await sb.from('fin_fy_closings').insert({ fy_start:S.fy, summary:{ income:st.income, expenditure:st.spent, net:st.net, fees:st.fees, outsourcing:st.outs, byCategory:st.byCat, vatOut:st.vatOut, vatIn:st.vatIn, tds:st.tds } });
+      if(error) return fail(error); toast(`FY ${f.label} closed`); refresh(); };
+    if($('#fyReopen')) $('#fyReopen').onclick = async () => { if(!confirm(`Reopen FY ${f.label}? Entries in it can be changed again.`)) return;
+      const { error } = await sb.from('fin_fy_closings').delete().eq('fy_start', S.fy); if(error) return fail(error); toast('Year reopened'); refresh(); };
+  } };
+}
+function repMonthly(){
+  const f = BS.fy(S.fy), start = BS.adToBs(f.from).y;
+  const months = Array.from({length:12}, (_, i) => { const y = i < 9 ? start : start + 1, m = ((i + 3) % 12) + 1; return { y, m, label:`${BS.MONTHS[m - 1]} ${y}`, from:BS.bsToAd(y, m, 1), to:BS.bsToAd(y, m, BS.daysInMonth(y, m)) }; });
+  const inR = (d, x) => !!d && d >= x.from && d <= x.to;
+  const data = months.map(x => ({ ...x, income: sum(S.receipts.filter(r => inR(r.received_on, x)), r => N(r.amount) - N(r.vat_amount)), outsourcing: sum(S.payouts.filter(p => inR(p.paid_on, x)), 'gross_amount'), expenses: sum(S.expenses.filter(e => inR(e.spent_on, x)), e => N(e.amount) - N(e.vat_amount)) }));
+  data.forEach(x => x.net = x.income - x.outsourcing - x.expenses);
+  const W = 760, H = 220, pad = 34, max = Math.max(1, ...data.map(x => Math.max(x.income, x.outsourcing + x.expenses))), bw = (W - pad - 10) / 12;
+  const svg = `<svg class="chart" viewBox="0 0 ${W} ${H + 24}" role="img" aria-label="Income and spending by Nepali month">
+    ${[0, .5, 1].map(q => `<line x1="${pad}" x2="${W}" y1="${H - q * (H - 10)}" y2="${H - q * (H - 10)}" stroke="#e5e6e9"/><text x="${pad - 4}" y="${H - q * (H - 10) + 4}" font-size="10" text-anchor="end" fill="#6a707a">${q ? Math.round(max * q / 1000) + 'k' : '0'}</text>`).join('')}
+    ${data.map((x, i) => { const x0 = pad + i * bw + bw * .15, w2 = bw * .33, hi = x.income / max * (H - 10), ho = x.outsourcing / max * (H - 10), he = x.expenses / max * (H - 10);
+      return `<rect x="${x0}" y="${H - hi}" width="${w2}" height="${hi}" fill="#2c5282" rx="2"><title>${x.label}: in ${money(x.income)}</title></rect><rect x="${x0 + w2 + 2}" y="${H - ho}" width="${w2}" height="${ho}" fill="#f37321" rx="2"><title>Outsourcing ${money(x.outsourcing)}</title></rect><rect x="${x0 + w2 + 2}" y="${H - ho - he}" width="${w2}" height="${he}" fill="#c62828" rx="2"><title>Expenses ${money(x.expenses)}</title></rect><text x="${x0 + w2}" y="${H + 16}" font-size="10" text-anchor="middle" fill="#6a707a">${BS.MONTHS[x.m - 1].slice(0, 4)}</text>`; }).join('')}</svg>
+    <div class="legend"><span><i style="background:#2c5282"></i>Money in (excl. VAT)</span><span><i style="background:#f37321"></i>Outsourcing paid</span><span><i style="background:#c62828"></i>Expenses</span></div>`;
+  return { html: `<div class="sec">${svg}</div>` + tableHtml(['Month','Money in','Outsourcing paid','Expenses','Net'], data.map(x => [x.label, money(x.income), money(x.outsourcing), money(x.expenses), money(x.net)]), [1,2,3,4], ['FY ' + f.label, money(sum(data, 'income')), money(sum(data, 'outsourcing')), money(sum(data, 'expenses')), money(sum(data, 'net'))]),
+    rows: [['Month (BS)','Money in','Outsourcing paid','Expenses','Net'], ...data.map(x => [x.label, x.income, x.outsourcing, x.expenses, x.net])] };
+}
+
+/* ================= LOANS ================= */
+function renderLoans(){
+  const open = S.loans.filter(l => l.status === 'open');
+  const T = open.filter(l => l.direction === 'taken'), G = open.filter(l => l.direction === 'given');
+  const st = fyStatement(BS.fy(CUR_FY));
+  $('#main').innerHTML = `<div class="phead"><div><h1>Loans</h1><p>Money TecArch borrowed and has to repay, and money TecArch lent and has to get back. Loans are not income or expenses, but interest is.</p></div>
+   <div class="acts"><button class="btn" id="lGiven">+ TecArch lent money</button><button class="btn accent" id="lTaken">+ TecArch borrowed money</button></div></div>
+  <div class="kpis">
+   <div class="kpi out"><div class="l">To repay (borrowed)</div><div class="n">${money(sum(T, 'outstanding'))}</div><div class="s">${T.length} open loan${T.length === 1 ? '' : 's'}</div></div>
+   <div class="kpi in"><div class="l">To get back (lent)</div><div class="n">${money(sum(G, 'outstanding'))}</div><div class="s">${G.length} open loan${G.length === 1 ? '' : 's'}</div></div>
+   <div class="kpi"><div class="l">Interest FY ${BS.fy(CUR_FY).label}</div><div class="n">${money(st.intOut)}</div><div class="s">paid · received ${money(st.intIn)}</div></div>
+  </div>
+  <div class="tablewrap"><table><thead><tr><th>Type</th><th>With</th><th>Taken / given on</th><th class="num">Amount</th><th class="num">Repaid</th><th class="num">Outstanding</th><th class="num">Interest</th><th>Due</th><th>Status</th></tr></thead><tbody>
+  ${S.loans.map(l => `<tr class="click" data-l="${l.id}"><td>${l.direction === 'taken' ? '<span class="pill orange">Borrowed</span>' : '<span class="pill ok">Lent</span>'}</td><td><b>${esc(l.party_name)}</b>${l.purpose ? `<span class="sub2">${esc(l.purpose)}</span>` : ''}</td><td>${fdate(l.start_date)}</td>
+    <td class="num">${money(l.principal)}</td><td class="num">${money(l.principal_repaid)}</td><td class="num" style="font-weight:600">${money(l.outstanding)}</td><td class="num">${N(l.interest_rate) ? l.interest_rate + '% · ' : ''}${money(l.interest_paid)}</td>
+    <td>${l.due_date ? fdate(l.due_date) + (l.status === 'open' && l.due_date < today() ? ' <span class="pill red">Overdue</span>' : '') : '—'}</td><td>${({open:'<span class="pill amber">Open</span>', closed:'<span class="pill ok">Settled</span>', written_off:'<span class="pill grey">Written off</span>'})[l.status]}</td></tr>`).join('') || '<tr><td colspan="9" class="empty">No loans recorded.</td></tr>'}
+  </tbody></table></div>`;
+  $('#lTaken').onclick = () => openLoan(null, 'taken'); $('#lGiven').onclick = () => openLoan(null, 'given');
+  $$('tr[data-l]').forEach(t => t.onclick = () => openLoan(Number(t.dataset.l)));
+}
+function openLoan(id, direction){
+  const l = id ? S.loans.find(x => x.id === id) : null; const dir = l?.direction || direction;
+  const pays = l ? S.loanPays.filter(p => p.loan_id === id) : [];
+  const ov = drawer(dhead(l ? `${dir === 'taken' ? 'Borrowed from' : 'Lent to'} ${esc(l.party_name)}` : dir === 'taken' ? 'TecArch borrowed money' : 'TecArch lent money', l ? `Outstanding ${money(l.outstanding)}` : (dir === 'taken' ? 'The money comes into one of your accounts and you repay it later' : 'The money goes out of one of your accounts and you get it back later')) + `<div class="dbody">
+  ${l ? `<div class="m4"><div><small>Amount</small><b>${money(l.principal)}</b></div><div><small>${dir === 'taken' ? 'Repaid' : 'Got back'}</small><b>${money(l.principal_repaid)}</b></div><div><small>Outstanding</small><b style="color:var(--orange)">${money(l.outstanding)}</b></div><div><small>Interest ${dir === 'taken' ? 'paid' : 'received'}</small><b>${money(l.interest_paid)}</b></div></div>` : ''}
+  <div class="sec"><form id="lForm" class="fg">
+    <div><label class="f">${dir === 'taken' ? 'Borrowed from' : 'Lent to'}</label><input id="lParty" list="dlL" required value="${esc(l?.party_name || '')}" placeholder="Person, bank or company"></div>
+    <div><label class="f">Amount (Rs)</label><input id="lAmt" required inputmode="decimal" value="${l?.principal ?? ''}"></div>
+    <div><label class="f">Date</label><input id="lDate" type="date" required value="${l?.start_date || today()}"></div>
+    <div><label class="f">${dir === 'taken' ? 'Money came into' : 'Money went out of'}</label><select id="lAcc">${accOptions(l?.account_id)}</select></div>
+    <div><label class="f">Method</label><select id="lMode">${modeOptions(l?.mode)}</select></div>
+    <div><label class="f">Interest rate (% per year)</label><input id="lRate" inputmode="decimal" value="${N(l?.interest_rate) || ''}" placeholder="0 if none"></div>
+    <div><label class="f">To be ${dir === 'taken' ? 'repaid' : 'returned'} by</label><input id="lDue" type="date" value="${l?.due_date || ''}"></div>
+    <div><label class="f">Status</label><select id="lStatus">${[['open','Open'],['closed','Settled'],['written_off','Written off']].map(([k, v]) => `<option value="${k}" ${(l?.status || 'open') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div class="w2"><label class="f">Purpose</label><input id="lPurpose" value="${esc(l?.purpose || '')}" placeholder="e.g. office equipment, short-term cash"></div>
+    <div class="w2"><label class="f">Notes</label><input id="lNotes" value="${esc(l?.notes || '')}"></div>${partyList('dlL')}
+    <div class="w2 formfoot">${l && S.admin ? '<button type="button" class="btn ghost danger left" id="lDel">Delete</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save loan</button></div></form></div>
+  ${l ? `<div class="sec"><h3>${dir === 'taken' ? 'Repayments' : 'Money received back'} <button class="btn sm accent" id="lPay">+ ${dir === 'taken' ? 'Record repayment' : 'Record money received'}</button></h3>
+   ${pays.length ? `<div class="rows">${pays.map(p => `<div class="row" data-lp="${p.id}" style="cursor:pointer"><div class="grow"><b>${fdate(p.paid_on)}</b><small>${MODES[p.mode] || '—'} · ${esc(S.A.get(p.account_id)?.name || 'account not recorded')}${p.note ? ' · ' + esc(p.note) : ''}</small></div><div class="amt">${money(p.principal_amount)}${N(p.interest_amount) ? `<br><small>+ interest ${money(p.interest_amount)}</small>` : ''}</div></div>`).join('')}</div>` : '<p class="muted">Nothing yet.</p>'}</div>` : ''}</div>`);
+  $('#lMode').onchange = () => { const a = defaultAcc(val('lMode')); if(a && !val('lAcc')) $('#lAcc').value = a; };
+  if($('#lPay')) $('#lPay').onclick = () => openLoanPay(l.id);
+  $$('[data-lp]', ov).forEach(r => r.onclick = () => openLoanPay(l.id, Number(r.dataset.lp)));
+  if($('#lDel')) $('#lDel').onclick = async () => { if(await remove('fin_loans', l.id, 'this loan and its repayments')){ closeDrawer(); refresh(); } };
+  $('#lForm').onsubmit = async e => { e.preventDefault();
+    try{ const obj = { direction:dir, party_id:await resolveParty(val('lParty'), 'other'), principal:numv('lAmt'), start_date:val('lDate'), account_id:val('lAcc') ? Number(val('lAcc')) : null, mode:val('lMode'), interest_rate:numv('lRate') || 0, due_date:val('lDue'), status:val('lStatus'), purpose:val('lPurpose'), notes:val('lNotes') };
+      const r = await save('fin_loans', l?.id, obj); if(!r) return; toast('Loan saved'); await refresh(); openLoan(r.id); }catch(err){ fail(err); } };
+}
+function openLoanPay(loanId, payId){
+  const l = S.loans.find(x => x.id === loanId); const p = payId ? S.loanPays.find(x => x.id === payId) : null; const taken = l.direction === 'taken';
+  drawer(dhead(taken ? `Repayment to ${esc(l.party_name)}` : `Money back from ${esc(l.party_name)}`, `Outstanding ${money(l.outstanding)}`) + `<div class="dbody"><div class="sec"><form id="lpForm" class="fg">
+    <div><label class="f">Principal (Rs)</label><input id="lpP" inputmode="decimal" value="${p ? p.principal_amount : l.outstanding}"></div>
+    <div><label class="f">Interest (Rs)</label><input id="lpI" inputmode="decimal" value="${p ? (N(p.interest_amount) || '') : ''}"></div>
+    <div><label class="f">Date</label><input id="lpD" type="date" required value="${p?.paid_on || today()}"></div>
+    <div><label class="f">Method</label><select id="lpM">${modeOptions(p?.mode)}</select></div>
+    <div><label class="f">${taken ? 'Paid from' : 'Received into'}</label><select id="lpA">${accOptions(p?.account_id)}</select></div>
+    <div><label class="f">Note</label><input id="lpN" value="${esc(p?.note || '')}"></div>
+    <div class="w2 formfoot">${p && S.admin ? '<button type="button" class="btn ghost danger left" id="lpDel">Delete</button>' : ''}<button type="button" class="btn" id="lpBack">Back</button><button class="btn primary">Save</button></div></form></div></div>`);
+  $('#lpBack').onclick = () => openLoan(loanId);
+  $('#lpM').onchange = () => { const a = defaultAcc(val('lpM')); if(a && !val('lpA')) $('#lpA').value = a; };
+  if($('#lpDel')) $('#lpDel').onclick = async () => { if(await remove('fin_loan_payments', p.id, 'this payment')){ await refresh(); openLoan(loanId); } };
+  $('#lpForm').onsubmit = async e => { e.preventDefault();
+    const pr = numv('lpP') || 0, it = numv('lpI') || 0; if(pr + it <= 0) return toast('Enter an amount');
+    if(!p && pr > N(l.outstanding) + 0.5 && !confirm('That is more than what is outstanding. Save anyway?')) return;
+    const r = await save('fin_loan_payments', p?.id, { loan_id:loanId, principal_amount:pr, interest_amount:it, paid_on:val('lpD'), mode:val('lpM'), account_id:val('lpA') ? Number(val('lpA')) : null, note:val('lpN') }); if(!r) return;
+    await refresh(); const l2 = S.loans.find(x => x.id === loanId);
+    if(l2 && N(l2.outstanding) <= 0 && l2.status === 'open'){ await sb.from('fin_loans').update({status:'closed'}).eq('id', loanId); await refresh(); toast('Loan fully settled'); } else toast('Saved');
+    openLoan(loanId); };
+}
+
+/* ================= BS date helper on every date field ================= */
+function bsify(root){
+  $$('input[type=date]:not([data-bs])', root).forEach(inp => {
+    inp.dataset.bs = '1';
+    const wrap = document.createElement('div'); wrap.style.cssText = 'display:flex;gap:6px;align-items:center';
+    inp.parentNode.insertBefore(wrap, inp); wrap.appendChild(inp);
+    const b = document.createElement('input'); b.placeholder = 'BS 2083-08-12'; b.title = 'Date in Bikram Sambat (YYYY-MM-DD)'; b.style.maxWidth = '150px'; b.setAttribute('aria-label', 'Date in BS');
+    wrap.appendChild(b);
+    const sync = () => { b.value = inp.value ? BS.bsIso(inp.value) : ''; b.style.borderColor = ''; };
+    inp.addEventListener('change', sync); inp.addEventListener('input', sync); sync();
+    b.addEventListener('input', () => { const ad = BS.parseBs(b.value); if(ad){ inp.value = ad; b.style.borderColor = ''; inp.dispatchEvent(new Event('change')); } else b.style.borderColor = b.value ? 'var(--red)' : ''; });
+  });
+}
+new MutationObserver(() => bsify($('#drawerRoot'))).observe($('#drawerRoot'), {childList:true, subtree:true});
 
 boot();
 </script>

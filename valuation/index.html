@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TecArch · Property valuation</title>
+<meta name="theme-color" content="#1d2128">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#2c5282; --green-d:#1e3a5f; --green-l:#eaf0f8;
+  --orange:#f37321; --orange-l:#fff1e7;
+  --ink:#1d2128; --muted:#6a707a; --line:#e5e6e9; --bg:#f6f6f4; --card:#fff;
+  --head:Montserrat,Inter,system-ui,sans-serif;
+  --red:#c62828; --red-l:#fdecec; --amber:#b26a00; --amber-l:#fff4e0; --ok:#2e7d32; --ok-l:#e8f5e9;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--green)}
+h1,h2,h3{font-family:var(--head);letter-spacing:-.01em}
+.hidden{display:none!important}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+td.num,th.num{text-align:right}
+
+/* top bar (shared with Tracker) */
+.ab{background:#1d2128;color:#fff;position:sticky;top:0;z-index:30;border-bottom:1px solid #0f1215}
+.ab-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:0 20px;min-height:60px}
+.ab-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;flex:none}
+.ab-brand img{height:30px;width:auto;display:block}
+.ab-brand span{font:600 11px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#aab0ba;border-left:1px solid #3a404a;padding-left:12px}
+.ab-nav{display:flex;gap:2px;align-self:stretch;margin:0}
+.ab-nav a{font:500 14px Montserrat,sans-serif;color:#c3c8d0;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:3px 14px 0;display:flex;align-items:center;gap:6px;text-decoration:none;min-height:60px;white-space:nowrap}
+.ab-nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.ab-nav .on,.ab-nav .on:hover{color:#fff;border-bottom-color:#f37321;background:none}
+.ab-sp{flex:1}
+.ab-me{font:400 12px/1.25 Inter,sans-serif;color:#aab0ba;text-align:right}.ab-me b{display:block;color:#fff;font-weight:600;font-size:13px}
+.ab-out{font:500 13px Inter,sans-serif;color:#fff;background:transparent;border:1px solid #4a515c;border-radius:8px;padding:7px 12px;cursor:pointer;min-height:36px}
+.ab-out:hover{border-color:#fff}
+@media(max-width:760px){.ab-long{display:none}.ab-in{flex-wrap:wrap;gap:0 12px;padding:8px 14px 0;min-height:0}.ab-nav{order:3;width:100%;overflow-x:auto}.ab-nav a{min-height:46px;padding:0 12px}.ab-me{display:none}.ab-brand span{display:none}}
+
+/* finance sub-navigation */
+.sub{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:60px;z-index:20}
+.sub-in{max-width:1320px;margin:0 auto;display:flex;gap:2px;padding:0 20px;overflow-x:auto}
+.sub button{border:0;background:none;padding:12px 14px;cursor:pointer;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.sub button:hover{color:var(--ink)}
+.sub button.on{color:var(--ink);border-bottom-color:var(--orange)}
+.badge{background:var(--orange);color:#fff;border-radius:999px;font:600 11px/1.4 Inter,sans-serif;padding:1px 7px}
+@media(max-width:760px){.sub{top:0;position:relative}}
+
+main{max-width:1320px;margin:0 auto;padding:24px 20px 90px}
+.phead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px}
+.phead h1{margin:0;font-size:26px;font-weight:700}
+.phead p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn:hover{border-color:#c9cdd3}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#000}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:600}
+.btn.accent:hover{background:#d95f12;border-color:#d95f12}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none}
+.btn.danger{color:var(--red)}
+.btn.wa{color:#128c4a}
+.btn:disabled{opacity:.55;cursor:default}
+input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--orange-l);border-color:var(--orange)}
+textarea{resize:vertical;min-height:64px}
+label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fg .w2,.fg3 .w3{grid-column:1/-1}
+@media(max-width:640px){.fg,.fg3{grid-template-columns:1fr}}
+.chk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap}
+.chk input{width:auto}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.toolbar input[type=search]{max-width:280px}
+.toolbar select{width:auto}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--ink);color:#fff}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;cursor:pointer;text-align:left}
+.kpi:hover{border-color:#c8cbd1}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.kpi .n{font:700 24px/1.2 var(--head);margin-top:4px}
+.kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.kpi.in .n{color:var(--green)}
+.kpi.out .n{color:var(--orange)}
+.kpi.warn .n{color:var(--red)}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px}
+@media(max-width:980px){.cols{grid-template-columns:1fr}}
+.sec{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.sec h3{margin:0 0 12px;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec h3 small{font:400 13px Inter,sans-serif;color:var(--muted)}
+.rows{display:flex;flex-direction:column}
+.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.row:first-child{border-top:0;padding-top:2px}
+.row .grow{flex:1;min-width:0}
+.row .grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row small{color:var(--muted)}
+.row .amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.row .btns{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--green-l);color:var(--green-d);white-space:nowrap}
+.pill.red{background:var(--red-l);color:var(--red)}
+.pill.amber{background:var(--amber-l);color:var(--amber)}
+.pill.grey{background:#eceff1;color:#546e7a}
+.pill.ok{background:var(--ok-l);color:var(--ok)}
+.pill.orange{background:var(--orange-l);color:#b4510f}
+.flag{color:var(--amber);font-weight:700}
+.muted{color:var(--muted);font-size:13px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--green)}
+.note{background:var(--amber-l);color:#6d4500;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:12px}
+.note.blue{background:var(--green-l);color:var(--green-d)}
+
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:#f8f8f6;font-weight:600;white-space:nowrap}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:#fbfbfa}
+tfoot td{font-weight:700;background:#f8f8f6}
+tr.tot td{font-weight:700;background:#fafaf8}
+.tablewrap{overflow-x:auto;border-radius:var(--radius)}
+td .sub2{display:block;font-size:12.5px;color:var(--muted)}
+
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(15,20,25,.38);z-index:40;display:flex;justify-content:flex-end}
+.drawer{background:var(--bg);width:min(820px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.15);animation:slide .18s ease-out}
+@keyframes slide{from{transform:translateX(40px);opacity:.5}to{transform:none;opacity:1}}
+.dhead{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px 0;position:sticky;top:0;z-index:2}
+.dhead .r1{display:flex;gap:10px;align-items:flex-start;padding-bottom:12px}
+.dhead h2{margin:0;font-size:19px}
+.dhead .sub3{font-size:13px;color:var(--muted);margin-top:2px}
+.tabs{display:flex;gap:2px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:9px 12px;cursor:pointer;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--orange)}
+.tabs .c{font-size:11px;background:var(--bg);border-radius:999px;padding:1px 6px;margin-left:3px}
+.dbody{padding:16px}
+.dbody .sec{margin-bottom:14px}
+.m4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.m4 div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.m4 small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.m4 b{font-size:16px;font-variant-numeric:tabular-nums}
+@media(max-width:640px){.m4{grid-template-columns:repeat(2,1fr)}}
+.formfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.formfoot .left{margin-right:auto}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;z-index:60;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.gbox{max-width:440px;text-align:center}.gbox img{height:40px;margin-bottom:18px}.gbox h2{font-size:26px;margin:0 0 8px}.gbox p{color:var(--muted);margin:0 0 18px}
+
+/* chart */
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* print */
+#printRoot{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff}
+  body.printing > *:not(#printRoot){display:none!important}
+  body.printing #printRoot{display:block}
+}
+.doc{font-family:Inter,Arial,sans-serif;color:#111;max-width:780px;margin:0 auto;font-size:10.5pt}
+.doc .lh{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #f37321;padding-bottom:10px;margin-bottom:14px;gap:16px}
+.doc .lh img{height:46px}
+.doc .co{font-size:9pt;color:#444;text-align:right;line-height:1.5}
+.doc .co b{font-size:11pt;color:#111}
+.doc .ttl{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
+.doc .ttl h1{font:700 18pt Montserrat,Arial,sans-serif;margin:0;letter-spacing:.5px}
+.doc .ttl .meta{text-align:right;font-size:9.5pt;line-height:1.6}
+.doc .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.doc .box{border:1px solid #ccc;border-radius:4px;padding:8px 10px}
+.doc .box small{display:block;font-size:8pt;color:#666;text-transform:uppercase;font-weight:700;letter-spacing:.4px;margin-bottom:2px}
+.doc table{border:1px solid #bbb;border-radius:0}
+.doc th,.doc td{padding:6px 8px;border:1px solid #ccc;font-size:10pt}
+.doc th{background:#f3f3f1;color:#333}
+.doc .tot{width:55%;margin-left:auto;margin-top:10px}
+.doc .tot td{border:0;border-bottom:1px solid #ddd;padding:5px 8px}
+.doc .tot tr.big td{font-weight:700;font-size:12pt;border-bottom:2px solid #111}
+.doc .words{font-style:italic;margin-top:8px;font-size:10pt}
+.doc .pay{margin-top:14px;white-space:pre-wrap}
+.doc .sign{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:50px;font-size:9.5pt}
+.doc .sign div{border-top:1px solid #333;padding-top:4px;text-align:center}
+.doc .foot{margin-top:24px;font-size:8.5pt;color:#666;text-align:center;border-top:1px solid #ddd;padding-top:8px}
+.doc h3{font-size:10.5pt;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #ccc;padding-bottom:3px;margin:16px 0 8px}
+
+/* valuation */
+.vgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media(max-width:1000px){.vgrid{grid-template-columns:1fr}}
+.sticky{position:sticky;top:76px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.kv:first-of-type{border-top:0}.kv b{font-variant-numeric:tabular-nums;text-align:right}
+.kv.big{font-size:16px}.kv.big b{color:var(--green-d)}
+.words{font-size:13px;font-style:italic;color:var(--muted);margin:8px 0 0}
+table.ed td{padding:5px 6px}table.ed input{padding:6px 8px}
+.dim{opacity:.45}
+.conv{margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:10px;background:#fcfcfb}
+.savebar{position:sticky;bottom:0;background:rgba(246,246,244,.96);backdrop-filter:blur(4px);border-top:1px solid var(--line);padding:12px 0;display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:8px;z-index:5}
+.savebar #dirty{margin-right:auto}
+.vdoc .page{page-break-after:always;break-after:page;min-height:250mm;position:relative}
+.vdoc .page:last-child{page-break-after:auto;break-after:auto}
+.vdoc .refrow{display:flex;justify-content:space-between;font-size:10.5pt;margin:4px 0 18px}
+.vdoc .ctitle{text-align:center;font:700 16pt Montserrat,Arial,sans-serif;letter-spacing:.5px;margin:6px 0 18px;text-decoration:underline;text-underline-offset:5px}
+.vdoc .body{text-align:justify;line-height:1.65;font-size:11pt;margin:0 0 10px}
+.vdoc .vt{margin:12px 0}.vdoc .vt tr.b td{font-weight:700}
+.vdoc .words{font-style:normal;font-weight:600;font-size:10.5pt;color:#111}
+.vdoc .small{font-size:10pt;margin:8px 0}
+.vdoc h2{font-size:12pt;margin:14px 0 8px;text-decoration:underline}
+.vdoc .kvt,.vdoc .sum{border:0;width:auto;margin:6px 0}.vdoc .kvt td,.vdoc .sum td{border:0;padding:3px 10px 3px 0;font-size:10.5pt}
+.vdoc .sum td:nth-child(3){text-align:right;min-width:120px;font-variant-numeric:tabular-nums}.vdoc .sum tr.b td{font-weight:700}.vdoc .sum tr.big td{font-size:11.5pt;border-top:1.5px solid #111;padding-top:6px}
+.vdoc .vsig{margin-top:56px;width:260px;font-size:10.5pt;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="gate" class="gate"><div class="gbox"><img src="../brand/tecarch-logo.png" alt="TecArch"><h2>Property valuation</h2><p id="gateMsg">Checking your sign-in…</p><a class="btn" id="gateLink" href="../" style="display:none">Open the TecArch Workspace</a></div></div>
+<header class="ab">
+  <div class="ab-in">
+    <a class="ab-brand" href="../"><img src="../brand/tecarch-logo.png" alt="TecArch"><span>Workspace</span></a>
+    <nav class="ab-nav" aria-label="Main">
+      <a href="../">Projects</a>
+      <a href="../#tasks">Tasks</a>
+      <a href="../#team">Team</a>
+      <a href="../finance/" id="finLink" style="display:none">Finance</a>
+      <a href="./" class="on" aria-current="page">Valuation</a>
+      <a href="../watermark/"><span>Watermark<span class="ab-long"> Studio</span></span></a>
+    </nav>
+    <div class="ab-sp"></div>
+    <div class="ab-me"><b id="abName"></b><span id="abRole"></span></div>
+    <button type="button" class="ab-out" id="abOut">Sign out</button>
+  </div>
+</header>
+<main id="main"></main>
+<div id="printRoot"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import * as BS from '../lib/bs.js';
+const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
+
+const $ = s => document.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const N = v => Number(v || 0);
+const money = n => 'Rs ' + N(n).toLocaleString('en-IN', {maximumFractionDigits:0});
+const num2 = n => N(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const today = () => { const t = new Date(); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
+const adLong = d => d ? new Date(String(d).slice(0,10) + 'T00:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}) : '';
+const fboth = d => d ? `${BS.bsLong(d) || ''} (${adLong(d)})` : '';
+function toast(t){ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(), 2800); }
+function fail(e){ console.error(e); toast('⚠ ' + (e?.message || e)); }
+
+const CURRENCIES = { AUD:['Australian dollars','Cents'], USD:['US dollars','Cents'], EUR:['Euros','Cents'], GBP:['Pounds sterling','Pence'], CAD:['Canadian dollars','Cents'], NZD:['New Zealand dollars','Cents'], JPY:['Japanese yen',''], KRW:['Korean won',''], DKK:['Danish kroner','Øre'], SEK:['Swedish kronor','Öre'], CHF:['Swiss francs','Centimes'], SGD:['Singapore dollars','Cents'], AED:['UAE dirhams','Fils'], QAR:['Qatari riyals','Dirhams'], SAR:['Saudi riyals','Halalas'], INR:['Indian rupees','Paise'] };
+const S = { me:null, list:[], q:'', fy:'all', status:'all', set:{}, finance:false };
+
+/* ---------- words (international system, for embassies) ---------- */
+function wordsInt(n){
+  n = Math.floor(N(n)); if(n === 0) return 'Zero';
+  const a = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  const two = x => x < 20 ? a[x] : b[Math.floor(x/10)] + (x % 10 ? '-' + a[x % 10] : '');
+  const three = x => [x >= 100 ? a[Math.floor(x/100)] + ' Hundred' : '', x % 100 ? two(x % 100) : ''].filter(Boolean).join(' ');
+  const units = ['', ' Thousand', ' Million', ' Billion']; const out = []; let i = 0;
+  while(n > 0){ const c = n % 1000; if(c) out.unshift(three(c) + units[i]); n = Math.floor(n / 1000); i++; }
+  return out.join(' ');
+}
+function amountWords(v, cur){
+  const whole = Math.floor(N(v) + 1e-9), cents = Math.round((N(v) - whole) * 100);
+  const minor = cur === 'NPR' ? 'Paisa' : (CURRENCIES[cur]?.[1] || 'Cents');
+  return `${cur} ${wordsInt(whole)}${cents && minor ? ` and ${minor} ${wordsInt(cents)}` : ''} Only`;
+}
+
+/* ---------- area conversion (Nepal land units) ---------- */
+const RAPD = [508.72, 31.80, 7.95, 1.99];   // ropani, aana, paisa, daam in sq.m
+const BKD = [6772.63, 338.63, 16.93];       // bigha, kattha, dhur in sq.m
+
+/* ---------- calc (mirrors the database trigger) ---------- */
+function calc(v){
+  const la = (v.land_plots || []).reduce((s, p) => s + N(p.area), 0), ba = (v.buildings || []).reduce((s, b) => s + N(b.area), 0);
+  const lv = Math.round(la * N(v.land_rate) * 100) / 100, bv = Math.round(ba * N(v.building_rate) * 100) / 100, t = lv + bv;
+  return { la: Math.round(la * 100) / 100, ba: Math.round(ba * 100) / 100, lv, bv, t, fx: N(v.fx_rate) > 0 ? Math.round(t / N(v.fx_rate) * 100) / 100 : null };
+}
+
+/* ---------- boot ---------- */
+const gm = t => { $('#gateMsg').textContent = t; $('#gateLink').style.display = ''; };
+$('#abOut').onclick = async () => { try { await sb.auth.signOut(); } catch(e){} location.href = '../'; };
+async function boot(){
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session) return gm('Please sign in to the TecArch Workspace first, then open Valuation again.');
+    const { data:me } = await sb.from('team_members').select('id,role,full_name').eq('auth_user_id', session.user.id).eq('active', true).maybeSingle();
+    if(!me) return gm("Your account isn't on the TecArch team yet.");
+    if(!['admin','accountant','engineer','architect'].includes(me.role)) return gm('Valuation is open to the admin, accountant, engineers and architects.');
+    S.me = me; S.admin = me.role === 'admin'; S.finance = ['admin','accountant'].includes(me.role);
+    $('#abName').textContent = me.full_name || ''; $('#abRole').textContent = ({admin:'Admin', accountant:'Accountant', engineer:'Engineer', architect:'Architect'})[me.role];
+    if(S.finance) $('#finLink').style.display = '';
+    await load(); $('#gate').remove(); route();
+  }catch(e){ console.error(e); gm("Couldn't load Valuation. Check your internet connection and reload the page."); }
+}
+async function load(){
+  const [v, st] = await Promise.all([sb.from('valuations').select('*').order('issue_date', {ascending:false}).order('id', {ascending:false}), sb.from('fin_settings').select('key,value')]);
+  if(v.error) throw v.error; if(st.error) throw st.error;
+  S.list = v.data; S.set = Object.fromEntries(st.data.map(r => [r.key, r.value || '']));
+}
+window.addEventListener('hashchange', route);
+function route(){
+  const h = location.hash.slice(1);
+  if(h === 'new') return edit(null);
+  if(h.startsWith('v=')) return edit(Number(h.slice(2)));
+  if(h.startsWith('copy=')) return edit(null, Number(h.slice(5)));
+  renderList();
+}
+
+/* ---------- list ---------- */
+function renderList(){
+  const fys = [...new Set(S.list.map(v => v.fy_start).filter(Boolean))].sort((a, b) => b - a);
+  const q = S.q.toLowerCase();
+  const list = S.list.filter(v => (S.fy === 'all' || String(v.fy_start) === S.fy) && (S.status === 'all' || v.status === S.status) && (!q || `${v.ref_no} ${v.applicant_name} ${v.owner_name} ${v.applicant_id_no} ${v.land_location}`.toLowerCase().includes(q)));
+  $('#main').innerHTML = `<div class="phead"><div><h1>Property valuation certificates</h1><p>For visa and study-abroad sponsors. Reference numbers, totals, currency and words are worked out for you.</p></div><div class="acts"><a class="btn accent" href="#new">+ New valuation</a></div></div>
+  <div class="toolbar"><input type="search" id="q" placeholder="Search name, ref no, passport…" value="${esc(S.q)}">
+   <select id="fy" style="width:auto"><option value="all">All fiscal years</option>${fys.map(y => `<option value="${y}" ${String(y) === S.fy ? 'selected' : ''}>FY ${BS.fy(y).label}</option>`).join('')}</select>
+   <div class="seg" id="st">${[['all','All'],['draft','Drafts'],['issued','Issued'],['cancelled','Cancelled']].map(([k, l]) => `<button data-k="${k}" class="${S.status === k ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+  <div class="tablewrap"><table><thead><tr><th>Ref no.</th><th>Date</th><th>Applicant</th><th>Owner</th><th class="num">Value (NPR)</th><th class="num">Foreign equivalent</th><th>Status</th></tr></thead><tbody>
+  ${list.map(v => `<tr class="click" data-id="${v.id}"><td><b>${esc(v.ref_no)}</b>${v.needs_review ? ' <span class="flag" title="To check">●</span>' : ''}</td><td>${esc(BS.bsLong(v.issue_date))}<span class="sub2">${adLong(v.issue_date)}</span></td>
+   <td>${esc([v.applicant_title, v.applicant_name].filter(Boolean).join(' '))}${v.applicant_id_no ? `<span class="sub2">${esc(v.applicant_id_label)} ${esc(v.applicant_id_no)}</span>` : ''}</td><td>${esc(v.owner_name || '')}</td>
+   <td class="num">${money(v.total_npr)}</td><td class="num">${v.total_fx ? esc(v.currency) + ' ' + num2(v.total_fx) : '—'}</td>
+   <td>${({draft:'<span class="pill amber">Draft</span>', issued:'<span class="pill ok">Issued</span>', cancelled:'<span class="pill grey">Cancelled</span>'})[v.status]}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">No valuations yet.</td></tr>'}
+  </tbody></table></div>`;
+  $('#q').oninput = e => { S.q = e.target.value; clearTimeout(S.t); S.t = setTimeout(() => { renderList(); const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
+  $('#fy').onchange = e => { S.fy = e.target.value; renderList(); };
+  $$('#st button').forEach(b => b.onclick = () => { S.status = b.dataset.k; renderList(); });
+  $$('tr[data-id]').forEach(r => r.onclick = () => location.hash = 'v=' + r.dataset.id);
+}
+
+/* ---------- editor ---------- */
+function blank(){ return { issue_date:today(), status:'draft', applicant_title:'Ms.', applicant_id_label:'Passport No.', owner_is_applicant:false, land_plots:[{ward:'', plot:'', area:'', map_sheet:''}], buildings:[{ward:'', floors:'', area:'', remark:''}], currency:'AUD', land_rate:'', building_rate:'', fee:'' }; }
+async function edit(id, copyFrom){
+  let v;
+  if(id){ v = S.list.find(x => x.id === id); if(!v){ toast('Valuation not found'); location.hash = ''; return; } v = structuredClone(v); }
+  else if(copyFrom){ const src = S.list.find(x => x.id === copyFrom); v = { ...structuredClone(src), id:undefined, ref_no:null, fy_start:null, serial:null, status:'draft', issue_date:today(), job_id:null, needs_review:false, review_note:null, notes:`Copied from ${src.ref_no}`, fx_rate:'', fx_date:'' }; }
+  else v = blank();
+  if(!v.land_plots?.length) v.land_plots = [];
+  if(!v.buildings?.length) v.buildings = [];
+  const vacant = id && !v.buildings.length;
+  const locked = v.status === 'issued' && !S.admin;
+  const fy = BS.fyOf(v.issue_date);
+  $('#main').innerHTML = `
+  <div class="phead"><div><a href="#" class="muted" style="text-decoration:none">← All valuations</a><h1 style="margin-top:6px">${v.ref_no ? esc(v.ref_no) : 'New valuation'}</h1>
+   <p>${v.ref_no ? `${({draft:'Draft', issued:'Issued', cancelled:'Cancelled'})[v.status]} · ${esc(fboth(v.issue_date))}` : `The reference number is given when you save. Next in FY ${fy?.label || ''}: <b>TEC ${String((Math.max(0, ...S.list.filter(x => x.fy_start === fy?.start && x.serial < 1000).map(x => x.serial)) || 0) + 1).padStart(3, '0')}/${fy?.short || ''}</b>`}</p></div>
+   <div class="acts">${id ? `<button class="btn" id="bPrint">Print / PDF</button><a class="btn" href="#copy=${id}">Duplicate</a>` : ''}${id && v.status !== 'issued' ? '<button class="btn primary" id="bIssue">Mark issued</button>' : ''}</div></div>
+  ${v.needs_review ? `<div class="note"><b>To check:</b> ${esc(v.review_note || '')} ${id ? '<button class="btn sm" id="bOk" style="margin-left:6px">Mark as checked</button>' : ''}</div>` : ''}
+  ${locked ? '<div class="note blue">This certificate is issued. Only the admin can change it. Use <b>Duplicate</b> to make a new one.</div>' : ''}
+  <form id="vf"><div class="vgrid"><div>
+   <div class="sec"><h3>1 · Certificate</h3><div class="fg3">
+    <div><label class="f">Date</label><input type="date" id="issue_date" value="${esc(v.issue_date)}" required></div>
+    <div><label class="f">Date (BS)</label><input id="issue_bs" value="${esc(BS.bsIso(v.issue_date))}" placeholder="2083-08-12"></div>
+    <div><label class="f">Status</label><select id="status">${[['draft','Draft'],['issued','Issued'],['cancelled','Cancelled']].map(([k, l]) => `<option value="${k}" ${v.status === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+   </div></div>
+   <div class="sec"><h3>2 · Applicant <small>the person the certificate is for</small></h3><div class="fg3">
+    <div><label class="f">Title</label><select id="applicant_title">${['Ms.','Mr.','Mrs.','Miss'].map(t => `<option ${v.applicant_title === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    <div class="w2" style="grid-column:span 2"><label class="f">Full name</label><input id="applicant_name" required value="${esc(v.applicant_name || '')}"></div>
+    <div><label class="f">ID type</label><select id="applicant_id_label">${['Passport No.','Citizenship No.','National ID No.'].map(t => `<option ${v.applicant_id_label === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    <div><label class="f">ID number</label><input id="applicant_id_no" value="${esc(v.applicant_id_no || '')}" placeholder="PA1234567"></div>
+    <div><label class="f">Purpose (not printed)</label><input id="purpose" value="${esc(v.purpose || '')}" placeholder="Australia student visa"></div>
+    <div class="w3"><label class="f">Relation to owner</label><input id="relation" value="${esc(v.relation || '')}" placeholder="daughter of Mr. Bhai Kaji Gurung"><div class="hint">Printed after the ID, e.g. “…(Passport No. PA123), <i>daughter of Mr. X</i>, a permanent resident of…”. Leave empty if not needed.</div></div>
+    <div class="w3"><label class="f">Permanent address</label><input id="applicant_address" value="${esc(v.applicant_address || '')}" placeholder="Pokhara Metropolitan City, Ward No. 08, Kaski District, Nepal"></div>
+   </div></div>
+   <div class="sec"><h3>3 · Property owner</h3>
+    <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="owner_is_applicant" ${v.owner_is_applicant ? 'checked' : ''}> The applicant owns the property</label>
+    <div class="fg3" id="ownerBox">
+     <div><label class="f">Owner name</label><input id="owner_name" value="${esc(v.owner_name || '')}" placeholder="Mrs. Mithu Maya Adhikari"></div>
+     <div><label class="f">Owner ID (optional)</label><input id="owner_id_text" value="${esc(v.owner_id_text || '')}" placeholder="Citizenship No: 513040/200"></div>
+     <div><label class="f">Owner address (optional)</label><input id="owner_address" value="${esc(v.owner_address || '')}"></div>
+    </div></div>
+   <div class="sec"><h3>4 · Land (A)</h3><div class="fg">
+    <div><label class="f">Location</label><input id="land_location" value="${esc(v.land_location || '')}" placeholder="Pokhara Metropolitan City-17, Kaski District"></div>
+    <div><label class="f">Average rate (Rs per sq.m)</label><input id="land_rate" inputmode="decimal" value="${v.land_rate ?? ''}"></div></div>
+    <div class="tablewrap" style="margin-top:12px"><table class="ed"><thead><tr><th>S.N.</th><th>Ward</th><th>Plot no.</th><th>Area (sq.m)</th><th>Map sheet no.</th><th></th></tr></thead><tbody id="plots"></tbody></table></div>
+    <div class="acts" style="margin-top:8px"><button type="button" class="btn sm" id="addPlot">+ Add plot</button><button type="button" class="btn sm" id="conv">Ropani / Bigha → sq.m</button></div>
+    <div id="convBox" class="hidden conv"></div></div>
+   <div class="sec"><h3>5 · Building (B)</h3>
+    <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="vacant" ${vacant ? 'checked' : ''}> Vacant land: no building</label>
+    <div id="bldBox"><div class="fg">
+     <div><label class="f">Location</label><input id="building_location" value="${esc(v.building_location || '')}"></div>
+     <div><label class="f">Average rate (Rs per sq.m)</label><input id="building_rate" inputmode="decimal" value="${v.building_rate ?? ''}"></div></div>
+     <div class="tablewrap" style="margin-top:12px"><table class="ed"><thead><tr><th>S.N.</th><th>Ward</th><th>Floors</th><th>Total floor area (sq.m)</th><th>Remark</th><th></th></tr></thead><tbody id="blds"></tbody></table></div>
+     <div class="acts" style="margin-top:8px"><button type="button" class="btn sm" id="addBld">+ Add building</button></div></div></div>
+   <div class="sec"><h3>6 · Currency</h3><div class="fg3">
+    <div><label class="f">Show equivalent in</label><select id="currency">${Object.keys(CURRENCIES).map(c => `<option ${v.currency === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    <div><label class="f">Rs per 1 unit</label><input id="fx_rate" inputmode="decimal" value="${v.fx_rate ?? ''}" placeholder="e.g. 102.84"></div>
+    <div><label class="f">Rate date</label><input type="date" id="fx_date" value="${esc(v.fx_date || v.issue_date || '')}"></div>
+    <div class="w3"><button type="button" class="btn sm" id="nrb">Get Nepal Rastra Bank rate</button> <span class="hint" id="nrbOut"></span></div></div></div>
+   <div class="sec"><h3>7 · Client &amp; fee <small>${S.finance ? 'links to Finance' : 'the admin or accountant links the fee in Finance'}</small></h3><div class="fg3">
+    <div><label class="f">Valuation fee (Rs)</label><input id="fee" inputmode="decimal" value="${N(v.fee) || ''}"></div>
+    <div><label class="f">Client phone / WhatsApp</label><input id="phone" placeholder="98XXXXXXXX"></div>
+    <div><label class="f">&nbsp;</label>${S.finance ? `<label class="chk"><input type="checkbox" id="mkjob" ${v.job_id ? 'checked disabled' : 'checked'}> ${v.job_id ? 'Fee is tracked in Finance' : 'Track the fee in Finance'}</label>` : ''}</div>
+    <div class="w3"><label class="f">Internal notes</label><textarea id="notes">${esc(v.notes || '')}</textarea></div></div></div>
+  </div>
+  <aside><div class="sec sticky" id="totals"></div>
+   ${id ? `<div class="sec"><h3>Change history</h3><div id="hist" class="muted">Loading…</div></div>` : ''}</aside></div>
+  <div class="savebar"><span class="muted" id="dirty"></span>${id && S.admin ? '<button type="button" class="btn ghost danger" id="bDel">Delete</button>' : ''}<a class="btn" href="#">Cancel</a><button class="btn primary" ${locked ? 'disabled' : ''}>${id ? 'Save changes' : 'Save valuation'}</button></div></form>`;
+
+  const rowsP = () => $$('#plots tr').map(tr => ({ ward:tr.querySelector('[data-f=ward]').value.trim(), plot:tr.querySelector('[data-f=plot]').value.trim(), area:tr.querySelector('[data-f=area]').value === '' ? '' : Number(tr.querySelector('[data-f=area]').value), map_sheet:tr.querySelector('[data-f=map_sheet]').value.trim() }));
+  const rowsB = () => $('#vacant').checked ? [] : $$('#blds tr').map(tr => ({ ward:tr.querySelector('[data-f=ward]').value.trim(), floors:tr.querySelector('[data-f=floors]').value.trim(), area:tr.querySelector('[data-f=area]').value === '' ? '' : Number(tr.querySelector('[data-f=area]').value), remark:tr.querySelector('[data-f=remark]').value.trim() }));
+  const plotRow = p => `<tr><td class="sn"></td><td><input data-f="ward" value="${esc(p.ward ?? '')}" style="width:70px"></td><td><input data-f="plot" value="${esc(p.plot ?? '')}" style="width:90px"></td><td><input data-f="area" inputmode="decimal" value="${esc(p.area ?? '')}" style="width:120px"></td><td><input data-f="map_sheet" value="${esc(p.map_sheet ?? '')}"></td><td><button type="button" class="btn sm ghost danger" data-rm>✕</button></td></tr>`;
+  const bldRow = b => `<tr><td class="sn"></td><td><input data-f="ward" value="${esc(b.ward ?? '')}" style="width:70px"></td><td><input data-f="floors" value="${esc(b.floors ?? '')}" style="width:80px"></td><td><input data-f="area" inputmode="decimal" value="${esc(b.area ?? '')}" style="width:130px"></td><td><input data-f="remark" value="${esc(b.remark ?? '')}"></td><td><button type="button" class="btn sm ghost danger" data-rm>✕</button></td></tr>`;
+  $('#plots').innerHTML = (v.land_plots.length ? v.land_plots : [{}]).map(plotRow).join('');
+  $('#blds').innerHTML = (v.buildings.length ? v.buildings : [{}]).map(bldRow).join('');
+  const number = () => { $$('#plots .sn').forEach((t, i) => t.textContent = i + 1); $$('#blds .sn').forEach((t, i) => t.textContent = i + 1); };
+  const cur = () => ({ land_plots:rowsP(), buildings:rowsB(), land_rate:$('#land_rate').value, building_rate:$('#vacant').checked ? 0 : $('#building_rate').value, fx_rate:$('#fx_rate').value, currency:$('#currency').value });
+  function totals(){
+    number(); const c = calc(cur()), x = cur();
+    $('#totals').innerHTML = `<h3>Totals <small>worked out automatically</small></h3>
+     <div class="kv"><span>Land area</span><b>${num2(c.la)} sq.m</b></div><div class="kv"><span>Land value (A)</span><b>${money(c.lv)}</b></div>
+     <div class="kv"><span>Building area</span><b>${num2(c.ba)} sq.m</b></div><div class="kv"><span>Building value (B)</span><b>${money(c.bv)}</b></div>
+     <div class="kv big"><span>Total (A+B)</span><b>NPR ${num2(c.t)}</b></div>
+     <div class="kv big"><span>Equivalent</span><b>${c.fx != null ? x.currency + ' ' + num2(c.fx) : '<span class="muted">enter the rate</span>'}</b></div>
+     <p class="words">${esc(amountWords(c.t, 'NPR'))}</p>${c.fx != null ? `<p class="words">${esc(amountWords(c.fx, x.currency))}</p>` : ''}`;
+  }
+  const ownerToggle = () => { $('#ownerBox').classList.toggle('dim', $('#owner_is_applicant').checked); $$('#ownerBox input').forEach(i => i.disabled = $('#owner_is_applicant').checked); };
+  const vacantToggle = () => { $('#bldBox').classList.toggle('hidden', $('#vacant').checked); totals(); };
+  ownerToggle(); vacantToggle(); totals();
+  $('#vf').addEventListener('input', () => { totals(); $('#dirty').textContent = 'Unsaved changes'; });
+  $('#vf').addEventListener('click', e => { if(e.target.matches('[data-rm]')){ e.target.closest('tr').remove(); totals(); } });
+  $('#addPlot').onclick = () => { $('#plots').insertAdjacentHTML('beforeend', plotRow({ward:rowsP().at(-1)?.ward || ''})); totals(); };
+  $('#addBld').onclick = () => { $('#blds').insertAdjacentHTML('beforeend', bldRow({})); totals(); };
+  $('#owner_is_applicant').onchange = ownerToggle; $('#vacant').onchange = vacantToggle;
+  $('#issue_date').onchange = () => { $('#issue_bs').value = BS.bsIso($('#issue_date').value); };
+  $('#issue_bs').oninput = () => { const ad = BS.parseBs($('#issue_bs').value); if(ad){ $('#issue_date').value = ad; $('#issue_bs').style.borderColor = ''; } else $('#issue_bs').style.borderColor = 'var(--red)'; };
+  $('#conv').onclick = () => { const b = $('#convBox'); b.classList.toggle('hidden'); b.innerHTML = `<div class="fg3" style="align-items:end">
+     <div><label class="f">Ropani-Aana-Paisa-Daam</label><input id="rapd" placeholder="0-8-2-1"></div><div><label class="f">or Bigha-Kattha-Dhur</label><input id="bkd" placeholder="0-2-5"></div>
+     <div><b id="convOut">— sq.m</b> <button type="button" class="btn sm" id="convUse">Use for last plot</button></div></div>
+     <div class="hint">1 ropani = 508.72 sq.m · 1 aana = 31.80 · 1 paisa = 7.95 · 1 daam = 1.99 · 1 bigha = 6,772.63 · 1 kattha = 338.63 · 1 dhur = 16.93</div>`;
+    const go = () => { const r = $('#rapd').value.split(/[-\s.]+/).map(Number), k = $('#bkd').value.split(/[-\s.]+/).map(Number);
+      const a = $('#rapd').value.trim() ? r.reduce((s, x, i) => s + (x || 0) * (RAPD[i] || 0), 0) : k.reduce((s, x, i) => s + (x || 0) * (BKD[i] || 0), 0);
+      $('#convOut').textContent = num2(a) + ' sq.m'; return Math.round(a * 100) / 100; };
+    $('#rapd').oninput = go; $('#bkd').oninput = go;
+    $('#convUse').onclick = () => { const a = go(); const last = $$('#plots [data-f=area]').at(-1); if(last){ last.value = a; totals(); } }; };
+  $('#nrb').onclick = async () => {
+    const d = $('#fx_date').value || today(), c = $('#currency').value; $('#nrbOut').textContent = 'Fetching…';
+    try{
+      const r = await fetch(`https://www.nrb.org.np/api/forex/v1/rates?from=${d}&to=${d}&per_page=10&page=1`); const j = await r.json();
+      const rate = j?.data?.payload?.[0]?.rates?.find(x => x.currency.iso3 === c);
+      if(!rate) throw new Error('no rate');
+      const u = N(rate.currency.unit), buy = N(rate.buy) / u, sell = N(rate.sell) / u;
+      $('#nrbOut').innerHTML = `NRB ${esc(d)}: buying <a href="#" data-r="${buy.toFixed(2)}">${buy.toFixed(2)}</a> · selling <a href="#" data-r="${sell.toFixed(2)}">${sell.toFixed(2)}</a>. Click one to use it.`;
+      $$('#nrbOut [data-r]').forEach(a => a.onclick = e => { e.preventDefault(); $('#fx_rate').value = a.dataset.r; totals(); });
+    }catch(e){ $('#nrbOut').innerHTML = `Couldn't get the rate automatically (no NRB rate for that day, or the site blocked the request). Check <a href="https://www.nrb.org.np/forex/" target="_blank" rel="noopener">nrb.org.np/forex</a> and type it in.`; }
+  };
+  if($('#bPrint')) $('#bPrint').onclick = () => printCert(v);
+  if($('#bOk')) $('#bOk').onclick = async () => { const { error } = await sb.from('valuations').update({needs_review:false}).eq('id', id); if(error) return fail(error); await load(); edit(id); };
+  if($('#bIssue')) $('#bIssue').onclick = async () => { if(v.needs_review && !confirm('This valuation is still marked "to check". Issue it anyway?')) return; const { error } = await sb.from('valuations').update({status:'issued'}).eq('id', id); if(error) return fail(error); toast('Marked issued'); await load(); edit(id); };
+  if($('#bDel')) $('#bDel').onclick = async () => { if(!confirm(`Delete ${v.ref_no}? It stays in the audit log, but the number won't be reused.`)) return; const { error } = await sb.from('valuations').delete().eq('id', id); if(error) return fail(error); toast('Deleted'); await load(); location.hash = ''; };
+  if(id) history_(id);
+  $('#vf').onsubmit = async e => {
+    e.preventDefault();
+    const x = cur();
+    const plots = x.land_plots.filter(p => p.area !== '' || p.plot), blds = x.buildings.filter(b => b.area !== '' || b.floors);
+    if(!plots.length && !blds.length) return toast('Add at least one plot or building');
+    const g = id => { const el = $('#' + id); return el.value.trim() === '' ? null : el.value.trim(); };
+    const obj = { issue_date:$('#issue_date').value, status:$('#status').value, applicant_title:g('applicant_title'), applicant_name:g('applicant_name'), applicant_id_label:g('applicant_id_label'), applicant_id_no:g('applicant_id_no'),
+      relation:g('relation'), applicant_address:g('applicant_address'), purpose:g('purpose'), owner_is_applicant:$('#owner_is_applicant').checked, owner_name:$('#owner_is_applicant').checked ? null : g('owner_name'), owner_id_text:g('owner_id_text'), owner_address:g('owner_address'),
+      land_location:g('land_location'), land_rate:N($('#land_rate').value), land_plots:plots, building_location:$('#vacant').checked ? null : g('building_location'), building_rate:$('#vacant').checked ? 0 : N($('#building_rate').value), buildings:blds,
+      currency:$('#currency').value, fx_rate:$('#fx_rate').value ? N($('#fx_rate').value) : null, fx_date:g('fx_date'), fee:N($('#fee').value), notes:g('notes') };
+    if(!obj.owner_is_applicant && !obj.owner_name) return toast('Enter the owner name, or tick "The applicant owns the property"');
+    try{
+      const q = id ? sb.from('valuations').update(obj).eq('id', id) : sb.from('valuations').insert(obj);
+      const { data, error } = await q.select().single(); if(error) throw error;
+      if(S.finance && $('#mkjob')?.checked && !data.job_id && N(obj.fee) > 0) await linkFinance(data, g('phone'));
+      else if(S.finance && data.job_id) await sb.from('fin_jobs').update({ contract_amount:N(obj.fee) }).eq('id', data.job_id);
+      toast(id ? 'Saved' : `Saved as ${data.ref_no}`); await load();
+      if(id) edit(id); else location.hash = 'v=' + data.id;
+    }catch(err){ fail(err); }
+  };
+}
+async function linkFinance(v, phone){
+  const name = v.applicant_name; let { data:p } = await sb.from('fin_parties').select('id,phone').ilike('name', name).limit(1).maybeSingle();
+  if(!p){ const r = await sb.from('fin_parties').insert({ name, kind:'client', phone }).select().single(); if(r.error) throw r.error; p = r.data; }
+  else if(phone && !p.phone) await sb.from('fin_parties').update({ phone }).eq('id', p.id);
+  const j = await sb.from('fin_jobs').insert({ code:v.ref_no, title:`Property valuation – ${name}`, client_id:p.id, scope:'Property valuation', location:v.land_location, contract_amount:N(v.fee), status:'active', notes:`Valuation ${v.ref_no}` }).select().single();
+  if(j.error) throw j.error;
+  await sb.from('valuations').update({ job_id:j.data.id, client_id:p.id }).eq('id', v.id);
+}
+async function history_(id){
+  const { data, error } = await sb.from('fin_audit').select('action,at,old_data,new_data,member_id').eq('table_name', 'valuations').eq('row_id', id).order('at', {ascending:false}).limit(30);
+  const { data:team } = await sb.from('team_members').select('id,full_name');
+  const who = m => team?.find(t => t.id === m)?.full_name || 'Imported';
+  const skip = new Set(['updated_at','updated_by','land_area','land_value','building_area','building_value','total_npr','total_fx']);
+  const label = { applicant_name:'applicant', owner_name:'owner', land_rate:'land rate', building_rate:'building rate', land_plots:'plots', buildings:'buildings', fx_rate:'exchange rate', issue_date:'date', status:'status', fee:'fee' };
+  if(error || !data?.length) return $('#hist').textContent = 'No changes recorded.';
+  $('#hist').innerHTML = data.map(h => { const ch = h.action === 'UPDATE' ? Object.keys(h.new_data).filter(k => !skip.has(k) && JSON.stringify(h.new_data[k]) !== JSON.stringify(h.old_data[k])).map(k => label[k] || k.replace(/_/g, ' ')) : [];
+    return `<div class="row"><div class="grow"><b>${h.action === 'INSERT' ? 'Created' : h.action === 'DELETE' ? 'Deleted' : 'Changed ' + (ch.join(', ') || 'details')}</b><small>${esc(who(h.member_id))} · ${esc(BS.bsLong(h.at.slice(0,10)))} ${new Date(h.at).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'})}</small></div></div>`; }).join('');
+}
+
+/* ---------- certificate ---------- */
+function printCert(v){
+  const c = calc(v), st = S.set, sig = `<div class="vsig"><div>…………………………………</div><b>${esc(st.valuer_name || '')}</b><div>(${esc(st.valuer_title || 'Civil Engineer')})</div><div>${esc(st.valuer_reg || '')}</div></div>`;
+  const who = [v.applicant_title, v.applicant_name].filter(Boolean).join(' ');
+  const pron = /Mr\./.test(v.applicant_title) ? 'himself' : 'herself';
+  const ownerLine = v.owner_is_applicant ? `The property is owned by ${esc(who)} ${pron}.` : `The property is owned by ${esc(v.owner_name || '')}${v.owner_id_text ? ` (${esc(v.owner_id_text)})` : ''}${v.owner_address ? `, ${esc(v.owner_address)}` : ''}.`;
+  const lh = `<div class="lh"><img src="../brand/tecarch-logo.png" alt="TecArch"><div class="co"><b>${esc(st.company_name)}</b><br>${esc(st.company_address)}<br>${esc(st.company_phone)} · ${esc(st.company_email)}<br>${esc(st.company_web)}${st.company_pan ? `<br>PAN/VAT No: ${esc(st.company_pan)}` : ''}</div></div>`;
+  const hasB = (v.buildings || []).length > 0, owner = v.owner_is_applicant ? who : v.owner_name;
+  const html = `
+  <section class="page">${lh}
+   <div class="refrow"><span>Ref No. <b>${esc(v.ref_no)}</b></span><span>Date: <b>${adLong(v.issue_date)}</b></span></div>
+   <h1 class="ctitle">“CERTIFICATE OF PROPERTY VALUATION”</h1>
+   <p class="body">This is to certify that the property valuation for <b>${esc(who)}</b>${v.applicant_id_no ? ` (${esc(v.applicant_id_label)} ${esc(v.applicant_id_no)})` : ''}${v.relation ? `, ${esc(v.relation)}` : ''}${v.applicant_address ? `, a permanent resident of ${esc(v.applicant_address)}` : ''}, has been carried out by us.</p>
+   <p class="body">${ownerLine} The details of the properties are provided in the table below.</p>
+   <p class="body">The valuation of the properties, based on the documents provided, has been conducted by us and summarized accordingly (as detailed in the separate sheets). The valuation of the assets shown in the table has been carried out in accordance with the prevailing market rate.</p>
+   <table class="vt"><thead><tr><th style="width:50px">S.No.</th><th>Description of Property</th><th style="width:170px;text-align:right">Total Amount</th><th style="width:80px">Remarks</th></tr></thead>
+    <tbody><tr><td>1</td><td>${hasB ? 'Land (A) + Building (B)' : 'Land (A)'}</td><td style="text-align:right">${num2(c.t)}</td><td>NPR</td></tr>
+    <tr class="b"><td colspan="2">Grand Total Amount</td><td style="text-align:right">${num2(c.t)}</td><td>NPR</td></tr>
+    ${c.fx != null ? `<tr class="b"><td colspan="2">Equivalent Amount in ${esc(v.currency)} @ Rs. ${N(v.fx_rate).toFixed(2)}</td><td style="text-align:right">${num2(c.fx)}</td><td>${esc(v.currency)}</td></tr>` : ''}</tbody></table>
+   <p class="words">In words: ${esc(amountWords(c.fx != null ? c.fx : c.t, c.fx != null ? v.currency : 'NPR'))}.</p>
+   ${c.fx != null ? `<p class="small"><b>Note:</b> Rate of exchange dated on ${adLong(v.fx_date || v.issue_date)} @ 1 ${esc(v.currency)} = ${N(v.fx_rate).toFixed(2)} NPR.</p>` : ''}
+   <p class="small">* The information furnished is true and correct to the best of our knowledge and belief, which are based on the documents presented by the client.</p>
+   ${sig}</section>
+  <section class="page">${lh}
+   <div class="refrow"><span>Ref No. <b>${esc(v.ref_no)}</b></span><span>Date: <b>${adLong(v.issue_date)}</b></span></div>
+   <h2>1. Valuation of Land</h2>
+   <table class="kvt"><tr><td style="width:30px"><b>A</b></td><td style="width:190px">Owner of the property</td><td>: ${esc(owner || '')}</td></tr><tr><td></td><td>Location of the property</td><td>: ${esc(v.land_location || '')}</td></tr></table>
+   <table class="vt"><thead><tr><th>S.N.</th><th>Ward No.</th><th>Plot No.</th><th style="text-align:right">Area</th><th>Unit</th><th>Map Sheet Number</th></tr></thead>
+    <tbody>${(v.land_plots || []).map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.ward)}</td><td>${esc(p.plot)}</td><td style="text-align:right">${num2(p.area)}</td><td>Sq.M.</td><td>${esc(p.map_sheet)}</td></tr>`).join('')}</tbody></table>
+   <table class="sum"><tr><td>Total Area of land</td><td>=</td><td>${num2(c.la)}</td><td>Sq.M.</td></tr><tr><td>Avg. Unit rate of land</td><td>=</td><td>${num2(v.land_rate)}</td><td>per Sq.M.</td></tr><tr class="b"><td>Value of the land (A)</td><td>=</td><td>${num2(c.lv)}</td><td>NPR</td></tr></table>
+   <h2>2. Valuation of Building</h2>
+   ${hasB ? `<table class="kvt"><tr><td style="width:30px"><b>B</b></td><td style="width:190px">Owner of the property</td><td>: ${esc(owner || '')}</td></tr><tr><td></td><td>Location of the property</td><td>: ${esc(v.building_location || v.land_location || '')}</td></tr></table>
+   <table class="vt"><thead><tr><th>S.N.</th><th>Ward No.</th><th>Floor Number</th><th style="text-align:right">Total Floor Area</th><th>Unit</th><th>Remark</th></tr></thead>
+    <tbody>${v.buildings.map((b, i) => `<tr><td>${i + 1}</td><td>${esc(b.ward)}</td><td>${esc(b.floors)}</td><td style="text-align:right">${num2(b.area)}</td><td>Sq.M.</td><td>${esc(b.remark)}</td></tr>`).join('')}</tbody></table>
+   <table class="sum"><tr><td>Total Area of building</td><td>=</td><td>${num2(c.ba)}</td><td>Sq.M.</td></tr><tr><td>Avg. Unit rate of building</td><td>=</td><td>${num2(v.building_rate)}</td><td>per Sq.M.</td></tr><tr class="b"><td>Value of the building (B)</td><td>=</td><td>${num2(c.bv)}</td><td>NPR</td></tr></table>`
+   : `<p class="small">B · No building: vacant land. Value of the building (B) = 0.00 NPR</p>`}
+   <table class="sum" style="margin-top:14px"><tr class="b big"><td>Total value of the property (A+B)</td><td>=</td><td>${num2(c.t)}</td><td>NPR</td></tr></table>
+   <p class="words">In words: ${esc(amountWords(c.t, 'NPR'))}.</p>
+   ${sig}</section>`;
+  $('#printRoot').innerHTML = `<div class="doc vdoc">${html}</div>`;
+  const old = document.title; document.title = `${v.ref_no} ${v.applicant_name || ''} valuation`;
+  document.body.classList.add('printing');
+  const done = () => { document.body.classList.remove('printing'); document.title = old; window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  const imgs = $$('#printRoot img'); Promise.all(imgs.map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; }))).then(() => setTimeout(() => window.print(), 50));
+}
+
+boot();
+</script>
+</body>
+</html>

@@ -271,6 +271,7 @@ tbody tr:hover td{background:#fbfbfa}
         <button data-view="tasks">Tasks<span class="ab-badge hidden" id="taskBadge"></span></button>
         <button data-view="team">Team</button>
         <a href="finance/" id="finLink" class="hidden">Finance</a>
+        <a href="valuation/" id="valLink" class="hidden">Valuation</a>
         <a href="watermark/"><span>Watermark<span class="ab-long"> Studio</span></span></a>
       </nav>
       <div class="ab-sp"></div>
@@ -318,7 +319,7 @@ tbody tr:hover td{background:#fbfbfa}
           <div><label class="f">Full name</label><input id="mName" required></div>
           <div><label class="f">Email</label><input id="mEmail" type="email" required></div>
           <div><label class="f">Phone</label><input id="mPhone"></div>
-          <div><label class="f">Role</label><select id="mRole"><option value="staff">Staff</option><option value="accountant">Accountant (Finance access)</option><option value="admin">Admin</option></select></div>
+          <div><label class="f">Role</label><select id="mRole"><option value="staff">Staff</option><option value="architect">Architect</option><option value="engineer">Engineer (Valuation access)</option><option value="site_supervisor">Site supervisor</option><option value="accountant">Accountant (Finance + Valuation)</option><option value="admin">Admin (everything)</option></select></div>
           <button class="btn primary">Add</button>
         </form>
         <p class="muted" style="margin:10px 0 0">After you add them, they open this app, tap “First time? Create your password” and use the same email.</p>
@@ -440,8 +441,9 @@ async function boot(){
   const { data:me } = await sb.from('team_members').select('*').eq('auth_user_id', session.user.id).eq('active', true).maybeSingle();
   if(!me){ $('#naEmail').textContent=session.user.email; $('#noAccessView').classList.remove('hidden'); return; }
   S.me = me;
-  $('#meName').textContent = me.full_name; $('#meRole').textContent = ({admin:'Admin',accountant:'Accountant'})[me.role]||'Team';
+  $('#meName').textContent = me.full_name; $('#meRole').textContent = ({admin:'Admin',accountant:'Accountant',architect:'Architect',engineer:'Engineer',site_supervisor:'Site supervisor'})[me.role]||'Team';
   $('#finLink').classList.toggle('hidden', !['admin','accountant'].includes(me.role));
+  $('#valLink').classList.toggle('hidden', !['admin','accountant','engineer','architect'].includes(me.role));
   $('#addMemberSec').classList.toggle('hidden', me.role!=='admin');
   $('#appView').classList.remove('hidden');
   await loadAll();
@@ -993,7 +995,7 @@ function renderTeam(){
     const k=S.tasks.filter(x=>x.assigned_to===t.id && x.status!=='done').length;
     return `<tr style="${t.active?'':'opacity:.5'}"><td><b>${esc(t.full_name)}</b>${t.auth_user_id?'':' <small style="color:var(--amber)">(not signed in yet)</small>'}</td>
       <td>${esc(t.email)}</td><td>${t.phone?`<a href="tel:${esc(t.phone)}">${esc(t.phone)}</a>`:''}</td>
-      <td>${({admin:'Admin',accountant:'Accountant'})[t.role]||'Staff'}</td><td>${n}</td><td>${k}</td>
+      <td>${({admin:'Admin',accountant:'Accountant',architect:'Architect',engineer:'Engineer',site_supervisor:'Site supervisor'})[t.role]||'Staff'}</td><td>${n}</td><td>${k}</td>
       <td>${admin && t.id!==S.me.id?`<button class="btn sm" data-tog="${t.id}">${t.active?'Deactivate':'Activate'}</button>`:''}</td></tr>`; }).join('');
   $('#teamBody').querySelectorAll('[data-tog]').forEach(b=>b.onclick=async()=>{
     const t=S.team.find(x=>x.id===b.dataset.tog);
