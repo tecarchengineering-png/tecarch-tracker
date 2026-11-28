@@ -239,6 +239,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import * as BS from '../lib/bs.js';
 import { mountShell } from '../lib/shell.js';
 import { printOnLetterhead } from '../lib/print.js';
+import { validate } from '../lib/validate.js';
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 
 const $ = s => document.querySelector(s);
@@ -450,22 +451,32 @@ async function edit(id, copyFrom){
       $$('#nrbOut [data-r]').forEach(a => a.onclick = e => { e.preventDefault(); $('#fx_rate').value = a.dataset.r; totals(); });
     }catch(e){ $('#nrbOut').innerHTML = `Couldn't get the rate automatically (no NRB rate for that day, or the site blocked the request). Check <a href="https://www.nrb.org.np/forex/" target="_blank" rel="noopener">nrb.org.np/forex</a> and type it in.`; }
   };
-  if($('#bPrint')) $('#bPrint').onclick = () => printCert(v);
-  if($('#bPrintC')) $('#bPrintC').onclick = () => printCert(v, true);
   if($('#bOk')) $('#bOk').onclick = async () => { const { error } = await sb.from('valuations').update({needs_review:false}).eq('id', id); if(error) return fail(error); await load(); edit(id); };
   if($('#bIssue')) $('#bIssue').onclick = async () => { if(v.needs_review && !confirm('This valuation is still marked "to check". Issue it anyway?')) return; const { error } = await sb.from('valuations').update({status:'issued'}).eq('id', id); if(error) return fail(error); toast('Marked issued'); await load(); edit(id); };
   if($('#bDel')) $('#bDel').onclick = async () => { if(!confirm(`Delete ${v.ref_no}? It stays in the audit log, but the number won't be reused.`)) return; const { error } = await sb.from('valuations').delete().eq('id', id); if(error) return fail(error); toast('Deleted'); await load(); location.hash = ''; };
   if(id) history_(id);
-  $('#vf').onsubmit = async e => {
-    e.preventDefault();
-    const x = cur();
+  const g = id => { const el = $('#' + id); return el.value.trim() === '' ? null : el.value.trim(); };
+  const formObj = () => { const x = cur();
     const plots = x.land_plots.filter(p => p.area !== '' || p.plot), blds = x.buildings.filter(b => b.area !== '' || b.floors);
-    if(!plots.length && !blds.length) return toast('Add at least one plot or building');
-    const g = id => { const el = $('#' + id); return el.value.trim() === '' ? null : el.value.trim(); };
-    const obj = { issue_date:$('#issue_date').value, status:$('#status').value, applicant_title:g('applicant_title'), applicant_name:g('applicant_name'), applicant_id_label:g('applicant_id_label'), applicant_id_no:g('applicant_id_no'),
+    return { issue_date:$('#issue_date').value, status:$('#status').value, applicant_title:g('applicant_title'), applicant_name:g('applicant_name'), applicant_id_label:g('applicant_id_label'), applicant_id_no:g('applicant_id_no'),
       relation:g('relation'), applicant_address:g('applicant_address'), purpose:g('purpose'), owner_is_applicant:$('#owner_is_applicant').checked, owner_name:$('#owner_is_applicant').checked ? null : g('owner_name'), owner_id_text:g('owner_id_text'), owner_address:g('owner_address'),
       land_location:g('land_location'), land_rate:N($('#land_rate').value), land_plots:plots, building_location:$('#vacant').checked ? null : g('building_location'), building_rate:$('#vacant').checked ? 0 : N($('#building_rate').value), buildings:blds,
-      currency:$('#currency').value, fx_rate:$('#fx_rate').value ? N($('#fx_rate').value) : null, fx_date:g('fx_date'), fee:N($('#fee').value), notes:g('notes') };
+      currency:$('#currency').value, fx_rate:$('#fx_rate').value ? N($('#fx_rate').value) : null, fx_date:g('fx_date'), fee:N($('#fee').value), notes:g('notes') }; };
+  // Print exactly what is on the screen (saved or not), so a new exchange rate shows straight away.
+  const printNow = withCover => {
+    const bad = validate($('#vf')); if(bad){ bad.scrollIntoView({block:'center'}); return toast('⚠ Fix the fields marked in red before printing'); }
+    const o = formObj(), w = { ...v, ...o };
+    if(!w.land_plots.length && !w.buildings.length) return toast('Add at least one plot or building');
+    if(!(N(w.fx_rate) > 0) && !confirm(`No exchange rate entered, so the certificate will show NPR only (no ${w.currency} amount).\n\nPrint anyway?`)) { $('#fx_rate').focus(); return; }
+    if($('#dirty')?.textContent) toast('Printing what is on screen. Remember to Save changes.');
+    printCert(w, withCover);
+  };
+  if($('#bPrint')) $('#bPrint').onclick = () => printNow(false);
+  if($('#bPrintC')) $('#bPrintC').onclick = () => printNow(true);
+  $('#vf').onsubmit = async e => {
+    e.preventDefault();
+    const obj = formObj();
+    if(!obj.land_plots.length && !obj.buildings.length) return toast('Add at least one plot or building');
     if(!obj.owner_is_applicant && !obj.owner_name) return toast('Enter the owner name, or tick "The applicant owns the property"');
     try{
       const q = id ? sb.from('valuations').update(obj).eq('id', id) : sb.from('valuations').insert(obj);
@@ -534,7 +545,7 @@ function printCert(v, withCover){
    <table class="sum" style="margin-top:12px"><tr class="b big"><td>Total value of the property (A+B)</td><td>=</td><td>${num2(c.t)}</td><td>NPR</td></tr></table>
    <p class="words">In words: ${esc(amountWords(c.t, 'NPR'))}.</p>
    ${sig}</section></div>`;
-  const cover = withCover ? `<b>Prepared for ${esc(who)}</b>${v.owner_is_applicant ? '' : `Property of ${esc(v.owner_name || '')}<br>`}Ref No. ${esc(v.ref_no)} · ${esc(BS.bsLong(v.issue_date))} (${adLong(v.issue_date)})` : null;
+  const cover = withCover ? `<small>Prepared for</small><b>${esc(who)}</b>${v.owner_is_applicant ? '' : `<span>Property of ${esc(v.owner_name || '')}</span>`}<span>Ref No. ${esc(v.ref_no)}</span><span>${adLong(v.issue_date)} · ${esc(BS.bsLong(v.issue_date))}</span>` : null;
   printOnLetterhead({ html, title:`${v.ref_no} ${v.applicant_name || ''} valuation`, base:'../', cover,
     css:`@media print{#lhPrint .vdoc h2{margin:8px 0 5px;font-size:11pt}#lhPrint .vdoc .kvt td,#lhPrint .vdoc .sum td{padding:1.5px 10px 1.5px 0;font-size:9.5pt}#lhPrint .vdoc .vt{margin:6px 0}#lhPrint .vdoc .words{margin:6px 0 0;font-size:9.5pt}#lhPrint .vdoc .vsig{margin-top:22px;font-size:9.5pt}#lhPrint .vdoc .lhpage + .lhpage .vsig{margin-top:14px}#lhPrint .vdoc .ctitle{margin:2px 0 12px;font-size:15pt}#lhPrint .vdoc .body{font-size:10.5pt;line-height:1.55;margin-bottom:7px}#lhPrint .vdoc .refrow{margin:0 0 10px}#lhPrint .vdoc .vt th,#lhPrint .vdoc .vt td{padding:5px 7px;font-size:9.5pt}}` });
 }
