@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../lib/shell.css">
+<link rel="stylesheet" href="../lib/shell.css?v=20261128b">
 <style>
 /* VOICE: calm, exact — an architect's studio tool, not a toy
    IDEA: a drafting table: the sheet under the lamp, instruments in a side rail
@@ -136,7 +136,7 @@ body.staff .adv{display:none!important}body:not(.staff) .staffonly{display:none!
 </header>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { mountShell } from '../lib/shell.js';
+import { mountShell } from '../lib/shell.js?v=20261128b';
 const $=id=>document.getElementById(id);
 const gm=t=>{$('gateMsg').textContent=t;$('gateLink').hidden=false};
 const sb=createClient('https://cslndhcboybvejwcbhuj.supabase.co','sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');

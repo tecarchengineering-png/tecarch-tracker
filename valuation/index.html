@@ -226,7 +226,7 @@ table.ed td{padding:5px 6px}table.ed input{padding:6px 8px}
 .vdoc .sum td:nth-child(3){text-align:right;min-width:120px;font-variant-numeric:tabular-nums}.vdoc .sum tr.b td{font-weight:700}.vdoc .sum tr.big td{font-size:11.5pt;border-top:1.5px solid #111;padding-top:6px}
 .vdoc .vsig{margin-top:56px;width:260px;font-size:10.5pt;line-height:1.5}
 </style>
-<link rel="stylesheet" href="../lib/shell.css">
+<link rel="stylesheet" href="../lib/shell.css?v=20261128b">
 </head>
 <body>
 <div id="gate" class="gate"><div class="gbox"><img src="../brand/tecarch-logo.png" alt="TecArch"><h2>Property valuation</h2><p id="gateMsg">Checking your sign-in…</p><a class="btn" id="gateLink" href="../" style="display:none">Open the TecArch Workspace</a></div></div>
@@ -236,10 +236,10 @@ table.ed td{padding:5px 6px}table.ed input{padding:6px 8px}
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import * as BS from '../lib/bs.js';
-import { mountShell } from '../lib/shell.js';
-import { printOnLetterhead } from '../lib/print.js';
-import { validate } from '../lib/validate.js';
+import * as BS from '../lib/bs.js?v=20261128b';
+import { mountShell } from '../lib/shell.js?v=20261128b';
+import { printOnLetterhead } from '../lib/print.js?v=20261128b';
+import { validate } from '../lib/validate.js?v=20261128b';
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 
 const $ = s => document.querySelector(s);
