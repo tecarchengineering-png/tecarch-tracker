@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="TecArch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="lib/shell.css?v=20261128h">
+<link rel="stylesheet" href="lib/shell.css?v=20261128i">
 <style>
 :root{
   --green:#2c5282; --green-d:#1e3a5f; --green-l:#eaf0f8;
@@ -334,8 +334,9 @@ tbody tr:hover td{background:#fbfbfa}
 <div id="printRoot"></div>
 
 <script type="module">
-import { mountShell } from './lib/shell.js?v=20261128h';
-import { passwordProblem } from './lib/validate.js?v=20261128h';
+import { mountShell } from './lib/shell.js?v=20261128i';
+import { passwordProblem } from './lib/validate.js?v=20261128i';
+import { trashDelete } from './lib/trash.js?v=20261128i';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
@@ -617,7 +618,7 @@ function detailsForm(p){
     </div>
     <div style="margin-top:12px"><label class="f">Internal notes</label><textarea id="pNotes">${esc(p?.notes)}</textarea></div>
     <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-      ${p && S.me.role==='admin'?`<button type="button" class="btn ghost danger" id="pArchive" style="margin-right:auto">${p.archived?'Restore':'Archive'}</button>`:''}
+      ${p && S.me.role==='admin'?`<button type="button" class="btn ghost danger" id="pDelete">Delete</button><button type="button" class="btn ghost" id="pArchive" style="margin-right:auto">${p.archived?'Restore':'Archive'}</button>`:''}
       <button class="btn primary">${p?'Save details':'Create project'}</button></div>
   </form>`;
 }
@@ -695,6 +696,9 @@ function tabOverview(p, D, reopen){
     toast('Stage → '+stageLabel(p.project_type,b.dataset.k)); reopen('overview'); });
   $('#uForm').onsubmit = async e => { e.preventDefault(); const { error } = await log(p.id, $('#uNote').value.trim()); if(error) return fail(error); toast('Update posted'); reopen('overview'); };
   $('#pForm').onsubmit = async e => { e.preventDefault(); const { error } = await sb.from('projects').update(readDetails()).eq('id',p.id); if(error) return fail(error); toast('Saved'); reopen('overview'); };
+  const pdel=$('#pDelete'); if(pdel) pdel.onclick = async () => {
+    const r = await trashDelete(sb, 'projects', p.id, `project "${p.client_name}" with its tasks, files, updates and payments`, { base:'./', onUndo:async () => { await loadAll(); openProject(p.id); } });
+    if(r){ closeDrawer(); loadAll(); } };
   const arch=$('#pArchive'); if(arch) arch.onclick = async () => {
     if(!confirm(p.archived?'Restore this project?':'Archive this project? It will be hidden from the list.')) return;
     const { error } = await sb.from('projects').update({archived:!p.archived}).eq('id',p.id); if(error) return fail(error); closeDrawer(); loadAll(); };
@@ -876,9 +880,8 @@ function tabFiles(p, D, reopen){
     const { error } = await sb.from('project_files').insert({ project_id:p.id, external_url:url, file_name:url, kind:'link', category:cat, caption:cap||null, uploaded_by:S.me.id });
     if(error) return fail(error); await log(p.id, `Link added to ${FILE_CATS[cat]}`); toast('Link added'); reopen('files'); };
   $('#tabBody').querySelectorAll('[data-fdel]').forEach(b=>b.onclick=async()=>{
-    if(!confirm('Delete this file permanently?')) return; const f=D.files.find(x=>x.id===+b.dataset.fdel);
-    if(f.storage_path){ const r=await sb.storage.from(BUCKET).remove([f.storage_path]); if(r.error) return fail(r.error); }
-    const { error } = await sb.from('project_files').delete().eq('id',f.id); if(error) return fail(error); reopen('files'); });
+    const f=D.files.find(x=>x.id===+b.dataset.fdel);
+    if(await trashDelete(sb, 'project_files', f.id, `"${f.caption||f.file_name||'this file'}"`, { base:'./', onUndo:()=>reopen('files') })) reopen('files'); });
 }
 
 /* ---- Tasks tab ---- */
@@ -899,7 +902,7 @@ function tabTasks(p, D, reopen){
     <div class="sec"><h4>Tasks</h4><div class="rows">${D.tasks.length ? D.tasks.map(t=>`<div class="row">
         <div class="grow"><b style="${t.status==='done'?'text-decoration:line-through;color:var(--muted)':''}">${esc(t.title)}</b>
           <br><small>${ic('user')}${esc(memberName(t.assigned_to))} · <span class="${dueClass(t.due_date,t.status==='done')}">${t.due_date?'Due '+fdate(t.due_date):'No due date'}</span>${t.details?' · '+esc(t.details):''}</small></div>
-        ${taskStatusSelect(t)}<button class="btn sm" data-print="${t.id}" title="Print work order">${ic('print')}</button></div>`).join('')
+        ${taskStatusSelect(t)}<button class="btn sm" data-print="${t.id}" title="Print work order">${ic('print')}</button>${S.me.role==='admin'?`<button class="btn sm ghost danger" data-tdel="${t.id}" title="Delete task" aria-label="Delete task">✕</button>`:''}</div>`).join('')
       : '<p class="muted" style="margin:0">No tasks yet.</p>'}</div></div>`;
   $('#tForm').onsubmit = async e => { e.preventDefault();
     const andPrint = e.submitter?.name==='andprint';
@@ -909,6 +912,8 @@ function tabTasks(p, D, reopen){
     await loadAll(); await openProject(p.id,'tasks'); if(andPrint) printBrief(p.id, data.id); };
   $('#tabBody').querySelectorAll('[data-tstat]').forEach(s=>s.onchange=async()=>{ await setTaskStatus(s.dataset.tstat, s.value); openProject(p.id,'tasks'); });
   $('#tabBody').querySelectorAll('[data-print]').forEach(b=>b.onclick=()=>printBrief(p.id, +b.dataset.print));
+  $('#tabBody').querySelectorAll('[data-tdel]').forEach(b=>b.onclick=async()=>{ const t=D.tasks.find(x=>x.id===+b.dataset.tdel);
+    if(await trashDelete(sb, 'tasks', t.id, `task "${t.title}"`, { base:'./', onUndo:()=>reopen('tasks') })) reopen('tasks'); });
 }
 
 /* ---- Payments tab ---- */
@@ -943,8 +948,8 @@ async function tabMoney(p, D, reopen){
     const { error } = await sb.from('payments').insert({ project_id:p.id, amount:amt, paid_on:$('#payDate').value||today(), method:$('#payMethod').value, note:$('#payNote').value||null, recorded_by:S.me.id });
     if(btn) btn.disabled=false;
     if(error) return fail(error); await log(p.id, `Payment received: ${money(amt)} (${$('#payMethod').value})`); toast('Payment recorded'); reopen('money'); };
-  $('#tabBody').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ if(!confirm('Delete this payment? It is also removed from Finance.')) return;
-    const { error } = await sb.from('payments').delete().eq('id',b.dataset.del); if(error) return fail(error); reopen('money'); });
+  $('#tabBody').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    if(await trashDelete(sb, 'payments', +b.dataset.del, 'this payment (and its Finance receipt)', { base:'./', onUndo:()=>reopen('money') })) reopen('money'); });
 }
 
 /* ---- History tab ---- */

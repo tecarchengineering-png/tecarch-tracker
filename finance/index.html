@@ -204,7 +204,7 @@ td .sub2{display:block;font-size:12.5px;color:var(--muted)}
 .doc .foot{margin-top:24px;font-size:8.5pt;color:#666;text-align:center;border-top:1px solid #ddd;padding-top:8px}
 .doc h3{font-size:10.5pt;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #ccc;padding-bottom:3px;margin:16px 0 8px}
 </style>
-<link rel="stylesheet" href="../lib/shell.css?v=20261128h">
+<link rel="stylesheet" href="../lib/shell.css?v=20261128i">
 </head>
 <body>
 <div id="gate" class="gate"><div class="gbox"><img src="../brand/tecarch-logo.png" alt="TecArch"><h2>TecArch Finance</h2><p id="gateMsg">Checking your sign-in…</p><a class="btn" id="gateLink" href="../" style="display:none">Open the TecArch Workspace</a></div></div>
@@ -228,9 +228,10 @@ td .sub2{display:block;font-size:12.5px;color:var(--muted)}
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import * as BS from '../lib/bs.js?v=20261128h';
-import { mountShell } from '../lib/shell.js?v=20261128h';
-import { printOnLetterhead } from '../lib/print.js?v=20261128h';
+import * as BS from '../lib/bs.js?v=20261128i';
+import { mountShell } from '../lib/shell.js?v=20261128i';
+import { printOnLetterhead } from '../lib/print.js?v=20261128i';
+import { trashDelete } from '../lib/trash.js?v=20261128i';
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 
 /* ================= helpers ================= */
@@ -348,10 +349,8 @@ async function save(table, id, obj){
   return data;
 }
 async function remove(table, id, what='this record'){
-  if(!confirm(`Delete ${what}? This can't be undone (it stays in the audit log).`)) return false;
-  const { error } = await sb.from(table).delete().eq('id', id);
-  if(error){ fail(error); return false; }
-  toast('Deleted'); return true;
+  const r = await trashDelete(sb, table, id, what, { onUndo:() => refresh() });
+  return !!r;
 }
 function phoneIntl(p){ let d = String(p || '').replace(/\D/g, ''); if(d.length === 10 && d.startsWith('9')) d = '977' + d; return d; }
 const waLink = (phone, text) => `https://wa.me/${phoneIntl(phone)}?text=${encodeURIComponent(text)}`;
@@ -546,8 +545,7 @@ function jobOverview(j, body){
   $$('[data-close]', body).forEach(b => b.onclick = closeDrawer);
   if($('#jOk')) $('#jOk').onclick = async () => { if(await save('fin_jobs', j.id, {needs_review:false})){ toast('Marked as checked'); await refresh(); openJob(j.id); } };
   if($('#jDel')) $('#jDel').onclick = async () => {
-    if(S.receipts.some(r => r.job_id === j.id) || S.invoices.some(i => i.job_id === j.id)) return toast('This job has payments or invoices. Set its status to Cancelled instead.');
-    if(await remove('fin_jobs', j.id, 'this job')){ closeDrawer(); refresh(); } };
+    if(await remove('fin_jobs', j.id, `job ${j.code || ''} ${j.title || ''}`.trim())){ closeDrawer(); refresh(); } };
   $('#jForm').onsubmit = async e => { e.preventDefault();
     try{
       const clientId = await resolveParty(val('jClient'), 'client', val('jPhone'));
@@ -775,7 +773,7 @@ function openWO(id, jobId){
   if($('#wOk')) $('#wOk').onclick = async () => { await sb.from('fin_work_orders').update({needs_review:false}).eq('id', w.id); await refresh(); openWO(w.id); };
   if($('#wPayNow')) $('#wPayNow').onclick = () => openPayout(null, w.id);
   $$('[data-po]', ov).forEach(r => r.onclick = () => openPayout(Number(r.dataset.po)));
-  if($('#wDel')) $('#wDel').onclick = async () => { if(pays.length) return toast('Payments exist. Set the status to Cancelled instead.'); if(await remove('fin_work_orders', w.id, 'this work order')){ await refresh(); closeDrawer(); } };
+  if($('#wDel')) $('#wDel').onclick = async () => { if(await remove('fin_work_orders', w.id, 'this work order')){ await refresh(); closeDrawer(); } };
   $('#wForm').onsubmit = async e => { e.preventDefault();
     try{
       const wid = await resolveParty(val('wWorker'), 'outsourced');
