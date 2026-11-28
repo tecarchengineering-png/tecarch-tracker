@@ -478,7 +478,8 @@ async function edit(id, copyFrom){
   };
 }
 async function linkFinance(v, phone){
-  const name = v.applicant_name; let { data:p } = await sb.from('fin_parties').select('id,phone').ilike('name', name).limit(1).maybeSingle();
+  const name = (v.applicant_name||'').trim(); const pat = name.replace(/[\\%_]/g, c => '\\' + c);
+  let { data:p } = await sb.from('fin_parties').select('id,phone').ilike('name', pat).limit(1).maybeSingle();
   if(!p){ const r = await sb.from('fin_parties').insert({ name, kind:'client', phone }).select().single(); if(r.error) throw r.error; p = r.data; }
   else if(phone && !p.phone) await sb.from('fin_parties').update({ phone }).eq('id', p.id);
   const j = await sb.from('fin_jobs').insert({ code:v.ref_no, title:`Property valuation – ${name}`, client_id:p.id, scope:'Property valuation', location:v.land_location, contract_amount:N(v.fee), status:'active', notes:`Valuation ${v.ref_no}` }).select().single();

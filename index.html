@@ -903,24 +903,36 @@ function tabTasks(p, D, reopen){
 }
 
 /* ---- Payments tab ---- */
-function tabMoney(p, D, reopen){
-  $('#tabBody').innerHTML = `<div class="sec"><h4>Payments</h4>
+async function tabMoney(p, D, reopen){
+  const fin = ['admin','accountant'].includes(S.me.role);
+  let recs = [];
+  if(fin && p.fin_job_id){ const r = await sb.from('fin_receipts').select('id,amount,vat_amount,received_on,mode,note').eq('job_id',p.fin_job_id).order('received_on',{ascending:false}); recs = r.data||[]; }
+  const legacy = D.pays.filter(x=>!x.fin_receipt_id);
+  const rows = [
+    ...recs.map(r=>({amt:r.amount-(r.vat_amount||0), m:r.mode.replace('_',' '), d:r.received_on, n:r.note, del: D.pays.find(x=>x.fin_receipt_id===r.id)?.id })),
+    ...legacy.map(x=>({amt:x.amount, m:x.method, d:x.paid_on, n:x.note, del:x.id}))
+  ].sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+  const finLink = p.fin_job_id && fin ? `<a class="btn sm ghost" href="finance/#job=${p.fin_job_id}">Open in Finance →</a>` : '';
+  $('#tabBody').innerHTML = `<div class="sec"><h4 style="display:flex;justify-content:space-between;align-items:center">Payments ${finLink}</h4>
     <div class="money3"><div><small>Total fee</small><b>${money(p.fee_total)}</b></div>
       <div><small>Received</small><b style="color:var(--green)">${money(p.paid_total)}</b></div>
       <div><small>Balance</small><b style="color:${Number(p.balance)>0?'var(--orange)':'var(--green)'}">${money(p.balance)}</b></div></div>
-    <p class="muted" style="margin:0 0 8px">Set the total fee on the Overview tab.</p>
-    <div class="rows">${D.pays.map(x=>`<div class="row"><div class="grow"><b>${money(x.amount)}</b> <small>${esc(x.method||'')}</small><br><small>${fdate(x.paid_on)}${x.note?' · '+esc(x.note):''}</small></div>
-      ${S.me.role==='admin'?`<button class="btn sm ghost danger" data-del="${x.id}">✕</button>`:''}</div>`).join('') || '<small class="muted">No payments recorded yet.</small>'}</div>
+    <p class="muted" style="margin:0 0 8px">${p.fin_job_id?'Figures come from the Finance job (net of VAT). Payments added here are saved to Finance automatically.':'Set the total fee on the Overview tab.'}</p>
+    ${fin ? `<div class="rows">${rows.map(x=>`<div class="row"><div class="grow"><b>${money(x.amt)}</b> <small>${esc(x.m||'')}</small><br><small>${fdate(x.d)}${x.n?' · '+esc(x.n):''}</small></div>
+      ${S.me.role==='admin'&&x.del?`<button class="btn sm ghost danger" data-del="${x.del}">✕</button>`:''}</div>`).join('') || '<small class="muted">No payments recorded yet.</small>'}</div>
     <form id="payForm" class="inline" style="margin-top:10px">
-      <div><label class="f">Amount</label><input id="payAmt" type="number" min="1" required></div>
+      <div><label class="f">Amount</label><input id="payAmt" type="number" min="1" step="0.01" required></div>
       <div><label class="f">Date</label><input id="payDate" type="date" value="${today()}"></div>
-      <div><label class="f">Method</label><select id="payMethod"><option>Cash</option><option>Bank</option><option>eSewa</option><option>Khalti</option><option>Cheque</option></select></div>
+      <div><label class="f">Method</label><select id="payMethod"><option>Cash</option><option>Bank</option><option>FonePay</option><option>eSewa</option><option>Khalti</option><option>Cheque</option></select></div>
       <div><label class="f">Note</label><input id="payNote"></div>
-      <button class="btn primary">Add</button></form></div>`;
-  $('#payForm').onsubmit = async e => { e.preventDefault(); const amt=+$('#payAmt').value;
-    const { error } = await sb.from('payments').insert({ project_id:p.id, amount:amt, paid_on:$('#payDate').value, method:$('#payMethod').value, note:$('#payNote').value||null, recorded_by:S.me.id });
+      <button class="btn primary">Add</button></form>` : '<small class="muted">Payment details are visible to Admin and Accountant.</small>'}</div>`;
+  if(!fin) return;
+  $('#payForm').onsubmit = async e => { e.preventDefault(); const amt=+$('#payAmt').value; if(!(amt>0)) return;
+    const btn=e.submitter; if(btn) btn.disabled=true;
+    const { error } = await sb.from('payments').insert({ project_id:p.id, amount:amt, paid_on:$('#payDate').value||today(), method:$('#payMethod').value, note:$('#payNote').value||null, recorded_by:S.me.id });
+    if(btn) btn.disabled=false;
     if(error) return fail(error); await log(p.id, `Payment received: ${money(amt)} (${$('#payMethod').value})`); toast('Payment recorded'); reopen('money'); };
-  $('#tabBody').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ if(!confirm('Delete this payment?')) return;
+  $('#tabBody').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ if(!confirm('Delete this payment? It is also removed from Finance.')) return;
     const { error } = await sb.from('payments').delete().eq('id',b.dataset.del); if(error) return fail(error); reopen('money'); });
 }
 
