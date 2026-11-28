@@ -27,3 +27,14 @@ Property valuation certificates, open to the admin, accountant, engineers and ar
 - Reference numbers restart each fiscal year (`TEC 001/83/84`) and are assigned by the database.
 - Areas, values and the foreign-currency total are calculated by the trigger `private.valuation_calc`.
 - Every change is kept in `fin_audit`.
+
+## Phase 2 (HQ, Quotations, shared design)
+
+- **`/hq/`** is the home page for everyone after sign-in. The super admin sees money, quotes, valuations, team workload and alerts; other staff see "My work". **`/hq/#clients`** sends festival greetings and offers on WhatsApp, one client at a time.
+- **`/quotes/`** numbers quotes automatically (`Q-83/84-001`) and totals them in the database. The `quote_accept()` RPC creates the client, finance job, payment schedule and Tracker project in one step. A `pg_cron` job (`tecarch-quotes-autoarchive`, 00:15 NPT) archives sent quotes with no answer after 7 days.
+- **`lib/shell.js` + `lib/shell.css`** provide the shared sidebar, top bar and Ctrl/⌘K search. **`lib/print.js`** prints any document on the TecArch letterhead (`brand/letterhead.jpg`), with the optional valuation cover page (`brand/valuation-cover.jpg`).
+- Security:
+  - Signed-out visitors get no table access.
+  - The "recorded by" fields are stamped by the database.
+  - Valuation and invoice numbers are permanent.
+  - Issued valuations and accepted quote amounts can only be changed by the admin.

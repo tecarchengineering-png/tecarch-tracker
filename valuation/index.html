@@ -215,8 +215,6 @@ table.ed td{padding:5px 6px}table.ed input{padding:6px 8px}
 .conv{margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:10px;background:#fcfcfb}
 .savebar{position:sticky;bottom:0;background:rgba(246,246,244,.96);backdrop-filter:blur(4px);border-top:1px solid var(--line);padding:12px 0;display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:8px;z-index:5}
 .savebar #dirty{margin-right:auto}
-.vdoc .page{page-break-after:always;break-after:page;min-height:250mm;position:relative}
-.vdoc .page:last-child{page-break-after:auto;break-after:auto}
 .vdoc .refrow{display:flex;justify-content:space-between;font-size:10.5pt;margin:4px 0 18px}
 .vdoc .ctitle{text-align:center;font:700 16pt Montserrat,Arial,sans-serif;letter-spacing:.5px;margin:6px 0 18px;text-decoration:underline;text-underline-offset:5px}
 .vdoc .body{text-align:justify;line-height:1.65;font-size:11pt;margin:0 0 10px}
@@ -228,31 +226,19 @@ table.ed td{padding:5px 6px}table.ed input{padding:6px 8px}
 .vdoc .sum td:nth-child(3){text-align:right;min-width:120px;font-variant-numeric:tabular-nums}.vdoc .sum tr.b td{font-weight:700}.vdoc .sum tr.big td{font-size:11.5pt;border-top:1.5px solid #111;padding-top:6px}
 .vdoc .vsig{margin-top:56px;width:260px;font-size:10.5pt;line-height:1.5}
 </style>
+<link rel="stylesheet" href="../lib/shell.css">
 </head>
 <body>
 <div id="gate" class="gate"><div class="gbox"><img src="../brand/tecarch-logo.png" alt="TecArch"><h2>Property valuation</h2><p id="gateMsg">Checking your sign-in…</p><a class="btn" id="gateLink" href="../" style="display:none">Open the TecArch Workspace</a></div></div>
-<header class="ab">
-  <div class="ab-in">
-    <a class="ab-brand" href="../"><img src="../brand/tecarch-logo.png" alt="TecArch"><span>Workspace</span></a>
-    <nav class="ab-nav" aria-label="Main">
-      <a href="../">Projects</a>
-      <a href="../#tasks">Tasks</a>
-      <a href="../#team">Team</a>
-      <a href="../finance/" id="finLink" style="display:none">Finance</a>
-      <a href="./" class="on" aria-current="page">Valuation</a>
-      <a href="../watermark/"><span>Watermark<span class="ab-long"> Studio</span></span></a>
-    </nav>
-    <div class="ab-sp"></div>
-    <div class="ab-me"><b id="abName"></b><span id="abRole"></span></div>
-    <button type="button" class="ab-out" id="abOut">Sign out</button>
-  </div>
-</header>
+
 <main id="main"></main>
 <div id="printRoot"></div>
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import * as BS from '../lib/bs.js';
+import { mountShell } from '../lib/shell.js';
+import { printOnLetterhead } from '../lib/print.js';
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 
 const $ = s => document.querySelector(s);
@@ -300,7 +286,6 @@ function calc(v){
 
 /* ---------- boot ---------- */
 const gm = t => { $('#gateMsg').textContent = t; $('#gateLink').style.display = ''; };
-$('#abOut').onclick = async () => { try { await sb.auth.signOut(); } catch(e){} location.href = '../'; };
 async function boot(){
   try{
     const { data:{ session } } = await sb.auth.getSession();
@@ -309,9 +294,10 @@ async function boot(){
     if(!me) return gm("Your account isn't on the TecArch team yet.");
     if(!['admin','accountant','engineer','architect'].includes(me.role)) return gm('Valuation is open to the admin, accountant, engineers and architects.');
     S.me = me; S.admin = me.role === 'admin'; S.finance = ['admin','accountant'].includes(me.role);
-    $('#abName').textContent = me.full_name || ''; $('#abRole').textContent = ({admin:'Admin', accountant:'Accountant', engineer:'Engineer', architect:'Architect'})[me.role];
-    if(S.finance) $('#finLink').style.display = '';
-    await load(); $('#gate').remove(); route();
+    await load(); $('#gate').remove();
+    mountShell({ base:'../', active:'valuation', me, content:['main'], onSignOut:async () => { try { await sb.auth.signOut(); } catch(e){} location.href = '../'; },
+      search:q => S.list.filter(v => `${v.ref_no} ${v.applicant_name} ${v.owner_name} ${v.applicant_id_no || ''}`.toLowerCase().includes(q)).slice(0, 10).map(v => ({ label:`${v.ref_no} · ${v.applicant_name || ''}`, sub:v.status === 'issued' ? 'Issued' : v.status === 'draft' ? 'Draft' : 'Cancelled', icon:'valuation', href:'#v=' + v.id })) });
+    route();
   }catch(e){ console.error(e); gm("Couldn't load Valuation. Check your internet connection and reload the page."); }
 }
 async function load(){
@@ -364,7 +350,7 @@ async function edit(id, copyFrom){
   $('#main').innerHTML = `
   <div class="phead"><div><a href="#" class="muted" style="text-decoration:none">← All valuations</a><h1 style="margin-top:6px">${v.ref_no ? esc(v.ref_no) : 'New valuation'}</h1>
    <p>${v.ref_no ? `${({draft:'Draft', issued:'Issued', cancelled:'Cancelled'})[v.status]} · ${esc(fboth(v.issue_date))}` : `The reference number is given when you save. Next in FY ${fy?.label || ''}: <b>TEC ${String((Math.max(0, ...S.list.filter(x => x.fy_start === fy?.start && x.serial < 1000).map(x => x.serial)) || 0) + 1).padStart(3, '0')}/${fy?.short || ''}</b>`}</p></div>
-   <div class="acts">${id ? `<button class="btn" id="bPrint">Print / PDF</button><a class="btn" href="#copy=${id}">Duplicate</a>` : ''}${id && v.status !== 'issued' ? '<button class="btn primary" id="bIssue">Mark issued</button>' : ''}</div></div>
+   <div class="acts">${id ? `<button class="btn" id="bPrint">Print / PDF</button><button class="btn" id="bPrintC">Print with cover</button><a class="btn" href="#copy=${id}">Duplicate</a>` : ''}${id && v.status !== 'issued' ? '<button class="btn primary" id="bIssue">Mark issued</button>' : ''}</div></div>
   ${v.needs_review ? `<div class="note"><b>To check:</b> ${esc(v.review_note || '')} ${id ? '<button class="btn sm" id="bOk" style="margin-left:6px">Mark as checked</button>' : ''}</div>` : ''}
   ${locked ? '<div class="note blue">This certificate is issued. Only the admin can change it. Use <b>Duplicate</b> to make a new one.</div>' : ''}
   <form id="vf"><div class="vgrid"><div>
@@ -465,6 +451,7 @@ async function edit(id, copyFrom){
     }catch(e){ $('#nrbOut').innerHTML = `Couldn't get the rate automatically (no NRB rate for that day, or the site blocked the request). Check <a href="https://www.nrb.org.np/forex/" target="_blank" rel="noopener">nrb.org.np/forex</a> and type it in.`; }
   };
   if($('#bPrint')) $('#bPrint').onclick = () => printCert(v);
+  if($('#bPrintC')) $('#bPrintC').onclick = () => printCert(v, true);
   if($('#bOk')) $('#bOk').onclick = async () => { const { error } = await sb.from('valuations').update({needs_review:false}).eq('id', id); if(error) return fail(error); await load(); edit(id); };
   if($('#bIssue')) $('#bIssue').onclick = async () => { if(v.needs_review && !confirm('This valuation is still marked "to check". Issue it anyway?')) return; const { error } = await sb.from('valuations').update({status:'issued'}).eq('id', id); if(error) return fail(error); toast('Marked issued'); await load(); edit(id); };
   if($('#bDel')) $('#bDel').onclick = async () => { if(!confirm(`Delete ${v.ref_no}? It stays in the audit log, but the number won't be reused.`)) return; const { error } = await sb.from('valuations').delete().eq('id', id); if(error) return fail(error); toast('Deleted'); await load(); location.hash = ''; };
@@ -510,21 +497,20 @@ async function history_(id){
 }
 
 /* ---------- certificate ---------- */
-function printCert(v){
+function printCert(v, withCover){
   const c = calc(v), st = S.set, sig = `<div class="vsig"><div>…………………………………</div><b>${esc(st.valuer_name || '')}</b><div>(${esc(st.valuer_title || 'Civil Engineer')})</div><div>${esc(st.valuer_reg || '')}</div></div>`;
   const who = [v.applicant_title, v.applicant_name].filter(Boolean).join(' ');
   const pron = /Mr\./.test(v.applicant_title) ? 'himself' : 'herself';
   const ownerLine = v.owner_is_applicant ? `The property is owned by ${esc(who)} ${pron}.` : `The property is owned by ${esc(v.owner_name || '')}${v.owner_id_text ? ` (${esc(v.owner_id_text)})` : ''}${v.owner_address ? `, ${esc(v.owner_address)}` : ''}.`;
-  const lh = `<div class="lh"><img src="../brand/tecarch-logo.png" alt="TecArch"><div class="co"><b>${esc(st.company_name)}</b><br>${esc(st.company_address)}<br>${esc(st.company_phone)} · ${esc(st.company_email)}<br>${esc(st.company_web)}${st.company_pan ? `<br>PAN/VAT No: ${esc(st.company_pan)}` : ''}</div></div>`;
+  const ref = `<div class="refrow"><span>Ref No. <b>${esc(v.ref_no)}</b></span><span>Date: <b>${adLong(v.issue_date)}</b></span></div>`;
   const hasB = (v.buildings || []).length > 0, owner = v.owner_is_applicant ? who : v.owner_name;
-  const html = `
-  <section class="page">${lh}
-   <div class="refrow"><span>Ref No. <b>${esc(v.ref_no)}</b></span><span>Date: <b>${adLong(v.issue_date)}</b></span></div>
+  const html = `<div class="doc vdoc">
+  <section class="lhpage">${ref}
    <h1 class="ctitle">“CERTIFICATE OF PROPERTY VALUATION”</h1>
    <p class="body">This is to certify that the property valuation for <b>${esc(who)}</b>${v.applicant_id_no ? ` (${esc(v.applicant_id_label)} ${esc(v.applicant_id_no)})` : ''}${v.relation ? `, ${esc(v.relation)}` : ''}${v.applicant_address ? `, a permanent resident of ${esc(v.applicant_address)}` : ''}, has been carried out by us.</p>
    <p class="body">${ownerLine} The details of the properties are provided in the table below.</p>
    <p class="body">The valuation of the properties, based on the documents provided, has been conducted by us and summarized accordingly (as detailed in the separate sheets). The valuation of the assets shown in the table has been carried out in accordance with the prevailing market rate.</p>
-   <table class="vt"><thead><tr><th style="width:50px">S.No.</th><th>Description of Property</th><th style="width:170px;text-align:right">Total Amount</th><th style="width:80px">Remarks</th></tr></thead>
+   <table class="vt"><thead><tr><th style="width:50px">S.No.</th><th>Description of Property</th><th style="width:160px;text-align:right">Total Amount</th><th style="width:70px">Remarks</th></tr></thead>
     <tbody><tr><td>1</td><td>${hasB ? 'Land (A) + Building (B)' : 'Land (A)'}</td><td style="text-align:right">${num2(c.t)}</td><td>NPR</td></tr>
     <tr class="b"><td colspan="2">Grand Total Amount</td><td style="text-align:right">${num2(c.t)}</td><td>NPR</td></tr>
     ${c.fx != null ? `<tr class="b"><td colspan="2">Equivalent Amount in ${esc(v.currency)} @ Rs. ${N(v.fx_rate).toFixed(2)}</td><td style="text-align:right">${num2(c.fx)}</td><td>${esc(v.currency)}</td></tr>` : ''}</tbody></table>
@@ -532,28 +518,24 @@ function printCert(v){
    ${c.fx != null ? `<p class="small"><b>Note:</b> Rate of exchange dated on ${adLong(v.fx_date || v.issue_date)} @ 1 ${esc(v.currency)} = ${N(v.fx_rate).toFixed(2)} NPR.</p>` : ''}
    <p class="small">* The information furnished is true and correct to the best of our knowledge and belief, which are based on the documents presented by the client.</p>
    ${sig}</section>
-  <section class="page">${lh}
-   <div class="refrow"><span>Ref No. <b>${esc(v.ref_no)}</b></span><span>Date: <b>${adLong(v.issue_date)}</b></span></div>
+  <section class="lhpage">${ref}
    <h2>1. Valuation of Land</h2>
-   <table class="kvt"><tr><td style="width:30px"><b>A</b></td><td style="width:190px">Owner of the property</td><td>: ${esc(owner || '')}</td></tr><tr><td></td><td>Location of the property</td><td>: ${esc(v.land_location || '')}</td></tr></table>
+   <table class="kvt"><tr><td style="width:24px"><b>A</b></td><td style="width:170px">Owner of the property</td><td>: ${esc(owner || '')}</td></tr><tr><td></td><td>Location of the property</td><td>: ${esc(v.land_location || '')}</td></tr></table>
    <table class="vt"><thead><tr><th>S.N.</th><th>Ward No.</th><th>Plot No.</th><th style="text-align:right">Area</th><th>Unit</th><th>Map Sheet Number</th></tr></thead>
     <tbody>${(v.land_plots || []).map((p, i) => `<tr><td>${i + 1}</td><td>${esc(p.ward)}</td><td>${esc(p.plot)}</td><td style="text-align:right">${num2(p.area)}</td><td>Sq.M.</td><td>${esc(p.map_sheet)}</td></tr>`).join('')}</tbody></table>
    <table class="sum"><tr><td>Total Area of land</td><td>=</td><td>${num2(c.la)}</td><td>Sq.M.</td></tr><tr><td>Avg. Unit rate of land</td><td>=</td><td>${num2(v.land_rate)}</td><td>per Sq.M.</td></tr><tr class="b"><td>Value of the land (A)</td><td>=</td><td>${num2(c.lv)}</td><td>NPR</td></tr></table>
    <h2>2. Valuation of Building</h2>
-   ${hasB ? `<table class="kvt"><tr><td style="width:30px"><b>B</b></td><td style="width:190px">Owner of the property</td><td>: ${esc(owner || '')}</td></tr><tr><td></td><td>Location of the property</td><td>: ${esc(v.building_location || v.land_location || '')}</td></tr></table>
+   ${hasB ? `<table class="kvt"><tr><td style="width:24px"><b>B</b></td><td style="width:170px">Owner of the property</td><td>: ${esc(owner || '')}</td></tr><tr><td></td><td>Location of the property</td><td>: ${esc(v.building_location || v.land_location || '')}</td></tr></table>
    <table class="vt"><thead><tr><th>S.N.</th><th>Ward No.</th><th>Floor Number</th><th style="text-align:right">Total Floor Area</th><th>Unit</th><th>Remark</th></tr></thead>
     <tbody>${v.buildings.map((b, i) => `<tr><td>${i + 1}</td><td>${esc(b.ward)}</td><td>${esc(b.floors)}</td><td style="text-align:right">${num2(b.area)}</td><td>Sq.M.</td><td>${esc(b.remark)}</td></tr>`).join('')}</tbody></table>
    <table class="sum"><tr><td>Total Area of building</td><td>=</td><td>${num2(c.ba)}</td><td>Sq.M.</td></tr><tr><td>Avg. Unit rate of building</td><td>=</td><td>${num2(v.building_rate)}</td><td>per Sq.M.</td></tr><tr class="b"><td>Value of the building (B)</td><td>=</td><td>${num2(c.bv)}</td><td>NPR</td></tr></table>`
    : `<p class="small">B · No building: vacant land. Value of the building (B) = 0.00 NPR</p>`}
-   <table class="sum" style="margin-top:14px"><tr class="b big"><td>Total value of the property (A+B)</td><td>=</td><td>${num2(c.t)}</td><td>NPR</td></tr></table>
+   <table class="sum" style="margin-top:12px"><tr class="b big"><td>Total value of the property (A+B)</td><td>=</td><td>${num2(c.t)}</td><td>NPR</td></tr></table>
    <p class="words">In words: ${esc(amountWords(c.t, 'NPR'))}.</p>
-   ${sig}</section>`;
-  $('#printRoot').innerHTML = `<div class="doc vdoc">${html}</div>`;
-  const old = document.title; document.title = `${v.ref_no} ${v.applicant_name || ''} valuation`;
-  document.body.classList.add('printing');
-  const done = () => { document.body.classList.remove('printing'); document.title = old; window.removeEventListener('afterprint', done); };
-  window.addEventListener('afterprint', done);
-  const imgs = $$('#printRoot img'); Promise.all(imgs.map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; }))).then(() => setTimeout(() => window.print(), 50));
+   ${sig}</section></div>`;
+  const cover = withCover ? `<b>Prepared for ${esc(who)}</b>${v.owner_is_applicant ? '' : `Property of ${esc(v.owner_name || '')}<br>`}Ref No. ${esc(v.ref_no)} · ${esc(BS.bsLong(v.issue_date))} (${adLong(v.issue_date)})` : null;
+  printOnLetterhead({ html, title:`${v.ref_no} ${v.applicant_name || ''} valuation`, base:'../', cover,
+    css:`@media print{#lhPrint .vdoc h2{margin:8px 0 5px;font-size:11pt}#lhPrint .vdoc .kvt td,#lhPrint .vdoc .sum td{padding:1.5px 10px 1.5px 0;font-size:9.5pt}#lhPrint .vdoc .vt{margin:6px 0}#lhPrint .vdoc .words{margin:6px 0 0;font-size:9.5pt}#lhPrint .vdoc .vsig{margin-top:22px;font-size:9.5pt}#lhPrint .vdoc .lhpage + .lhpage .vsig{margin-top:14px}#lhPrint .vdoc .ctitle{margin:2px 0 12px;font-size:15pt}#lhPrint .vdoc .body{font-size:10.5pt;line-height:1.55;margin-bottom:7px}#lhPrint .vdoc .refrow{margin:0 0 10px}#lhPrint .vdoc .vt th,#lhPrint .vdoc .vt td{padding:5px 7px;font-size:9.5pt}}` });
 }
 
 boot();

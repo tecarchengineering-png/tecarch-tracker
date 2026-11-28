@@ -199,29 +199,17 @@ td .sub2{display:block;font-size:12.5px;color:var(--muted)}
 .doc .pay{margin-top:14px;white-space:pre-wrap}
 .doc .sign{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:50px;font-size:9.5pt}
 .doc .sign div{border-top:1px solid #333;padding-top:4px;text-align:center}
+#lhPrint .doc{max-width:none;font-size:10pt}
+.doc .panline{text-align:right;font-size:9pt;color:#333;margin:-4px 0 6px}
 .doc .foot{margin-top:24px;font-size:8.5pt;color:#666;text-align:center;border-top:1px solid #ddd;padding-top:8px}
 .doc h3{font-size:10.5pt;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #ccc;padding-bottom:3px;margin:16px 0 8px}
 </style>
+<link rel="stylesheet" href="../lib/shell.css">
 </head>
 <body>
 <div id="gate" class="gate"><div class="gbox"><img src="../brand/tecarch-logo.png" alt="TecArch"><h2>TecArch Finance</h2><p id="gateMsg">Checking your sign-in…</p><a class="btn" id="gateLink" href="../" style="display:none">Open the TecArch Workspace</a></div></div>
 
-<header class="ab">
-  <div class="ab-in">
-    <a class="ab-brand" href="../"><img src="../brand/tecarch-logo.png" alt="TecArch"><span>Workspace</span></a>
-    <nav class="ab-nav" aria-label="Main">
-      <a href="../">Projects</a>
-      <a href="../#tasks">Tasks</a>
-      <a href="../#team">Team</a>
-      <a href="./" class="on" aria-current="page">Finance</a>
-      <a href="../valuation/">Valuation</a>
-      <a href="../watermark/"><span>Watermark<span class="ab-long"> Studio</span></span></a>
-    </nav>
-    <div class="ab-sp"></div>
-    <div class="ab-me"><b id="abName"></b><span id="abRole"></span></div>
-    <button type="button" class="ab-out" id="abOut">Sign out</button>
-  </div>
-</header>
+
 <div class="sub"><div class="sub-in" id="subnav">
   <button data-v="dash" class="on">Overview</button>
   <button data-v="jobs">Jobs &amp; clients</button>
@@ -241,6 +229,8 @@ td .sub2{display:block;font-size:12.5px;color:var(--muted)}
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import * as BS from '../lib/bs.js';
+import { mountShell } from '../lib/shell.js';
+import { printOnLetterhead } from '../lib/print.js';
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
 
 /* ================= helpers ================= */
@@ -273,7 +263,6 @@ const S = { me:null, view:'dash', jobsFilter:'open', jobsQ:'', jobsPayer:'', wor
 
 /* ================= boot ================= */
 const gm = t => { $('#gateMsg').textContent = t; $('#gateLink').style.display = ''; };
-$('#abOut').onclick = async () => { try { await sb.auth.signOut(); } catch(e){} location.href = '../'; };
 async function boot(){
   try{
     const { data:{ session } } = await sb.auth.getSession();
@@ -282,9 +271,13 @@ async function boot(){
     if(!me) return gm("Your account isn't on the TecArch team yet.");
     if(!['admin','accountant'].includes(me.role)) return gm('Finance is only open to the admin and the accountant. Ask the admin if you need access.');
     S.me = me; S.admin = me.role === 'admin';
-    $('#abName').textContent = me.full_name || ''; $('#abRole').textContent = S.admin ? 'Admin' : 'Accountant';
     await loadAll();
     $('#gate').remove();
+    S.shell = mountShell({ base:'../', active:'finance', me, content:['.sub','main'], onSignOut:async () => { try { await sb.auth.signOut(); } catch(e){} location.href = '../'; },
+      search:q => [
+        ...S.jobs.filter(j => `${j.code} ${j.title} ${j.client_name} ${j.bill_to_name} ${j.client_phone || ''}`.toLowerCase().includes(q)).slice(0, 8).map(j => ({ label:jobLabel(j), sub:N(j.due) > 0 ? 'Due ' + money(j.due) : JOB_STATUS[j.status], icon:'finance', run:() => openJob(j.id) })),
+        ...S.parties.filter(p => `${p.name} ${p.phone || ''}`.toLowerCase().includes(q)).slice(0, 6).map(p => ({ label:p.name, sub:KINDS[p.kind], icon:'clients', run:() => openParty(p.id) }))] });
+    S.shell.setBadges({ finance:{ n:S.jobs.filter(j => j.needs_review).length + S.wos.filter(w => w.needs_review).length, hot:true } });
     route();
   }catch(e){ console.error(e); gm("Couldn't load Finance. Check your internet connection and reload the page."); }
 }
@@ -317,6 +310,9 @@ function route(){
   const views = ['dash','jobs','work','tx','accounts','contacts','loans','reports','review'];
   if(views.includes(v)){ S.view = v; render(); }
   else if(v === 'job' && arg){ S.view = 'jobs'; render(); openJob(Number(arg)); }
+  else if(v === 'party' && arg){ S.view = 'contacts'; render(); openParty(Number(arg)); }
+  else { S.view = 'dash'; render();
+    if(v === 'receipt') openReceipt(null, null); else if(v === 'newjob') openJob(null); else if(v === 'expense') openExpense(null); else if(v === 'payout') openPayout(null, null); else if(v === 'loan') openLoan(null, 'taken'); }
 }
 function render(){
   $$('#subnav button').forEach(b => b.classList.toggle('on', b.dataset.v === S.view));
@@ -391,14 +387,10 @@ const dhead = (title, sub, tabs, on, extra='') => `<div class="dhead"><div class
 
 /* print */
 function printDoc(html, title){
-  $('#printRoot').innerHTML = `<div class="doc">${html}</div>`;
-  const old = document.title; document.title = title;
-  document.body.classList.add('printing');
-  const done = () => { document.body.classList.remove('printing'); document.title = old; window.removeEventListener('afterprint', done); };
-  window.addEventListener('afterprint', done);
-  const imgs = $$('#printRoot img'); Promise.all(imgs.map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; }))).then(() => setTimeout(() => window.print(), 50));
+  // the report printer strips the screen letterhead line; documents go on the TecArch letterhead image
+  printOnLetterhead({ html:`<div class="doc">${html}</div>`, title, base:'../' });
 }
-const letterhead = () => `<div class="lh"><img src="../brand/tecarch-logo.png" alt="TecArch"><div class="co"><b>${esc(S.set.company_name)}</b><br>${esc(S.set.company_address)}<br>${esc(S.set.company_phone)} · ${esc(S.set.company_email)}<br>${esc(S.set.company_web)}${S.set.company_pan ? `<br>PAN/VAT No: <b>${esc(S.set.company_pan)}</b>` : ''}</div></div>`;
+const letterhead = () => S.set.company_pan ? `<div class="panline">PAN/VAT No: <b>${esc(S.set.company_pan)}</b></div>` : '';
 
 /* ================= OVERVIEW ================= */
 function renderDash(){

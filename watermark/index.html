@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../lib/shell.css">
 <style>
 /* VOICE: calm, exact — an architect's studio tool, not a toy
    IDEA: a drafting table: the sheet under the lamp, instruments in a side rail
@@ -135,6 +136,7 @@ body.staff .adv{display:none!important}body:not(.staff) .staffonly{display:none!
 </header>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { mountShell } from '../lib/shell.js';
 const $=id=>document.getElementById(id);
 const gm=t=>{$('gateMsg').textContent=t;$('gateLink').hidden=false};
 const sb=createClient('https://cslndhcboybvejwcbhuj.supabase.co','sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
@@ -147,6 +149,7 @@ $('abOut').addEventListener('click',async()=>{try{await sb.auth.signOut()}catch(
     if(!me)return gm("Your account isn't on the TecArch team yet. Ask an admin to add you on the Team page.");
     $('abName').textContent=me.full_name||'';$('abRole').textContent=({admin:'Admin',accountant:'Accountant',architect:'Architect',engineer:'Engineer',site_supervisor:'Site supervisor'})[me.role]||'Team';$('valLink').style.display=['admin','accountant','engineer','architect'].includes(me.role)?'':'none';$('finLink').style.display=['admin','accountant'].includes(me.role)?'':'none';
     $('gate').remove();
+    mountShell({ base:'../', active:'watermark', me, content:['header.top','.wrap'], panel:true, onSignOut:async()=>{try{await sb.auth.signOut()}catch(e){}location.href='../'} });
     window.dispatchEvent(new CustomEvent('tecarch-role',{detail:{role:me.role,name:me.full_name}}));
   }catch(e){gm("Couldn't check your sign-in. Check your internet connection and reload the page.")}
 })();

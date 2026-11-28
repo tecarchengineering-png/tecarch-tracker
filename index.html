@@ -13,6 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="TecArch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lib/shell.css">
 <style>
 :root{
   --green:#2c5282; --green-d:#1e3a5f; --green-l:#eaf0f8;
@@ -333,6 +334,7 @@ tbody tr:hover td{background:#fbfbfa}
 <div id="printRoot"></div>
 
 <script type="module">
+import { mountShell } from './lib/shell.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
@@ -445,7 +447,11 @@ async function boot(){
   $('#finLink').classList.toggle('hidden', !['admin','accountant'].includes(me.role));
   $('#valLink').classList.toggle('hidden', !['admin','accountant','engineer','architect'].includes(me.role));
   $('#addMemberSec').classList.toggle('hidden', me.role!=='admin');
+  if(!location.hash){ location.replace('hq/'); return; }
   $('#appView').classList.remove('hidden');
+  if(!window.__shell) window.__shell = mountShell({ base:'', active:(location.hash.slice(1) || 'projects').split('=')[0], me, content:['#appView main'], onSignOut:window.signOut,
+    search:q => S.projects.filter(p => `${p.client_name} ${p.location||''} ${p.phone||''} ${p.ward_no||''}`.toLowerCase().includes(q)).slice(0, 10)
+      .map(p => ({ label:p.client_name, sub:`${p.project_type === 'site' ? 'Site' : 'Supervision'} project${p.location ? ' · ' + p.location : ''}`, icon:'projects', run:() => { location.hash = 'projects'; openProject(p.id); } })) });
   await loadAll();
   if(me.role!=='admin' && S.projects.some(p=>p.assigned_to===me.id)){ $('#fAssigned').value='__me'; renderProjects(); }
   openFromHash();
@@ -467,6 +473,7 @@ async function loadAll(){
   sel.value=cur;
   const mine = S.tasks.filter(t=>t.assigned_to===S.me.id && t.status!=='done').length;
   $('#taskBadge').textContent = mine; $('#taskBadge').classList.toggle('hidden', !mine);
+  window.__shell?.setBadges({ tasks:{ n:mine, hot:true } });
   renderProjects(); renderTasks(); renderTeam();
 }
 
@@ -544,9 +551,14 @@ $('#addBtn').onclick=()=>openProject(null);
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x===b));
   ['projects','tasks','team'].forEach(v=>$('#'+v+'View').classList.toggle('hidden', b.dataset.view!==v));
-  history.replaceState(null,'',b.dataset.view==='projects'?location.pathname:'#'+b.dataset.view);
+  history.replaceState(null,'','#'+b.dataset.view);
+  window.__shell?.setActive(b.dataset.view);
 });
-function openFromHash(){ const v=location.hash.slice(1); const b=document.querySelector(`.nav button[data-view="${v}"]`); if(b) b.click(); }
+function openFromHash(){
+  const [v, arg] = location.hash.slice(1).split('=');
+  if(v==='new-project'){ document.querySelector('.nav button[data-view="projects"]').click(); openProject(null); return; }
+  if(v==='project' && arg){ document.querySelector('.nav button[data-view="projects"]').click(); openProject(+arg); return; }
+  const b=document.querySelector(`.nav button[data-view="${v}"]`); if(b) b.click(); }
 window.addEventListener('hashchange',openFromHash);
 
 /* ================= TASKS (global) ================= */
