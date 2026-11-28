@@ -335,6 +335,7 @@ tbody tr:hover td{background:#fbfbfa}
 
 <script type="module">
 import { mountShell } from './lib/shell.js';
+import { passwordProblem } from './lib/validate.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
@@ -429,8 +430,13 @@ $('#forgotLink').onclick = async e => { e.preventDefault();
     : '<div class="msg ok">If this email is on the team, a reset link has been sent. Open it on this device.</div>'; };
 sb.auth.onAuthStateChange(async (ev)=>{
   if(ev==='PASSWORD_RECOVERY'){
-    const pw = prompt('Enter a new password (at least 8 characters):');
-    if(pw && pw.length>=8){ const { error } = await sb.auth.updateUser({ password: pw }); toast(error? '⚠ '+error.message : 'Password updated'); }
+    let pw, why;
+    for(let i=0; i<3; i++){
+      pw = prompt((why ? '⚠ '+why+'\n\n' : '')+'Choose a new password: at least 8 characters, with both letters and numbers (e.g. Pokhara2083).');
+      if(pw===null) break; why = passwordProblem(pw); if(!why) break;
+    }
+    if(pw && !why){ const { error } = await sb.auth.updateUser({ password: pw }); toast(error? '⚠ '+error.message : 'Password updated'); }
+    else if(pw!==null) toast('⚠ Password not changed: '+why);
     boot();
   }
   if(ev==='SIGNED_OUT') boot();
