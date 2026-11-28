@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TecArch · Finance</title>
+<meta name="theme-color" content="#1d2128">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#2c5282; --green-d:#1e3a5f; --green-l:#eaf0f8;
+  --orange:#f37321; --orange-l:#fff1e7;
+  --ink:#1d2128; --muted:#6a707a; --line:#e5e6e9; --bg:#f6f6f4; --card:#fff;
+  --head:Montserrat,Inter,system-ui,sans-serif;
+  --red:#c62828; --red-l:#fdecec; --amber:#b26a00; --amber-l:#fff4e0; --ok:#2e7d32; --ok-l:#e8f5e9;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--green)}
+h1,h2,h3{font-family:var(--head);letter-spacing:-.01em}
+.hidden{display:none!important}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+td.num,th.num{text-align:right}
+
+/* top bar (shared with Tracker) */
+.ab{background:#1d2128;color:#fff;position:sticky;top:0;z-index:30;border-bottom:1px solid #0f1215}
+.ab-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:0 20px;min-height:60px}
+.ab-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;flex:none}
+.ab-brand img{height:30px;width:auto;display:block}
+.ab-brand span{font:600 11px/1 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#aab0ba;border-left:1px solid #3a404a;padding-left:12px}
+.ab-nav{display:flex;gap:2px;align-self:stretch;margin:0}
+.ab-nav a{font:500 14px Montserrat,sans-serif;color:#c3c8d0;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:3px 14px 0;display:flex;align-items:center;gap:6px;text-decoration:none;min-height:60px;white-space:nowrap}
+.ab-nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.ab-nav .on,.ab-nav .on:hover{color:#fff;border-bottom-color:#f37321;background:none}
+.ab-sp{flex:1}
+.ab-me{font:400 12px/1.25 Inter,sans-serif;color:#aab0ba;text-align:right}.ab-me b{display:block;color:#fff;font-weight:600;font-size:13px}
+.ab-out{font:500 13px Inter,sans-serif;color:#fff;background:transparent;border:1px solid #4a515c;border-radius:8px;padding:7px 12px;cursor:pointer;min-height:36px}
+.ab-out:hover{border-color:#fff}
+@media(max-width:760px){.ab-long{display:none}.ab-in{flex-wrap:wrap;gap:0 12px;padding:8px 14px 0;min-height:0}.ab-nav{order:3;width:100%;overflow-x:auto}.ab-nav a{min-height:46px;padding:0 12px}.ab-me{display:none}.ab-brand span{display:none}}
+
+/* finance sub-navigation */
+.sub{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:60px;z-index:20}
+.sub-in{max-width:1320px;margin:0 auto;display:flex;gap:2px;padding:0 20px;overflow-x:auto}
+.sub button{border:0;background:none;padding:12px 14px;cursor:pointer;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.sub button:hover{color:var(--ink)}
+.sub button.on{color:var(--ink);border-bottom-color:var(--orange)}
+.badge{background:var(--orange);color:#fff;border-radius:999px;font:600 11px/1.4 Inter,sans-serif;padding:1px 7px}
+@media(max-width:760px){.sub{top:0;position:relative}}
+
+main{max-width:1320px;margin:0 auto;padding:24px 20px 90px}
+.phead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 18px}
+.phead h1{margin:0;font-size:26px;font-weight:700}
+.phead p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn:hover{border-color:#c9cdd3}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#000}
+.btn.accent{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:600}
+.btn.accent:hover{background:#d95f12;border-color:#d95f12}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none}
+.btn.danger{color:var(--red)}
+.btn.wa{color:#128c4a}
+.btn:disabled{opacity:.55;cursor:default}
+input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--orange-l);border-color:var(--orange)}
+textarea{resize:vertical;min-height:64px}
+label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fg .w2,.fg3 .w3{grid-column:1/-1}
+@media(max-width:640px){.fg,.fg3{grid-template-columns:1fr}}
+.chk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap}
+.chk input{width:auto}
+.hint{font-size:12.5px;color:var(--muted);margin-top:4px}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.toolbar input[type=search]{max-width:280px}
+.toolbar select{width:auto}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--ink);color:#fff}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;cursor:pointer;text-align:left}
+.kpi:hover{border-color:#c8cbd1}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.kpi .n{font:700 24px/1.2 var(--head);margin-top:4px}
+.kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.kpi.in .n{color:var(--green)}
+.kpi.out .n{color:var(--orange)}
+.kpi.warn .n{color:var(--red)}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px}
+@media(max-width:980px){.cols{grid-template-columns:1fr}}
+.sec{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.sec h3{margin:0 0 12px;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec h3 small{font:400 13px Inter,sans-serif;color:var(--muted)}
+.rows{display:flex;flex-direction:column}
+.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.row:first-child{border-top:0;padding-top:2px}
+.row .grow{flex:1;min-width:0}
+.row .grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row small{color:var(--muted)}
+.row .amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.row .btns{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--green-l);color:var(--green-d);white-space:nowrap}
+.pill.red{background:var(--red-l);color:var(--red)}
+.pill.amber{background:var(--amber-l);color:var(--amber)}
+.pill.grey{background:#eceff1;color:#546e7a}
+.pill.ok{background:var(--ok-l);color:var(--ok)}
+.pill.orange{background:var(--orange-l);color:#b4510f}
+.flag{color:var(--amber);font-weight:700}
+.muted{color:var(--muted);font-size:13px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--green)}
+.note{background:var(--amber-l);color:#6d4500;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:12px}
+.note.blue{background:var(--green-l);color:var(--green-d)}
+
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:#f8f8f6;font-weight:600;white-space:nowrap}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:#fbfbfa}
+tfoot td{font-weight:700;background:#f8f8f6}
+.tablewrap{overflow-x:auto;border-radius:var(--radius)}
+td .sub2{display:block;font-size:12.5px;color:var(--muted)}
+
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(15,20,25,.38);z-index:40;display:flex;justify-content:flex-end}
+.drawer{background:var(--bg);width:min(820px,100%);height:100%;overflow-y:auto;box-shadow:-8px 0 30px rgba(0,0,0,.15);animation:slide .18s ease-out}
+@keyframes slide{from{transform:translateX(40px);opacity:.5}to{transform:none;opacity:1}}
+.dhead{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px 0;position:sticky;top:0;z-index:2}
+.dhead .r1{display:flex;gap:10px;align-items:flex-start;padding-bottom:12px}
+.dhead h2{margin:0;font-size:19px}
+.dhead .sub3{font-size:13px;color:var(--muted);margin-top:2px}
+.tabs{display:flex;gap:2px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:9px 12px;cursor:pointer;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--orange)}
+.tabs .c{font-size:11px;background:var(--bg);border-radius:999px;padding:1px 6px;margin-left:3px}
+.dbody{padding:16px}
+.dbody .sec{margin-bottom:14px}
+.m4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.m4 div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.m4 small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.m4 b{font-size:16px;font-variant-numeric:tabular-nums}
+@media(max-width:640px){.m4{grid-template-columns:repeat(2,1fr)}}
+.formfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.formfoot .left{margin-right:auto}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;z-index:60;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.gbox{max-width:440px;text-align:center}.gbox img{height:40px;margin-bottom:18px}.gbox h2{font-size:26px;margin:0 0 8px}.gbox p{color:var(--muted);margin:0 0 18px}
+
+/* chart */
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* print */
+#printRoot{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff}
+  body.printing > *:not(#printRoot){display:none!important}
+  body.printing #printRoot{display:block}
+}
+.doc{font-family:Inter,Arial,sans-serif;color:#111;max-width:780px;margin:0 auto;font-size:10.5pt}
+.doc .lh{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #f37321;padding-bottom:10px;margin-bottom:14px;gap:16px}
+.doc .lh img{height:46px}
+.doc .co{font-size:9pt;color:#444;text-align:right;line-height:1.5}
+.doc .co b{font-size:11pt;color:#111}
+.doc .ttl{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
+.doc .ttl h1{font:700 18pt Montserrat,Arial,sans-serif;margin:0;letter-spacing:.5px}
+.doc .ttl .meta{text-align:right;font-size:9.5pt;line-height:1.6}
+.doc .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.doc .box{border:1px solid #ccc;border-radius:4px;padding:8px 10px}
+.doc .box small{display:block;font-size:8pt;color:#666;text-transform:uppercase;font-weight:700;letter-spacing:.4px;margin-bottom:2px}
+.doc table{border:1px solid #bbb;border-radius:0}
+.doc th,.doc td{padding:6px 8px;border:1px solid #ccc;font-size:10pt}
+.doc th{background:#f3f3f1;color:#333}
+.doc .tot{width:55%;margin-left:auto;margin-top:10px}
+.doc .tot td{border:0;border-bottom:1px solid #ddd;padding:5px 8px}
+.doc .tot tr.big td{font-weight:700;font-size:12pt;border-bottom:2px solid #111}
+.doc .words{font-style:italic;margin-top:8px;font-size:10pt}
+.doc .pay{margin-top:14px;white-space:pre-wrap}
+.doc .sign{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:50px;font-size:9.5pt}
+.doc .sign div{border-top:1px solid #333;padding-top:4px;text-align:center}
+.doc .foot{margin-top:24px;font-size:8.5pt;color:#666;text-align:center;border-top:1px solid #ddd;padding-top:8px}
+.doc h3{font-size:10.5pt;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #ccc;padding-bottom:3px;margin:16px 0 8px}
+</style>
+</head>
+<body>
+<div id="gate" class="gate"><div class="gbox"><img src="../brand/tecarch-logo.png" alt="TecArch"><h2>TecArch Finance</h2><p id="gateMsg">Checking your sign-in…</p><a class="btn" id="gateLink" href="../" style="display:none">Open the TecArch Workspace</a></div></div>
+
+<header class="ab">
+  <div class="ab-in">
+    <a class="ab-brand" href="../"><img src="../brand/tecarch-logo.png" alt="TecArch"><span>Workspace</span></a>
+    <nav class="ab-nav" aria-label="Main">
+      <a href="../">Projects</a>
+      <a href="../#tasks">Tasks</a>
+      <a href="../#team">Team</a>
+      <a href="./" class="on" aria-current="page">Finance</a>
+      <a href="../watermark/"><span>Watermark<span class="ab-long"> Studio</span></span></a>
+    </nav>
+    <div class="ab-sp"></div>
+    <div class="ab-me"><b id="abName"></b><span id="abRole"></span></div>
+    <button type="button" class="ab-out" id="abOut">Sign out</button>
+  </div>
+</header>
+<div class="sub"><div class="sub-in" id="subnav">
+  <button data-v="dash" class="on">Overview</button>
+  <button data-v="jobs">Jobs &amp; clients</button>
+  <button data-v="work">Outsourcing</button>
+  <button data-v="tx">Transactions</button>
+  <button data-v="accounts">Accounts</button>
+  <button data-v="contacts">Contacts</button>
+  <button data-v="reports">Reports</button>
+  <button data-v="review">To check <span class="badge hidden" id="revBadge"></span></button>
+</div></div>
+
+<main id="main"></main>
+<div id="drawerRoot"></div>
+<div id="printRoot"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb = createClient('https://cslndhcboybvejwcbhuj.supabase.co', 'sb_publishable_UwAtQDV7CZMc7IVlbQMt5g_RF1czA09');
+
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const N = v => Number(v || 0);
+const money = n => 'Rs ' + N(n).toLocaleString('en-IN', {maximumFractionDigits:0});
+const today = () => { const t = new Date(); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
+const addDays = (d, n) => { const t = new Date(d + 'T00:00:00'); t.setDate(t.getDate() + n); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0,10); };
+const fdate = d => d ? new Date(String(d).slice(0,10) + 'T00:00:00').toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) : '';
+const month = d => new Date(String(d).slice(0,10) + 'T00:00:00').toLocaleDateString('en-GB', {month:'short', year:'numeric'});
+function toast(t){ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(), 2800); }
+function fail(e){ console.error(e); toast('⚠ ' + (e?.message || e)); }
+const val = id => { const el = document.getElementById(id); if(!el) return null; if(el.type==='checkbox') return el.checked; const v = el.value.trim(); return v === '' ? null : v; };
+const numv = id => { const v = val(id); return v === null ? null : Number(String(v).replace(/,/g,'')); };
+
+const MODES = {cash:'Cash', bank_transfer:'Bank transfer', cheque:'Cheque', fonepay:'FonePay', esewa:'eSewa', khalti:'Khalti', other:'Other'};
+const MODE_ACC = {cash:'cash', bank_transfer:'company_bank', cheque:'company_bank', fonepay:'wallet', esewa:'wallet', khalti:'wallet'};
+const JOB_STATUS = {quote:'Quote', active:'Active', completed:'Completed', on_hold:'On hold', dispute:'Dispute', cancelled:'Cancelled'};
+const KINDS = {client:'Client', partner:'Partner firm / referrer', outsourced:'Outsourced professional', supplier:'Supplier', staff:'Staff', other:'Other'};
+const ACC_KIND = {company_bank:'Company bank', personal_bank:'Personal bank (director)', cash:'Cash', wallet:'Wallet / QR'};
+const WORK_TYPES = ['Structure','Estimation','3D visualisation','Drafting / drawings','Site supervision','Sanitary / plumbing','Electrical','Interior','Survey','Other'];
+const EXP_CATS = ['Office rent','Salary / wages','Printing & stationery','Fuel & travel','Software & subscriptions','Internet & phone','Municipality / government fees','Marketing','Bank charges','Tax payment','Other'];
+
+const S = { me:null, view:'dash', jobsFilter:'open', jobsQ:'', jobsPayer:'', workWorker:'', workOpen:true, txType:'all', txAcc:'', contactsKind:'client', contactsQ:'', repTab:'monthly' };
+
+/* ================= boot ================= */
+const gm = t => { $('#gateMsg').textContent = t; $('#gateLink').style.display = ''; };
+$('#abOut').onclick = async () => { try { await sb.auth.signOut(); } catch(e){} location.href = '../'; };
+async function boot(){
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session) return gm('Please sign in to the TecArch Workspace first, then open Finance again.');
+    const { data:me } = await sb.from('team_members').select('id,role,full_name').eq('auth_user_id', session.user.id).eq('active', true).maybeSingle();
+    if(!me) return gm("Your account isn't on the TecArch team yet.");
+    if(!['admin','accountant'].includes(me.role)) return gm('Finance is only open to the admin and the accountant. Ask the admin if you need access.');
+    S.me = me; S.admin = me.role === 'admin';
+    $('#abName').textContent = me.full_name || ''; $('#abRole').textContent = S.admin ? 'Admin' : 'Accountant';
+    await loadAll();
+    $('#gate').remove();
+    route();
+  }catch(e){ console.error(e); gm("Couldn't load Finance. Check your internet connection and reload the page."); }
+}
+
+async function loadAll(){
+  const t = (name, order, opts) => { let q = sb.from(name).select('*'); if(order) q = q.order(order, opts || {ascending:true}); return q; };
+  const res = await Promise.all([
+    t('fin_party_balances','name'), t('fin_account_balances','id'), t('fin_job_summary','code'),
+    t('fin_milestone_status','due_date'), t('fin_invoices','id',{ascending:false}), t('fin_receipts','id',{ascending:false}),
+    t('fin_work_order_summary','id'), t('fin_payouts','id',{ascending:false}), t('fin_expenses','spent_on',{ascending:false}),
+    t('fin_transfers','moved_on',{ascending:false}), t('fin_alerts'), t('fin_monthly','month'), t('fin_settings'),
+    sb.from('projects').select('id,client_name,project_type').order('client_name')
+  ]);
+  const err = res.find(r => r.error); if(err) throw err.error;
+  [S.parties, S.accounts, S.jobs, S.milestones, S.invoices, S.receipts, S.wos, S.payouts, S.expenses, S.transfers, S.alerts, S.monthly, S.settingsRows, S.projects] = res.map(r => r.data || []);
+  S.set = Object.fromEntries(S.settingsRows.map(r => [r.key, r.value || '']));
+  S.P = new Map(S.parties.map(p => [p.id, p])); S.A = new Map(S.accounts.map(a => [a.id, a])); S.J = new Map(S.jobs.map(j => [j.id, j])); S.W = new Map(S.wos.map(w => [w.id, w]));
+  const rev = S.jobs.filter(j => j.needs_review).length + S.wos.filter(w => w.needs_review).length;
+  $('#revBadge').textContent = rev; $('#revBadge').classList.toggle('hidden', !rev);
+}
+async function refresh(){ try { await loadAll(); render(); } catch(e){ fail(e); } }
+
+/* routing */
+$$('#subnav button').forEach(b => b.onclick = () => { location.hash = b.dataset.v; });
+window.addEventListener('hashchange', route);
+function route(){
+  const h = location.hash.slice(1) || 'dash';
+  const [v, arg] = h.split('=');
+  const views = ['dash','jobs','work','tx','accounts','contacts','reports','review'];
+  if(views.includes(v)){ S.view = v; render(); }
+  else if(v === 'job' && arg){ S.view = 'jobs'; render(); openJob(Number(arg)); }
+}
+function render(){
+  $$('#subnav button').forEach(b => b.classList.toggle('on', b.dataset.v === S.view));
+  ({dash:renderDash, jobs:renderJobs, work:renderWork, tx:renderTx, accounts:renderAccounts, contacts:renderContacts, reports:renderReports, review:renderReview})[S.view]();
+}
+
+/* ================= shared bits ================= */
+const pname = id => S.P.get(id)?.name || '';
+const openJobs = () => S.jobs.filter(j => !['cancelled','quote'].includes(j.status));
+const sum = (arr, f) => arr.reduce((a, x) => a + N(typeof f === 'function' ? f(x) : x[f]), 0);
+const statusPill = s => `<span class="pill ${({dispute:'red', cancelled:'grey', completed:'ok', on_hold:'amber', quote:'orange'})[s] || ''}">${JOB_STATUS[s] || s}</span>`;
+const sevPill = s => ({overdue:'<span class="pill red">Overdue</span>', due_soon:'<span class="pill amber">Due soon</span>', no_due_date:'<span class="pill grey">No due date</span>', pending:'<span class="pill grey">Pending</span>'})[s] || '';
+const accOptions = (sel, allowNone=true) => (allowNone ? '<option value="">— not recorded —</option>' : '') + S.accounts.filter(a => a.active || a.id === sel).map(a => `<option value="${a.id}" ${a.id === sel ? 'selected' : ''}>${esc(a.name)}</option>`).join('');
+const modeOptions = sel => '<option value="">—</option>' + Object.entries(MODES).map(([k, v]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${v}</option>`).join('');
+const partyList = (id, kinds) => `<datalist id="${id}">${S.parties.filter(p => p.active && (!kinds || kinds.includes(p.kind))).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>`;
+const jobLabel = j => `${j.code ? j.code + ' · ' : ''}${j.title}`;
+const jobOptions = (sel, onlyOpen) => '<option value="">— choose job —</option>' + S.jobs.filter(j => !onlyOpen || j.id === sel || (j.status !== 'cancelled')).map(j => `<option value="${j.id}" ${j.id === sel ? 'selected' : ''}>${esc(jobLabel(j))}${N(j.due) > 0 ? ' — due ' + money(j.due) : ''}</option>`).join('');
+const defaultAcc = mode => { const k = MODE_ACC[mode]; return k ? S.accounts.find(a => a.kind === k && a.active)?.id : null; };
+function nextCode(){ const n = Math.max(0, ...S.jobs.map(j => /^TA-(\d+)$/.exec(j.code || '')?.[1]).filter(Boolean).map(Number)); return 'TA-' + String(n + 1).padStart(3, '0'); }
+
+async function resolveParty(name, kind, phone){
+  if(!name) return null;
+  const hit = S.parties.find(p => p.name.trim().toLowerCase() === name.trim().toLowerCase());
+  if(hit) return hit.id;
+  const { data, error } = await sb.from('fin_parties').insert({ name:name.trim(), kind, phone: phone || null }).select().single();
+  if(error) throw error;
+  S.parties.push(data); S.P.set(data.id, data); return data.id;
+}
+async function save(table, id, obj){
+  const q = id ? sb.from(table).update(obj).eq('id', id) : sb.from(table).insert(obj);
+  const { data, error } = await q.select().single();
+  if(error){ fail(error); return null; }
+  return data;
+}
+async function remove(table, id, what='this record'){
+  if(!confirm(`Delete ${what}? This can't be undone (it stays in the audit log).`)) return false;
+  const { error } = await sb.from(table).delete().eq('id', id);
+  if(error){ fail(error); return false; }
+  toast('Deleted'); return true;
+}
+function phoneIntl(p){ let d = String(p || '').replace(/\D/g, ''); if(d.length === 10 && d.startsWith('9')) d = '977' + d; return d; }
+const waLink = (phone, text) => `https://wa.me/${phoneIntl(phone)}?text=${encodeURIComponent(text)}`;
+const viberLink = text => `viber://forward?text=${encodeURIComponent(text)}`;
+const gmailLink = (to, subject, body) => `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to || '')}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+function csv(name, rows){
+  const s = rows.map(r => r.map(c => { const v = String(c ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + s], {type:'text/csv'})); a.download = name + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function words(n){
+  n = Math.round(N(n)); if(n === 0) return 'Zero';
+  const a = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  const two = x => x < 20 ? a[x] : b[Math.floor(x/10)] + (x % 10 ? ' ' + a[x % 10] : '');
+  const three = x => (x >= 100 ? a[Math.floor(x/100)] + ' Hundred' + (x % 100 ? ' ' : '') : '') + (x % 100 ? two(x % 100) : '');
+  const parts = []; const cr = Math.floor(n / 1e7); n %= 1e7; const lk = Math.floor(n / 1e5); n %= 1e5; const th = Math.floor(n / 1000); n %= 1000;
+  if(cr) parts.push(three(cr) + ' Crore'); if(lk) parts.push(two(lk) + ' Lakh'); if(th) parts.push(two(th) + ' Thousand'); if(n) parts.push(three(n));
+  return parts.join(' ');
+}
+
+/* drawer */
+function drawer(html){
+  $('#drawerRoot').innerHTML = `<div class="overlay"><div class="drawer" role="dialog" aria-modal="true">${html}</div></div>`;
+  document.body.style.overflow = 'hidden';
+  const ov = $('#drawerRoot .overlay');
+  ov.onclick = e => { if(e.target === ov) closeDrawer(); };
+  $$('[data-close]', ov).forEach(b => b.onclick = closeDrawer);
+  return ov;
+}
+function closeDrawer(){ $('#drawerRoot').innerHTML = ''; document.body.style.overflow = ''; if(location.hash.startsWith('#job=')) history.replaceState(null, '', '#' + S.view); }
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && $('#drawerRoot').innerHTML) closeDrawer(); });
+const dhead = (title, sub, tabs, on, extra='') => `<div class="dhead"><div class="r1"><div style="flex:1;min-width:0"><h2>${title}</h2>${sub ? `<div class="sub3">${sub}</div>` : ''}</div>${extra}<button class="btn sm ghost" data-close aria-label="Close">✕</button></div>${tabs ? `<div class="tabs">${tabs.map(([k, l, c]) => `<button data-tab="${k}" class="${k === on ? 'on' : ''}">${l}${c ? `<span class="c">${c}</span>` : ''}</button>`).join('')}</div>` : ''}</div>`;
+
+/* print */
+function printDoc(html, title){
+  $('#printRoot').innerHTML = `<div class="doc">${html}</div>`;
+  const old = document.title; document.title = title;
+  document.body.classList.add('printing');
+  const done = () => { document.body.classList.remove('printing'); document.title = old; window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  const imgs = $$('#printRoot img'); Promise.all(imgs.map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; }))).then(() => setTimeout(() => window.print(), 50));
+}
+const letterhead = () => `<div class="lh"><img src="../brand/tecarch-logo.png" alt="TecArch"><div class="co"><b>${esc(S.set.company_name)}</b><br>${esc(S.set.company_address)}<br>${esc(S.set.company_phone)} · ${esc(S.set.company_email)}<br>${esc(S.set.company_web)}${S.set.company_pan ? `<br>PAN/VAT No: <b>${esc(S.set.company_pan)}</b>` : ''}</div></div>`;
+
+/* ================= OVERVIEW ================= */
+function renderDash(){
+  const open = openJobs();
+  const toCollect = sum(open, 'due');
+  const toPay = sum(S.wos.filter(w => w.status !== 'cancelled'), 'balance');
+  const m0 = today().slice(0,7);
+  const inMonth = sum(S.receipts.filter(r => (r.received_on || '').startsWith(m0)), 'amount');
+  const outMonth = sum(S.payouts.filter(p => (p.paid_on || '').startsWith(m0)), 'net_amount') + sum(S.expenses.filter(e => (e.spent_on || '').startsWith(m0)), 'amount');
+  const cash = sum(S.accounts.filter(a => a.active), 'balance');
+  const rev = S.jobs.filter(j => j.needs_review).length + S.wos.filter(w => w.needs_review).length;
+  const sevRank = {overdue:0, due_soon:1, no_due_date:2};
+  const coll = S.alerts.filter(a => a.kind !== 'payable' && N(a.amount) > 0).sort((a, b) => (sevRank[a.severity] - sevRank[b.severity]) || (N(b.amount) - N(a.amount)));
+  // group payables by worker
+  const pay = {}; S.wos.filter(w => w.status !== 'cancelled' && N(w.balance) > 0).forEach(w => { (pay[w.worker_id] ||= {name:w.worker_name, phone:w.worker_phone, amt:0, n:0}); pay[w.worker_id].amt += N(w.balance); pay[w.worker_id].n++; });
+  const payL = Object.entries(pay).sort((a, b) => b[1].amt - a[1].amt);
+  // by payer
+  const byPayer = {}; open.filter(j => N(j.due) > 0).forEach(j => { const k = j.bill_to_id || j.client_id; (byPayer[k] ||= {name:j.bill_to_name, amt:0, n:0}); byPayer[k].amt += N(j.due); byPayer[k].n++; });
+  const payers = Object.entries(byPayer).sort((a, b) => b[1].amt - a[1].amt).slice(0, 6);
+  const maxP = payers[0]?.[1].amt || 1;
+  const personal = S.accounts.filter(a => a.kind === 'personal_bank' && N(a.balance) > 0);
+  const noAcc = S.receipts.filter(r => !r.account_id).length;
+
+  $('#main').innerHTML = `
+  <div class="phead"><div><h1>Finance overview</h1><p>${esc(S.set.company_name)} · ${fdate(today())}</p></div>
+    <div class="acts"><button class="btn accent" id="qIn">+ Payment received</button><button class="btn" id="qOut">+ Pay outsourced work</button><button class="btn" id="qJob">+ New job</button><button class="btn" id="qExp">+ Expense</button></div></div>
+  <div class="kpis">
+    <button class="kpi in" data-go="jobs"><div class="l">To collect</div><div class="n">${money(toCollect)}</div><div class="s">${open.filter(j => N(j.due) > 0).length} jobs with money due</div></button>
+    <button class="kpi out" data-go="work"><div class="l">To pay outsourced</div><div class="n">${money(toPay)}</div><div class="s">${payL.length} people waiting</div></button>
+    <button class="kpi" data-go="tx"><div class="l">Received this month</div><div class="n">${money(inMonth)}</div><div class="s">Paid out ${money(outMonth)}</div></button>
+    <button class="kpi" data-go="accounts"><div class="l">Recorded in accounts</div><div class="n">${money(cash)}</div><div class="s">Across ${S.accounts.filter(a => a.active).length} accounts</div></button>
+    <button class="kpi ${rev ? 'warn' : ''}" data-go="review"><div class="l">To check</div><div class="n">${rev}</div><div class="s">Imported rows to confirm</div></button>
+  </div>
+  ${personal.length ? `<div class="note">${personal.map(a => `<b>${money(a.balance)}</b> of company money is sitting in <b>${esc(a.name)}</b>.`).join(' ')} Move it to the company bank and record a transfer, so the audit trail stays clean. <button class="btn sm" id="qTr" style="margin-left:6px">Record transfer</button></div>` : ''}
+  ${noAcc ? `<div class="note blue">${noAcc} imported receipts don't say which account the money went into, so account balances only count what has been recorded. Set opening balances on the Accounts page to start from today's real figures.</div>` : ''}
+  <div class="cols">
+    <div>
+      <div class="sec"><h3>Collect next <small>overdue first, then largest</small></h3><div class="rows">
+      ${coll.slice(0, 12).map(a => `<div class="row"><div class="grow"><b>${esc(a.party || '')}</b><small>${esc(a.code || '')} · ${esc(a.label)}${a.due_date ? ' · due ' + fdate(a.due_date) : ''}</small></div>${sevPill(a.severity)}<div class="amt">${money(a.amount)}</div>
+        <div class="btns"><button class="btn sm" data-req="${a.job_id}">Request</button>${a.phone ? `<a class="btn sm wa" target="_blank" rel="noopener" href="${waLink(a.phone, remindText(S.J.get(a.job_id)))}">WhatsApp</a>` : ''}<button class="btn sm" data-rec="${a.job_id}">Received</button></div></div>`).join('') || '<div class="empty">Nothing to collect. 🎉</div>'}
+      </div>${coll.length > 12 ? `<div style="margin-top:8px"><a href="#jobs">See all ${coll.length} →</a></div>` : ''}</div>
+    </div>
+    <div>
+      <div class="sec"><h3>Who owes TecArch most</h3><div class="rows">
+        ${payers.map(([id, p]) => `<div class="row" style="cursor:pointer" data-party="${id}"><div class="grow"><b>${esc(p.name)}</b><div class="bar"><i style="width:${Math.round(p.amt / maxP * 100)}%"></i></div></div><small>${p.n} job${p.n > 1 ? 's' : ''}</small><div class="amt">${money(p.amt)}</div></div>`).join('') || '<div class="empty">No one owes you money.</div>'}
+      </div></div>
+      <div class="sec"><h3>Pay next</h3><div class="rows">
+        ${payL.map(([id, p]) => `<div class="row" style="cursor:pointer" data-party="${id}"><div class="grow"><b>${esc(p.name)}</b><small>${p.n} unpaid work order${p.n > 1 ? 's' : ''}</small></div><div class="amt" style="color:var(--orange)">${money(p.amt)}</div></div>`).join('') || '<div class="empty">All outsourced work is paid.</div>'}
+      </div></div>
+      <div class="sec"><h3>Accounts</h3><div class="rows">
+        ${S.accounts.filter(a => a.active).map(a => `<div class="row"><div class="grow"><b>${esc(a.name)}</b><small>${ACC_KIND[a.kind]}</small></div><div class="amt">${money(a.balance)}</div></div>`).join('')}
+      </div></div>
+    </div>
+  </div>`;
+  $$('[data-go]').forEach(b => b.onclick = () => location.hash = b.dataset.go);
+  $$('[data-req]').forEach(b => b.onclick = () => openJob(Number(b.dataset.req), 'invoices'));
+  $$('[data-rec]').forEach(b => b.onclick = () => openReceipt(null, Number(b.dataset.rec)));
+  $$('[data-party]').forEach(b => b.onclick = () => openParty(Number(b.dataset.party)));
+  $('#qIn').onclick = () => openReceipt(null, null);
+  $('#qOut').onclick = () => openPayout(null, null);
+  $('#qJob').onclick = () => openJob(null);
+  $('#qExp').onclick = () => openExpense(null);
+  if($('#qTr')) $('#qTr').onclick = () => openTransfer(personal[0].id);
+}
+function remindText(j){
+  if(!j) return '';
+  return `Namaste ${j.bill_to_name || ''} ji,\nThis is a friendly reminder from ${S.set.company_name} about ${j.title}${j.code ? ' (' + j.code + ')' : ''}.\nAgreed fee: ${money(j.contract_amount)}\nReceived so far: ${money(j.received)}\nBalance due: ${money(j.due)}\n${S.set.bank_details ? '\nPayment details:\n' + S.set.bank_details + '\n' : ''}\nThank you,\nTecArch · ${S.set.company_phone}`;
+}
+
+/* ================= JOBS ================= */
+function renderJobs(){
+  const q = S.jobsQ.toLowerCase();
+  let list = S.jobs.filter(j => {
+    if(S.jobsFilter === 'open' && !(N(j.due) > 0 && !['cancelled','quote'].includes(j.status))) return false;
+    if(S.jobsFilter === 'active' && !['active','on_hold','dispute'].includes(j.status)) return false;
+    if(S.jobsFilter === 'completed' && j.status !== 'completed') return false;
+    if(S.jobsFilter === 'dispute' && j.status !== 'dispute') return false;
+    if(S.jobsFilter === 'nofee' && !(N(j.contract_amount) === 0 && j.status !== 'cancelled')) return false;
+    if(S.jobsPayer && String(j.bill_to_id || j.client_id) !== S.jobsPayer) return false;
+    if(q && !`${j.code} ${j.title} ${j.client_name} ${j.bill_to_name} ${j.location} ${j.scope} ${j.application_no} ${j.client_phone}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if(S.jobsFilter === 'open') list.sort((a, b) => N(b.due) - N(a.due));
+  const payers = [...new Map(S.jobs.map(j => [j.bill_to_id || j.client_id, j.bill_to_name])).entries()].filter(([, n]) => n).sort((a, b) => a[1].localeCompare(b[1]));
+  const seg = [['open','Money due'],['active','Active'],['completed','Completed'],['dispute','Disputes'],['nofee','No fee yet'],['all','All']];
+  $('#main').innerHTML = `
+  <div class="phead"><div><h1>Jobs &amp; clients</h1><p>Every job TecArch is paid for: agreed fee, payments, balance and outsourcing cost.</p></div>
+   <div class="acts"><button class="btn" id="jCsv">Export CSV</button><button class="btn accent" id="jNew">+ New job</button></div></div>
+  <div class="toolbar">
+    <div class="seg" id="jSeg">${seg.map(([k, l]) => `<button data-k="${k}" class="${S.jobsFilter === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <input type="search" id="jQ" placeholder="Search name, code, phone, ward…" value="${esc(S.jobsQ)}">
+    <select id="jPayer"><option value="">All payers</option>${payers.map(([id, n]) => `<option value="${id}" ${String(id) === S.jobsPayer ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
+  </div>
+  <div class="tablewrap"><table><thead><tr><th>Code</th><th>Client / job</th><th>Scope</th><th class="num">Agreed</th><th class="num">Received</th><th class="num">Due</th><th class="num">Outsourcing</th><th class="num">Profit</th><th>Status</th></tr></thead>
+  <tbody>${list.map(j => `<tr class="click" data-id="${j.id}"><td>${esc(j.code || '')}${j.needs_review ? ' <span class="flag" title="To check">●</span>' : ''}</td>
+    <td><b>${esc(j.title)}</b>${j.bill_to_id && j.bill_to_id !== j.client_id ? `<span class="sub2">via ${esc(j.bill_to_name)}</span>` : ''}${j.location ? `<span class="sub2">${esc(j.location)}</span>` : ''}</td>
+    <td>${esc(j.scope || '')}</td><td class="num">${money(j.contract_amount)}</td><td class="num">${money(j.received)}</td>
+    <td class="num" style="${N(j.due) > 0 ? 'color:var(--red);font-weight:600' : ''}">${money(j.due)}</td><td class="num">${N(j.outsourcing_cost) ? money(j.outsourcing_cost) : '—'}</td>
+    <td class="num" style="${N(j.profit) < 0 ? 'color:var(--red)' : ''}">${money(j.profit)}</td><td>${statusPill(j.status)}</td></tr>`).join('') || '<tr><td colspan="9" class="empty">No jobs match.</td></tr>'}</tbody>
+  <tfoot><tr><td colspan="3">${list.length} job${list.length === 1 ? '' : 's'}</td><td class="num">${money(sum(list, 'contract_amount'))}</td><td class="num">${money(sum(list, 'received'))}</td><td class="num">${money(sum(list, 'due'))}</td><td class="num">${money(sum(list, 'outsourcing_cost'))}</td><td class="num">${money(sum(list, 'profit'))}</td><td></td></tr></tfoot></table></div>`;
+  $$('#jSeg button').forEach(b => b.onclick = () => { S.jobsFilter = b.dataset.k; renderJobs(); });
+  $('#jQ').oninput = e => { S.jobsQ = e.target.value; clearTimeout(S.t); S.t = setTimeout(() => { renderJobs(); const i = $('#jQ'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
+  $('#jPayer').onchange = e => { S.jobsPayer = e.target.value; renderJobs(); };
+  $$('tr[data-id]').forEach(r => r.onclick = () => openJob(Number(r.dataset.id)));
+  $('#jNew').onclick = () => openJob(null);
+  $('#jCsv').onclick = () => csv('tecarch-jobs-' + today(), [['Code','Client','Pays TecArch','Scope','Location','Application no','Agreed','Received','Due','Outsourcing','Profit','Status'], ...list.map(j => [j.code, j.client_name, j.bill_to_name, j.scope, j.location, j.application_no, j.contract_amount, j.received, j.due, j.outsourcing_cost, j.profit, JOB_STATUS[j.status]])]);
+}
+
+function openJob(id, tab='overview'){
+  const j = id ? S.J.get(id) : null;
+  if(id && !j) return toast('Job not found');
+  if(j) history.replaceState(null, '', '#job=' + id);
+  const ms = j ? S.milestones.filter(m => m.job_id === id).sort((a, b) => (a.due_date || '9').localeCompare(b.due_date || '9') || a.sort_order - b.sort_order) : [];
+  const rc = j ? S.receipts.filter(r => r.job_id === id) : [];
+  const inv = j ? S.invoices.filter(i => i.job_id === id) : [];
+  const wo = j ? S.wos.filter(w => w.job_id === id) : [];
+  const tabs = j ? [['overview','Overview'],['schedule','Payment schedule', ms.length],['payments','Payments', rc.length],['invoices','Requests & invoices', inv.length],['outsourcing','Outsourcing', wo.length]] : null;
+  const ov = drawer(dhead(j ? esc(j.title) : 'New job', j ? `${esc(j.code || '')} · ${statusPill(j.status)}${j.bill_to_id && j.bill_to_id !== j.client_id ? ' · pays via ' + esc(j.bill_to_name) : ''}` : 'Create a job to track its fee, schedule and payments', tabs, tab) + `<div class="dbody" id="jBody"></div>`);
+  $$('[data-tab]', ov).forEach(b => b.onclick = () => openJob(id, b.dataset.tab));
+  const body = $('#jBody');
+  if(!j || tab === 'overview') return jobOverview(j, body, ms);
+  if(tab === 'schedule') return jobSchedule(j, body, ms);
+  if(tab === 'payments') return jobPayments(j, body, rc);
+  if(tab === 'invoices') return jobInvoices(j, body, inv, ms);
+  if(tab === 'outsourcing') return jobOutsourcing(j, body, wo);
+}
+function moneyStrip(j){ return `<div class="m4"><div><small>Agreed fee</small><b>${money(j.contract_amount)}</b></div><div><small>Received</small><b style="color:var(--green)">${money(j.received)}</b></div><div><small>Balance due</small><b style="color:${N(j.due) > 0 ? 'var(--red)' : 'inherit'}">${money(j.due)}</b></div><div><small>Profit after outsourcing</small><b>${money(j.profit)}</b></div></div>`; }
+function jobOverview(j, body){
+  const p = j || {};
+  body.innerHTML = `${j ? moneyStrip(j) : ''}
+  ${j?.needs_review ? `<div class="note"><b>To check:</b> ${esc(j.review_note || '')} <button class="btn sm" id="jOk" style="margin-left:6px">Mark as checked</button></div>` : ''}
+  ${N(j?.overpaid) > 0 ? `<div class="note">Received is ${money(j.overpaid)} more than the agreed fee. Check whether the fee or a payment is wrong.</div>` : ''}
+  <div class="sec"><form id="jForm"><div class="fg">
+    <div><label class="f">Job code</label><input id="jCode" value="${esc(p.code || nextCode())}"></div>
+    <div><label class="f">Status</label><select id="jStatus">${Object.entries(JOB_STATUS).map(([k, v]) => `<option value="${k}" ${(p.status || 'active') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div class="w2"><label class="f">Job title</label><input id="jTitle" required value="${esc(p.title || '')}" placeholder="e.g. Ram Bahadur Thapa: residential house"></div>
+    <div><label class="f">Client (building owner)</label><input id="jClient" list="dlAll" required value="${esc(p.client_name || '')}" placeholder="Type a name; new names are added"></div>
+    <div><label class="f">Client phone</label><input id="jPhone" value="${esc(p.client_phone || '')}" placeholder="98XXXXXXXX"></div>
+    <div><label class="f">Who pays TecArch</label><input id="jBill" list="dlAll" value="${esc(p.bill_to_id && p.bill_to_id !== p.client_id ? p.bill_to_name : '')}" placeholder="Leave empty if the client pays"><div class="hint">For work through Fishtail, Sujan Rimal etc., put the partner here.</div></div>
+    <div><label class="f">Linked Tracker project</label><select id="jProj"><option value="">— none —</option>${S.projects.map(x => `<option value="${x.id}" ${x.id === p.project_id ? 'selected' : ''}>${esc(x.client_name)} (${x.project_type})</option>`).join('')}</select></div>
+    <div><label class="f">Scope of work</label><input id="jScope" list="dlScope" value="${esc(p.scope || '')}"><datalist id="dlScope">${['Design + 3D','Design + 3D + Site Supervision','Naksa pass','3D naksa pass','Planning','Structure analysis','Estimation','Interior works','Abhilekhikaran','Site supervision','PMC'].map(s => `<option value="${s}">`).join('')}</datalist></div>
+    <div><label class="f">Location / ward</label><input id="jLoc" value="${esc(p.location || '')}" placeholder="Pokhara-17"></div>
+    <div><label class="f">Application / file no.</label><input id="jApp" value="${esc(p.application_no || '')}"></div>
+    <div><label class="f">Start date (BS)</label><input id="jBs" value="${esc(p.start_date_bs || '')}" placeholder="2082-08-12"></div>
+    <div><label class="f">Agreed fee (Rs)</label><input id="jAmt" inputmode="decimal" required value="${p.contract_amount ?? ''}"></div>
+    <div><label class="f">&nbsp;</label><label class="chk"><input type="checkbox" id="jVat" ${p.vat_included ? 'checked' : ''}> Fee already includes VAT</label></div>
+    <div class="w2"><label class="f">Notes</label><textarea id="jNotes">${esc(p.notes || '')}</textarea></div>
+  </div>${partyList('dlAll')}
+  <div class="formfoot">${j && S.admin ? '<button type="button" class="btn ghost danger left" id="jDel">Delete job</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">${j ? 'Save changes' : 'Create job'}</button></div></form></div>
+`;
+  $$('[data-close]', body).forEach(b => b.onclick = closeDrawer);
+  if($('#jOk')) $('#jOk').onclick = async () => { if(await save('fin_jobs', j.id, {needs_review:false})){ toast('Marked as checked'); await refresh(); openJob(j.id); } };
+  if($('#jDel')) $('#jDel').onclick = async () => {
+    if(S.receipts.some(r => r.job_id === j.id) || S.invoices.some(i => i.job_id === j.id)) return toast('This job has payments or invoices. Set its status to Cancelled instead.');
+    if(await remove('fin_jobs', j.id, 'this job')){ closeDrawer(); refresh(); } };
+  $('#jForm').onsubmit = async e => { e.preventDefault();
+    try{
+      const clientId = await resolveParty(val('jClient'), 'client', val('jPhone'));
+      if(val('jPhone') && clientId && !S.P.get(clientId)?.phone) await sb.from('fin_parties').update({phone:val('jPhone')}).eq('id', clientId);
+      const billId = val('jBill') ? await resolveParty(val('jBill'), 'partner') : null;
+      const obj = { code:val('jCode'), title:val('jTitle'), client_id:clientId, bill_to_id:billId, project_id:val('jProj') ? Number(val('jProj')) : null, scope:val('jScope'), location:val('jLoc'), application_no:val('jApp'), start_date_bs:val('jBs'), contract_amount:numv('jAmt') || 0, vat_included:val('jVat'), status:val('jStatus'), notes:val('jNotes') };
+      const r = await save('fin_jobs', j?.id, obj); if(!r) return;
+      toast(j ? 'Saved' : 'Job created'); await refresh(); openJob(r.id, j ? 'overview' : 'schedule');
+    }catch(err){ fail(err); }
+  };
+}
+function jobSchedule(j, body, ms){
+  const tot = sum(ms, 'amount');
+  body.innerHTML = moneyStrip(j) + `
+  <div class="sec"><h3>Payment schedule <small>Payments are applied to milestones in due-date order</small></h3>
+  ${ms.length ? `<div class="tablewrap"><table><thead><tr><th>Milestone</th><th>Due</th><th class="num">Amount</th><th class="num">Paid</th><th class="num">Balance</th><th>Status</th><th></th></tr></thead><tbody>
+    ${ms.map(m => `<tr><td>${esc(m.label)}</td><td>${fdate(m.due_date) || '—'}</td><td class="num">${money(m.amount)}</td><td class="num">${money(m.paid)}</td><td class="num">${money(m.balance)}</td><td>${({paid:'<span class="pill ok">Paid</span>', overdue:'<span class="pill red">Overdue</span>', due_soon:'<span class="pill amber">Due soon</span>', upcoming:'<span class="pill grey">Upcoming</span>'})[m.status]}</td>
+    <td style="white-space:nowrap">${m.status !== 'paid' ? `<button class="btn sm" data-inv="${m.id}">Request</button>` : ''}${S.admin ? ` <button class="btn sm ghost danger" data-del="${m.id}">✕</button>` : ''}</td></tr>`).join('')}
+  </tbody><tfoot><tr><td colspan="2">Total scheduled</td><td class="num">${money(tot)}</td><td colspan="4">${Math.abs(tot - N(j.contract_amount)) > 0.5 ? `<span style="color:var(--amber)">Agreed fee is ${money(j.contract_amount)}, so ${money(N(j.contract_amount) - tot)} is not scheduled</span>` : 'Matches the agreed fee ✓'}</td></tr></tfoot></table></div>` : '<p class="muted">No schedule yet. Add milestones so the system can remind you when money is due.</p>'}
+  </div>
+  <div class="sec"><h3>Add milestones</h3>
+   <div class="acts" style="margin-bottom:12px;${N(j.contract_amount) - tot > 0 ? '' : 'display:none'}"><span class="muted" style="align-self:center">Quick split of ${money(N(j.contract_amount) - tot)}:</span>
+     <button class="btn sm" data-tpl="100">Full advance</button><button class="btn sm" data-tpl="50,50">50 / 50</button><button class="btn sm" data-tpl="40,40,20">40 / 40 / 20</button><button class="btn sm" data-tpl="30,30,30,10">30 / 30 / 30 / 10</button></div>
+   <form id="mForm" class="fg3">
+    <div><label class="f">Milestone</label><input id="mLabel" required list="dlMs" placeholder="Advance"><datalist id="dlMs">${['Advance','Design approval','Drawings handover','Naksa pass / municipality approval','Structure report','Supervision – stage 1','Supervision – stage 2','Final payment'].map(s => `<option value="${s}">`).join('')}</datalist></div>
+    <div><label class="f">Amount (Rs)</label><input id="mAmt" required inputmode="decimal" value="${Math.max(0, N(j.contract_amount) - tot) || ''}"></div>
+    <div><label class="f">Due date</label><input id="mDue" type="date" value="${today()}"></div>
+    <div class="w3 formfoot" style="margin-top:0"><button class="btn primary">Add milestone</button></div>
+   </form></div>`;
+  $$('[data-del]', body).forEach(b => b.onclick = async () => { if(await remove('fin_milestones', Number(b.dataset.del), 'this milestone')){ await refresh(); openJob(j.id, 'schedule'); } });
+  $$('[data-inv]', body).forEach(b => b.onclick = () => newInvoice(j, S.milestones.find(m => m.id === Number(b.dataset.inv))));
+  $$('[data-tpl]', body).forEach(b => b.onclick = async () => {
+    const rest = N(j.contract_amount) - tot; if(rest <= 0) return toast('The whole fee is already scheduled');
+    const pc = b.dataset.tpl.split(',').map(Number);
+    const labels = pc.length === 1 ? ['Full payment'] : pc.length === 2 ? ['Advance','Final payment'] : pc.length === 3 ? ['Advance','Drawings handover','Final payment'] : ['Advance','Design approval','Drawings handover','Final payment'];
+    let acc = 0; const rows = pc.map((p, i) => { const a = i === pc.length - 1 ? rest - acc : Math.round(rest * p / 100); acc += a; return { job_id:j.id, label:labels[i], amount:a, due_date:addDays(today(), i * 30), sort_order:ms.length + i }; });
+    const { error } = await sb.from('fin_milestones').insert(rows); if(error) return fail(error);
+    toast('Schedule added: adjust the due dates if needed'); await refresh(); openJob(j.id, 'schedule');
+  });
+  $('#mForm').onsubmit = async e => { e.preventDefault();
+    if(await save('fin_milestones', null, { job_id:j.id, label:val('mLabel'), amount:numv('mAmt'), due_date:val('mDue'), sort_order:ms.length })){ await refresh(); openJob(j.id, 'schedule'); } };
+}
+function jobPayments(j, body, rc){
+  body.innerHTML = moneyStrip(j) + `<div class="sec"><h3>Payments received <button class="btn sm accent" id="rNew">+ Payment received</button></h3>
+  ${rc.length ? `<div class="tablewrap"><table><thead><tr><th>Date</th><th>From</th><th>How</th><th>Into</th><th class="num">Amount</th><th></th></tr></thead><tbody>
+  ${rc.map(r => `<tr class="click" data-r="${r.id}"><td>${fdate(r.received_on) || '<span class="muted">no date</span>'}</td><td>${esc(pname(r.payer_id))}${r.paid_by_name ? `<span class="sub2">paid by ${esc(r.paid_by_name)}</span>` : ''}${r.reference ? `<span class="sub2">Ref ${esc(r.reference)}</span>` : ''}</td><td>${MODES[r.mode] || '—'}</td><td>${esc(S.A.get(r.account_id)?.name || '—')}</td><td class="num">${money(r.amount)}${N(r.vat_amount) ? `<span class="sub2">incl. VAT ${money(r.vat_amount)}</span>` : ''}</td><td><button class="btn sm" data-print="${r.id}">Receipt</button></td></tr>`).join('')}
+  </tbody></table></div>` : '<p class="muted">No payments recorded yet.</p>'}</div>`;
+  $('#rNew').onclick = () => openReceipt(null, j.id);
+  $$('tr[data-r]', body).forEach(t => t.onclick = e => { if(e.target.closest('button')) return; openReceipt(Number(t.dataset.r)); });
+  $$('[data-print]', body).forEach(b => b.onclick = () => printReceipt(S.receipts.find(r => r.id === Number(b.dataset.print))));
+}
+function jobInvoices(j, body, inv, ms){
+  const nextMs = ms.find(m => m.status !== 'paid');
+  body.innerHTML = moneyStrip(j) + `<div class="sec"><h3>Payment requests &amp; invoices <button class="btn sm accent" id="iNew">+ New request</button></h3>
+  ${inv.length ? `<div class="rows">${inv.map(i => `<div class="row"><div class="grow"><b>${esc(i.number)} · ${i.kind === 'tax_invoice' ? 'Tax invoice' : 'Payment request'}</b><small>${fdate(i.issue_date)}${i.due_date ? ' · due ' + fdate(i.due_date) : ''} · ${esc(i.description || '')}</small></div>
+    <span class="pill ${({draft:'grey', sent:'amber', paid:'ok', void:'grey'})[i.status]}">${({draft:'Draft', sent:'Sent', paid:'Paid', void:'Void'})[i.status]}</span><div class="amt">${money(i.total)}</div>
+    <div class="btns"><button class="btn sm" data-act="print" data-i="${i.id}">Print / PDF</button><button class="btn sm wa" data-act="wa" data-i="${i.id}">WhatsApp</button><button class="btn sm" data-act="viber" data-i="${i.id}">Viber</button><button class="btn sm" data-act="mail" data-i="${i.id}">Email</button>
+    ${i.status === 'sent' ? `<button class="btn sm" data-act="paid" data-i="${i.id}">Mark paid</button>` : ''}${i.status !== 'void' && i.status !== 'paid' ? `<button class="btn sm ghost" data-act="void" data-i="${i.id}">Void</button>` : ''}</div></div>`).join('')}</div>` : '<p class="muted">No requests sent yet.</p>'}
+  <p class="hint" style="margin-top:10px">WhatsApp, Viber and Email open with the message written for you. For a PDF, use <b>Print / PDF → Save as PDF</b> and attach it.</p></div>`;
+  $('#iNew').onclick = () => newInvoice(j, nextMs);
+  $$('[data-act]', body).forEach(b => b.onclick = () => invoiceAction(S.invoices.find(i => i.id === Number(b.dataset.i)), b.dataset.act));
+}
+function jobOutsourcing(j, body, wo){
+  body.innerHTML = moneyStrip(j) + `<div class="sec"><h3>Work given to outsourced people <button class="btn sm accent" id="wNew">+ Give work</button></h3>
+  ${wo.length ? `<div class="tablewrap"><table><thead><tr><th>Person</th><th>Work</th><th class="num">Agreed</th><th class="num">Paid</th><th class="num">Balance</th><th>Status</th></tr></thead><tbody>
+  ${wo.map(w => `<tr class="click" data-w="${w.id}"><td>${esc(w.worker_name)}</td><td>${esc(w.work_type)}${w.description ? `<span class="sub2">${esc(w.description)}</span>` : ''}</td><td class="num">${money(w.agreed_amount)}</td><td class="num">${money(w.paid)}</td><td class="num">${money(w.balance)}</td><td>${w.status === 'completed' ? '<span class="pill ok">Completed</span>' : w.status === 'cancelled' ? '<span class="pill grey">Cancelled</span>' : '<span class="pill amber">Ongoing</span>'}</td></tr>`).join('')}
+  </tbody><tfoot><tr><td colspan="2">Total outsourcing</td><td class="num">${money(sum(wo, 'agreed_amount'))}</td><td class="num">${money(sum(wo, 'paid'))}</td><td class="num">${money(sum(wo, 'balance'))}</td><td></td></tr></tfoot></table></div>` : '<p class="muted">No outsourced work on this job yet.</p>'}
+  ${N(j.contract_amount) > 0 && N(j.outsourcing_cost) / N(j.contract_amount) > .6 ? `<div class="note" style="margin-top:12px">Outsourcing is ${Math.round(N(j.outsourcing_cost) / N(j.contract_amount) * 100)}% of this job's fee, so the margin is thin.</div>` : ''}</div>`;
+  $('#wNew').onclick = () => openWO(null, j.id);
+  $$('tr[data-w]', body).forEach(t => t.onclick = () => openWO(Number(t.dataset.w)));
+}
+
+/* ---------- invoices ---------- */
+function newInvoice(j, ms){
+  const amt = ms ? N(ms.balance) : N(j.due);
+  const ov = drawer(dhead('New payment request', esc(jobLabel(j)) + ' · to ' + esc(j.bill_to_name)) + `<div class="dbody"><div class="sec"><form id="iForm" class="fg">
+    <div><label class="f">Type</label><select id="iKind"><option value="request">Payment request</option><option value="tax_invoice">Tax invoice</option></select></div>
+    <div><label class="f">VAT</label><select id="iVat"><option value="${j.vat_included ? 0 : 13}">${j.vat_included ? 'Fee already includes VAT (no VAT added)' : 'Add 13% VAT'}</option><option value="${j.vat_included ? 13 : 0}">${j.vat_included ? 'Add 13% VAT' : 'No VAT on this request'}</option></select></div>
+    <div class="w2"><label class="f">Description</label><input id="iDesc" required value="${esc((ms ? ms.label + ' – ' : '') + (j.scope ? j.scope + ' – ' : '') + j.title)}"></div>
+    <div><label class="f">Amount before VAT (Rs)</label><input id="iAmt" required inputmode="decimal" value="${amt || ''}"></div>
+    <div><label class="f">Total</label><input id="iTot" disabled></div>
+    <div><label class="f">Issue date</label><input id="iDate" type="date" value="${today()}"></div>
+    <div><label class="f">Pay by</label><input id="iDue" type="date" value="${ms?.due_date && ms.due_date > today() ? ms.due_date : addDays(today(), 7)}"></div>
+    <div class="w2"><label class="f">Note on the request</label><textarea id="iNote">${esc(S.set.invoice_note || '')}</textarea></div>
+    ${!S.set.bank_details ? `<div class="w2 note">Your bank / QR payment details are not set yet, so they won't appear on the request. Add them under <b>Accounts → Company details</b>.</div>` : ''}
+    <div class="w2 formfoot"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Create request</button></div></form></div></div>`);
+  const upd = () => { const a = numv('iAmt') || 0, v = Number(val('iVat')); $('#iTot').value = money(a + Math.round(a * v) / 100); };
+  $('#iAmt').oninput = upd; $('#iVat').onchange = upd; upd();
+  $('#iKind').onchange = () => { if(val('iKind') === 'tax_invoice' && !S.set.company_pan) toast('Add the PAN/VAT no. under Accounts → Company details before issuing tax invoices'); };
+  $('#iForm').onsubmit = async e => { e.preventDefault();
+    const r = await save('fin_invoices', null, { kind:val('iKind'), job_id:j.id, bill_to_id:j.bill_to_id || j.client_id, milestone_id:ms?.id || null, issue_date:val('iDate'), due_date:val('iDue'), description:val('iDesc'), subtotal:numv('iAmt'), vat_rate:Number(val('iVat')), notes:val('iNote'), status:'draft' });
+    if(!r) return; toast(`${r.number} created`); await refresh(); openJob(j.id, 'invoices'); };
+}
+function invoiceText(i){
+  const j = S.J.get(i.job_id);
+  return `Namaste ${j.bill_to_name} ji,\n${i.kind === 'tax_invoice' ? 'Tax invoice' : 'Payment request'} ${i.number} from ${S.set.company_name}\n\nFor: ${i.description}\nAmount: ${money(i.subtotal)}${N(i.vat_amount) ? `\nVAT 13%: ${money(i.vat_amount)}\nTotal: ${money(i.total)}` : ''}\n${i.due_date ? 'Please pay by: ' + fdate(i.due_date) + '\n' : ''}\nAgreed fee: ${money(j.contract_amount)} · Received so far: ${money(j.received)}\n${S.set.bank_details ? '\nPayment details:\n' + S.set.bank_details + '\n' : ''}\nThank you,\nTecArch · ${S.set.company_phone}`;
+}
+async function invoiceAction(i, act){
+  const j = S.J.get(i.job_id); const party = S.P.get(i.bill_to_id) || S.P.get(j.client_id);
+  const markSent = async via => { if(i.status === 'draft'){ await sb.from('fin_invoices').update({status:'sent', sent_via:via, sent_at:new Date().toISOString()}).eq('id', i.id); await refresh(); openJob(j.id, 'invoices'); } };
+  if(act === 'print') return printInvoice(i);
+  if(act === 'wa'){ if(!party?.phone) toast('No phone number saved for ' + (party?.name || 'this contact') + '. Choose the chat in WhatsApp.'); window.open(party?.phone ? waLink(party.phone, invoiceText(i)) : 'https://wa.me/?text=' + encodeURIComponent(invoiceText(i)), '_blank'); return markSent('whatsapp'); }
+  if(act === 'viber'){ location.href = viberLink(invoiceText(i)); return markSent('viber'); }
+  if(act === 'mail'){ window.open(gmailLink(party?.email, `${i.kind === 'tax_invoice' ? 'Tax invoice' : 'Payment request'} ${i.number}: ${j.title}`, invoiceText(i) + '\n\n(PDF attached)'), '_blank'); return markSent('email'); }
+  if(act === 'paid'){ await sb.from('fin_invoices').update({status:'paid'}).eq('id', i.id); toast('Marked paid. Record the payment if you haven\'t yet.'); await refresh(); return openJob(j.id, 'invoices'); }
+  if(act === 'void'){ if(!confirm(`Void ${i.number}? The number stays used.`)) return; await sb.from('fin_invoices').update({status:'void'}).eq('id', i.id); await refresh(); return openJob(j.id, 'invoices'); }
+}
+function printInvoice(i){
+  const j = S.J.get(i.job_id); const party = S.P.get(i.bill_to_id) || S.P.get(j.client_id);
+  const tax = i.kind === 'tax_invoice';
+  printDoc(`${letterhead()}
+  <div class="ttl"><h1>${tax ? 'TAX INVOICE' : 'PAYMENT REQUEST'}</h1><div class="meta"><b>${esc(i.number)}</b><br>Date: ${fdate(i.issue_date)}${i.due_date ? `<br>Pay by: <b>${fdate(i.due_date)}</b>` : ''}</div></div>
+  <div class="two"><div class="box"><small>Bill to</small><b>${esc(party?.name || j.bill_to_name)}</b>${party?.address ? '<br>' + esc(party.address) : ''}${party?.phone ? '<br>' + esc(party.phone) : ''}${party?.pan_vat ? '<br>PAN/VAT: ' + esc(party.pan_vat) : ''}</div>
+  <div class="box"><small>Project</small><b>${esc(j.title)}</b>${j.code ? ' (' + esc(j.code) + ')' : ''}${j.client_id !== (i.bill_to_id || j.client_id) ? '<br>Owner: ' + esc(j.client_name) : ''}${j.location ? '<br>' + esc(j.location) : ''}${j.application_no ? '<br>File: ' + esc(j.application_no) : ''}</div></div>
+  <table><thead><tr><th style="width:40px">S.N.</th><th>Description</th><th style="width:140px;text-align:right">Amount (Rs)</th></tr></thead><tbody><tr><td>1</td><td>${esc(i.description || '')}</td><td style="text-align:right">${N(i.subtotal).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr></tbody></table>
+  <table class="tot"><tr><td>Taxable amount</td><td style="text-align:right">${N(i.subtotal).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr>
+  <tr><td>VAT ${N(i.vat_rate)}%</td><td style="text-align:right">${N(i.vat_amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr>
+  <tr class="big"><td>Total</td><td style="text-align:right">Rs ${N(i.total).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr></table>
+  <div class="words">In words: Rupees ${words(i.total)} only.</div>
+  <h3>Account summary for this project</h3>
+  <table><tr><td>Agreed fee</td><td style="text-align:right">${money(j.contract_amount)}</td><td>Received to date</td><td style="text-align:right">${money(j.received)}</td><td>Balance</td><td style="text-align:right"><b>${money(j.due)}</b></td></tr></table>
+  ${S.set.bank_details ? `<h3>How to pay</h3><div class="pay">${esc(S.set.bank_details)}</div>` : ''}
+  ${i.notes ? `<p style="margin-top:12px">${esc(i.notes)}</p>` : ''}
+  <div class="sign"><div>Received by</div><div>For ${esc(S.set.company_name)}<br>Authorised signature</div></div>
+  <div class="foot">${esc(S.set.company_name)} · ${esc(S.set.company_address)} · ${esc(S.set.company_phone)} · ${esc(S.set.company_email)}</div>`, `${i.number} ${j.title}`);
+}
+function printReceipt(r){
+  const j = S.J.get(r.job_id);
+  printDoc(`${letterhead()}<div class="ttl"><h1>PAYMENT RECEIPT</h1><div class="meta"><b>RCPT-${String(r.id).padStart(5, '0')}</b><br>Date: ${fdate(r.received_on || r.created_at)}</div></div>
+  <div class="two"><div class="box"><small>Received from</small><b>${esc(pname(r.payer_id) || j.bill_to_name)}</b>${r.paid_by_name ? '<br>Paid by: ' + esc(r.paid_by_name) : ''}</div><div class="box"><small>Project</small><b>${esc(j.title)}</b>${j.code ? ' (' + esc(j.code) + ')' : ''}${j.location ? '<br>' + esc(j.location) : ''}</div></div>
+  <table class="tot" style="width:100%"><tr class="big"><td>Amount received</td><td style="text-align:right">Rs ${N(r.amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr>
+  <tr><td>Payment method</td><td style="text-align:right">${MODES[r.mode] || '—'}${r.reference ? ' · Ref ' + esc(r.reference) : ''}</td></tr>
+  <tr><td>Agreed fee · received to date · balance</td><td style="text-align:right">${money(j.contract_amount)} · ${money(j.received)} · <b>${money(j.due)}</b></td></tr></table>
+  <div class="words">Rupees ${words(r.amount)} only.</div>
+  <div class="sign"><div>Payer</div><div>For ${esc(S.set.company_name)}<br>Authorised signature</div></div>
+  <div class="foot">Thank you for your payment.</div>`, `Receipt ${j.code || ''} ${j.title}`);
+}
+
+/* ---------- receipt form ---------- */
+function openReceipt(id, jobId){
+  const r = id ? S.receipts.find(x => x.id === id) : null;
+  const j0 = S.J.get(r?.job_id || jobId);
+  const openInv = j0 ? S.invoices.filter(i => i.job_id === j0.id && ['sent','draft'].includes(i.status)) : [];
+  drawer(dhead(r ? 'Payment received' : 'Record payment received', j0 ? esc(jobLabel(j0)) : 'Money that came in from a client or partner') + `<div class="dbody"><div class="sec"><form id="rForm" class="fg">
+    ${j0 ? '' : `<div class="w2"><label class="f">Job</label><select id="rJob" required>${jobOptions(null, true)}</select></div>`}
+    <div><label class="f">Amount received (Rs)</label><input id="rAmt" required inputmode="decimal" value="${r ? r.amount : (j0 && N(j0.due) > 0 ? j0.due : '')}"></div>
+    <div><label class="f">Date</label><input id="rDate" type="date" value="${r ? (r.received_on || '') : today()}"></div>
+    <div><label class="f">Payment method</label><select id="rMode">${modeOptions(r?.mode)}</select></div>
+    <div><label class="f">Went into account</label><select id="rAcc">${accOptions(r?.account_id)}</select><div class="hint">If it came to your personal account, choose it here. The system tracks it as company money you are holding.</div></div>
+    <div><label class="f">Payment from</label><input id="rPayer" list="dlP" value="${esc(r ? pname(r.payer_id) : (j0?.bill_to_name || ''))}"></div>
+    <div><label class="f">Paid by (person)</label><input id="rBy" value="${esc(r?.paid_by_name || '')}" placeholder="e.g. client's son"></div>
+    <div><label class="f">Reference / cheque no.</label><input id="rRef" value="${esc(r?.reference || '')}"></div>
+    <div><label class="f">VAT included in this amount</label><input id="rVat" inputmode="decimal" value="${r ? (N(r.vat_amount) || '') : ''}" placeholder="0"><div class="hint">Only for payments against a tax invoice with VAT.</div></div>
+    ${openInv.length && !r ? `<div class="w2"><label class="f">Against request / invoice</label><select id="rInv"><option value="">—</option>${openInv.map(i => `<option value="${i.id}" data-vat="${i.vat_amount}" data-tot="${i.total}">${esc(i.number)} · ${money(i.total)}</option>`).join('')}</select></div>` : ''}
+    <div class="w2"><label class="f">Note</label><input id="rNote" value="${esc(r?.note || '')}"></div>
+    ${partyList('dlP')}
+    <div class="w2 formfoot">${r && S.admin ? '<button type="button" class="btn ghost danger left" id="rDel">Delete</button>' : ''}${r ? '<button type="button" class="btn" id="rPrint">Print receipt</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">${r ? 'Save' : 'Save payment'}</button></div>
+  </form></div></div>`);
+  $('#rMode').onchange = () => { const a = defaultAcc(val('rMode')); if(a && !val('rAcc')) $('#rAcc').value = a; };
+  if($('#rJob')) $('#rJob').onchange = () => { const j = S.J.get(Number(val('rJob'))); if(j){ $('#rAmt').value = N(j.due) || ''; $('#rPayer').value = j.bill_to_name || ''; } };
+  if($('#rInv')) $('#rInv').onchange = e => { const o = e.target.selectedOptions[0]; if(o?.dataset.tot){ $('#rAmt').value = o.dataset.tot; $('#rVat').value = N(o.dataset.vat) || ''; } };
+  if($('#rPrint')) $('#rPrint').onclick = () => printReceipt(r);
+  if($('#rDel')) $('#rDel').onclick = async () => { if(await remove('fin_receipts', r.id, 'this payment')){ await refresh(); closeDrawer(); } };
+  $('#rForm').onsubmit = async e => { e.preventDefault();
+    try{
+      const jobId2 = j0?.id || Number(val('rJob'));
+      const obj = { job_id:jobId2, amount:numv('rAmt'), received_on:val('rDate'), mode:val('rMode'), account_id:val('rAcc') ? Number(val('rAcc')) : null, payer_id:await resolveParty(val('rPayer'), 'client'), paid_by_name:val('rBy'), reference:val('rRef'), vat_amount:numv('rVat') || 0, note:val('rNote') };
+      if(!r && $('#rInv') && val('rInv')) obj.invoice_id = Number(val('rInv'));
+      if(!obj.account_id && !confirm('No account chosen. Save without saying where the money went?')) return;
+      const saved = await save('fin_receipts', r?.id, obj); if(!saved) return;
+      if(obj.invoice_id){ const inv = S.invoices.find(i => i.id === obj.invoice_id); if(inv && N(obj.amount) >= N(inv.total)) await sb.from('fin_invoices').update({status:'paid'}).eq('id', inv.id); }
+      await refresh(); toast('Payment saved');
+      const j = S.J.get(jobId2); const party = S.P.get(obj.payer_id);
+      if(!r && party?.phone && confirm('Send a thank-you receipt message on WhatsApp?')) window.open(waLink(party.phone, `Namaste ${party.name} ji,\nWe have received ${money(obj.amount)} for ${j.title}${j.code ? ' (' + j.code + ')' : ''}. Thank you!\nReceived to date: ${money(j.received)} · Balance: ${money(j.due)}\n– ${S.set.company_name}`), '_blank');
+      openJob(jobId2, 'payments');
+    }catch(err){ fail(err); }
+  };
+}
+
+/* ================= OUTSOURCING ================= */
+function renderWork(){
+  const workers = S.parties.filter(p => p.kind === 'outsourced');
+  let list = S.wos.filter(w => (!S.workWorker || String(w.worker_id) === S.workWorker) && (!S.workOpen || (N(w.balance) > 0 && w.status !== 'cancelled')));
+  $('#main').innerHTML = `<div class="phead"><div><h1>Outsourcing</h1><p>Work given to structural engineers, estimators and others, what was agreed, and what is still to pay.</p></div>
+   <div class="acts"><button class="btn" id="wCsv">Export CSV</button><button class="btn" id="wPay">+ Pay someone</button><button class="btn accent" id="wNew">+ Give work</button></div></div>
+  <div class="kpis">${workers.map(p => `<button class="kpi ${String(p.id) === S.workWorker ? 'out' : ''}" data-wk="${p.id}"><div class="l">${esc(p.name)}</div><div class="n">${money(p.payable)}</div><div class="s">to pay · ${money(p.paid_out)} paid of ${money(p.work_given)}</div></button>`).join('')}</div>
+  <div class="toolbar"><select id="wWho"><option value="">Everyone</option>${workers.map(p => `<option value="${p.id}" ${String(p.id) === S.workWorker ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select>
+   <label class="chk"><input type="checkbox" id="wOpen" ${S.workOpen ? 'checked' : ''}> Only unpaid</label></div>
+  <div class="tablewrap"><table><thead><tr><th>Person</th><th>Client / job</th><th>Work</th><th class="num">Agreed</th><th class="num">Paid</th><th class="num">TDS</th><th class="num">Balance</th><th>Status</th><th></th></tr></thead><tbody>
+  ${list.map(w => `<tr class="click" data-w="${w.id}"><td>${esc(w.worker_name)}</td><td>${w.job_id ? `<b>${esc(w.job_title)}</b><span class="sub2">${esc(w.job_code || '')}</span>` : `${esc(w.client_label || '—')}<span class="sub2" style="color:var(--amber)">not linked to a job</span>`}</td><td>${esc(w.work_type)}</td>
+   <td class="num">${money(w.agreed_amount)}</td><td class="num">${money(w.paid)}</td><td class="num">${N(w.tds) ? money(w.tds) : '—'}</td><td class="num" style="${N(w.balance) > 0 ? 'color:var(--orange);font-weight:600' : ''}">${money(w.balance)}</td>
+   <td>${w.needs_review ? '<span class="flag" title="To check">● </span>' : ''}${w.status === 'completed' ? '<span class="pill ok">Completed</span>' : w.status === 'cancelled' ? '<span class="pill grey">Cancelled</span>' : '<span class="pill amber">Ongoing</span>'}</td>
+   <td>${N(w.balance) > 0 ? `<button class="btn sm" data-pay="${w.id}">Pay</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="empty">Nothing here.</td></tr>'}
+  </tbody><tfoot><tr><td colspan="3">${list.length} work orders</td><td class="num">${money(sum(list, 'agreed_amount'))}</td><td class="num">${money(sum(list, 'paid'))}</td><td class="num">${money(sum(list, 'tds'))}</td><td class="num">${money(sum(list, 'balance'))}</td><td colspan="2"></td></tr></tfoot></table></div>`;
+  $$('[data-wk]').forEach(b => b.onclick = () => { S.workWorker = S.workWorker === b.dataset.wk ? '' : b.dataset.wk; renderWork(); });
+  $('#wWho').onchange = e => { S.workWorker = e.target.value; renderWork(); };
+  $('#wOpen').onchange = e => { S.workOpen = e.target.checked; renderWork(); };
+  $$('tr[data-w]').forEach(t => t.onclick = e => { if(e.target.closest('button')) return; openWO(Number(t.dataset.w)); });
+  $$('[data-pay]').forEach(b => b.onclick = () => openPayout(null, Number(b.dataset.pay)));
+  $('#wNew').onclick = () => openWO(null, null);
+  $('#wPay').onclick = () => openPayout(null, null);
+  $('#wCsv').onclick = () => csv('tecarch-outsourcing-' + today(), [['Person','Job code','Job / client','Work','Agreed','Paid','TDS','Balance','Status'], ...list.map(w => [w.worker_name, w.job_code, w.job_title || w.client_label, w.work_type, w.agreed_amount, w.paid, w.tds, w.balance, w.status])]);
+}
+function openWO(id, jobId){
+  const w = id ? S.W.get(id) : null;
+  const pays = w ? S.payouts.filter(p => p.work_order_id === id) : [];
+  const ov = drawer(dhead(w ? `${esc(w.worker_name)} · ${esc(w.work_type)}` : 'Give work to an outsourced person', w ? esc(w.job_title || w.client_label || '') : '') + `<div class="dbody">
+  ${w ? `<div class="m4"><div><small>Agreed</small><b>${money(w.agreed_amount)}</b></div><div><small>Paid</small><b>${money(w.paid)}</b></div><div><small>TDS held</small><b>${money(w.tds)}</b></div><div><small>Balance</small><b style="color:var(--orange)">${money(w.balance)}</b></div></div>` : ''}
+  ${w?.needs_review ? `<div class="note"><b>To check:</b> ${esc(w.review_note || '')} <button class="btn sm" id="wOk" style="margin-left:6px">Mark as checked</button></div>` : ''}
+  <div class="sec"><form id="wForm" class="fg">
+    <div><label class="f">Person</label><input id="wWorker" list="dlW" required value="${esc(w?.worker_name || '')}" placeholder="Er. …"></div>
+    <div><label class="f">Type of work</label><select id="wType">${WORK_TYPES.map(t => `<option ${t === (w?.work_type || 'Structure') ? 'selected' : ''}>${t}</option>`).join('')}${w && !WORK_TYPES.includes(w.work_type) ? `<option selected>${esc(w.work_type)}</option>` : ''}</select></div>
+    <div class="w2"><label class="f">For job</label><select id="wJob">${jobOptions(w?.job_id || jobId || null)}</select>${w && !w.job_id ? `<div class="hint">Sheet said: <b>${esc(w.client_label || '')}</b>. Pick the matching job above if there is one.</div>` : ''}</div>
+    <div><label class="f">Agreed amount (Rs)</label><input id="wAmt" required inputmode="decimal" value="${w ? w.agreed_amount : ''}"></div>
+    <div><label class="f">Pay by</label><input id="wDue" type="date" value="${w?.due_date || ''}"></div>
+    <div><label class="f">Status</label><select id="wStatus">${[['ongoing','Ongoing'],['completed','Completed'],['cancelled','Cancelled']].map(([k, l]) => `<option value="${k}" ${(w?.status || 'ongoing') === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    <div><label class="f">Location</label><input id="wLoc" value="${esc(w?.location || '')}"></div>
+    <div class="w2"><label class="f">Description / notes</label><input id="wDesc" value="${esc(w?.description || w?.notes || '')}"></div>
+    ${partyList('dlW', ['outsourced'])}
+    <div class="w2 formfoot">${w && S.admin ? '<button type="button" class="btn ghost danger left" id="wDel">Delete</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">${w ? 'Save' : 'Save work order'}</button></div>
+  </form></div>
+  ${w ? `<div class="sec"><h3>Payments to ${esc(w.worker_name)} <button class="btn sm accent" id="wPayNow" ${N(w.balance) > 0 ? '' : 'disabled'}>+ Pay</button></h3>
+   ${pays.length ? `<div class="rows">${pays.map(p => `<div class="row" data-po="${p.id}" style="cursor:pointer"><div class="grow"><b>${fdate(p.paid_on) || 'No date'}</b><small>${MODES[p.mode] || '—'} · ${esc(S.A.get(p.account_id)?.name || 'account not recorded')}${N(p.tds_amount) ? ' · TDS ' + money(p.tds_amount) : ''}</small></div><div class="amt">${money(p.gross_amount)}</div></div>`).join('')}</div>` : '<p class="muted">Nothing paid yet.</p>'}</div>` : ''}
+  </div>`);
+  if($('#wOk')) $('#wOk').onclick = async () => { await sb.from('fin_work_orders').update({needs_review:false}).eq('id', w.id); await refresh(); openWO(w.id); };
+  if($('#wPayNow')) $('#wPayNow').onclick = () => openPayout(null, w.id);
+  $$('[data-po]', ov).forEach(r => r.onclick = () => openPayout(Number(r.dataset.po)));
+  if($('#wDel')) $('#wDel').onclick = async () => { if(pays.length) return toast('Payments exist. Set the status to Cancelled instead.'); if(await remove('fin_work_orders', w.id, 'this work order')){ await refresh(); closeDrawer(); } };
+  $('#wForm').onsubmit = async e => { e.preventDefault();
+    try{
+      const wid = await resolveParty(val('wWorker'), 'outsourced');
+      const jid = val('wJob') ? Number(val('wJob')) : null;
+      const obj = { worker_id:wid, job_id:jid, work_type:val('wType'), agreed_amount:numv('wAmt') || 0, due_date:val('wDue'), status:val('wStatus'), location:val('wLoc'), description:val('wDesc') };
+      if(w && w.needs_review && jid && !w.job_id && (w.review_note || '') === 'Not linked to a client job') obj.needs_review = false;
+      const r = await save('fin_work_orders', w?.id, obj); if(!r) return;
+      toast('Saved'); await refresh(); openWO(r.id);
+    }catch(err){ fail(err); }
+  };
+}
+function openPayout(id, woId){
+  const p = id ? S.payouts.find(x => x.id === id) : null;
+  const w = S.W.get(p?.work_order_id || woId);
+  const worker = w ? S.P.get(w.worker_id) : null;
+  const rate = N(worker?.tds_rate);
+  const unpaid = S.wos.filter(x => N(x.balance) > 0 && x.status !== 'cancelled');
+  drawer(dhead(p ? 'Payment to outsourced person' : 'Pay outsourced work', w ? `${esc(w.worker_name)} · ${esc(w.work_type)} · ${esc(w.job_title || w.client_label || '')}` : '') + `<div class="dbody"><div class="sec"><form id="pForm" class="fg">
+    ${w ? '' : `<div class="w2"><label class="f">Work order</label><select id="pWo" required><option value="">— choose —</option>${unpaid.map(x => `<option value="${x.id}">${esc(x.worker_name)} · ${esc(x.work_type)} · ${esc(x.job_title || x.client_label || '')}: balance ${money(x.balance)}</option>`).join('')}</select></div>`}
+    <div><label class="f">Amount (counts against the fee)</label><input id="pGross" required inputmode="decimal" value="${p ? p.gross_amount : (w ? w.balance : '')}"></div>
+    <div><label class="f">TDS deducted (Rs)</label><input id="pTds" inputmode="decimal" value="${p ? (N(p.tds_amount) || '') : (w && rate ? Math.round(N(w.balance) * rate / 100) : '')}"><div class="hint" id="pRate">${rate ? `Their TDS rate: ${rate}%` : 'Set this person\'s TDS rate on their contact page.'}</div></div>
+    <div><label class="f">Net paid to them</label><input id="pNet" disabled></div>
+    <div><label class="f">Date</label><input id="pDate" type="date" value="${p ? (p.paid_on || '') : today()}"></div>
+    <div><label class="f">Method</label><select id="pMode">${modeOptions(p?.mode)}</select></div>
+    <div><label class="f">Paid from account</label><select id="pAcc">${accOptions(p?.account_id)}</select></div>
+    <div><label class="f">Reference</label><input id="pRef" value="${esc(p?.reference || '')}"></div>
+    <div><label class="f">Note</label><input id="pNote" value="${esc(p?.note || '')}"></div>
+    <div class="w2 formfoot">${p && S.admin ? '<button type="button" class="btn ghost danger left" id="pDel">Delete</button>' : ''}${p ? '<button type="button" class="btn" id="pVoucher">Print voucher</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save payment</button></div>
+  </form></div></div>`);
+  const upd = () => { $('#pNet').value = money((numv('pGross') || 0) - (numv('pTds') || 0)); };
+  $('#pGross').oninput = () => { const r2 = N((S.P.get(S.W.get(Number(val('pWo')) || w?.id)?.worker_id))?.tds_rate); if(r2 && !p) $('#pTds').value = Math.round((numv('pGross') || 0) * r2 / 100) || ''; upd(); };
+  $('#pTds').oninput = upd; upd();
+  $('#pMode').onchange = () => { const a = defaultAcc(val('pMode')); if(a && !val('pAcc')) $('#pAcc').value = a; };
+  if($('#pWo')) $('#pWo').onchange = () => { const x = S.W.get(Number(val('pWo'))); if(!x) return; const r2 = N(S.P.get(x.worker_id)?.tds_rate); $('#pGross').value = x.balance; $('#pTds').value = r2 ? Math.round(N(x.balance) * r2 / 100) : ''; $('#pRate').textContent = r2 ? `Their TDS rate: ${r2}%` : 'No TDS rate set for this person.'; upd(); };
+  if($('#pDel')) $('#pDel').onclick = async () => { if(await remove('fin_payouts', p.id, 'this payment')){ await refresh(); closeDrawer(); } };
+  if($('#pVoucher')) $('#pVoucher').onclick = () => printVoucher(p);
+  $('#pForm').onsubmit = async e => { e.preventDefault();
+    const wo = w || S.W.get(Number(val('pWo'))); if(!wo) return toast('Choose a work order');
+    const obj = { work_order_id:wo.id, worker_id:wo.worker_id, gross_amount:numv('pGross'), tds_amount:numv('pTds') || 0, paid_on:val('pDate'), mode:val('pMode'), account_id:val('pAcc') ? Number(val('pAcc')) : null, reference:val('pRef'), note:val('pNote') };
+    if(N(obj.tds_amount) > N(obj.gross_amount)) return toast('TDS cannot be more than the amount');
+    const saved = await save('fin_payouts', p?.id, obj); if(!saved) return;
+    if(!p && N(obj.gross_amount) >= N(wo.balance)) await sb.from('fin_work_orders').update({status:'completed'}).eq('id', wo.id).eq('status', 'ongoing');
+    toast('Payment saved'); await refresh(); openWO(wo.id);
+  };
+}
+function printVoucher(p){
+  const w = S.W.get(p.work_order_id); const worker = S.P.get(p.worker_id);
+  printDoc(`${letterhead()}<div class="ttl"><h1>PAYMENT VOUCHER</h1><div class="meta"><b>PV-${String(p.id).padStart(5, '0')}</b><br>Date: ${fdate(p.paid_on || p.created_at)}</div></div>
+  <div class="two"><div class="box"><small>Paid to</small><b>${esc(worker?.name)}</b>${worker?.pan_vat ? '<br>PAN: ' + esc(worker.pan_vat) : ''}${worker?.phone ? '<br>' + esc(worker.phone) : ''}</div><div class="box"><small>For</small><b>${esc(w?.work_type || '')}</b><br>${esc(w?.job_title || w?.client_label || '')}${w?.job_code ? ' (' + esc(w.job_code) + ')' : ''}</div></div>
+  <table class="tot" style="width:100%"><tr><td>Gross amount</td><td style="text-align:right">${N(p.gross_amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr><tr><td>Less: TDS</td><td style="text-align:right">${N(p.tds_amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr>
+  <tr class="big"><td>Net paid</td><td style="text-align:right">Rs ${N(p.net_amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td></tr><tr><td>Method</td><td style="text-align:right">${MODES[p.mode] || '—'}${p.reference ? ' · ' + esc(p.reference) : ''}</td></tr></table>
+  <div class="words">Rupees ${words(p.net_amount)} only.</div>
+  <div class="sign"><div>Received by (${esc(worker?.name || '')})</div><div>For ${esc(S.set.company_name)}<br>Approved by</div></div>`, `Voucher ${worker?.name || ''} ${fdate(p.paid_on)}`);
+}
+
+/* ================= TRANSACTIONS ================= */
+function txRows(){
+  const rows = [];
+  S.receipts.forEach(r => { const j = S.J.get(r.job_id); rows.push({type:'in', date:r.received_on, label:`${pname(r.payer_id) || j?.bill_to_name || ''}`, sub:`${j?.code || ''} ${j?.title || ''}`, acc:r.account_id, mode:r.mode, amt:N(r.amount), open:() => openReceipt(r.id)}); });
+  S.payouts.forEach(p => { const w = S.W.get(p.work_order_id); rows.push({type:'out', date:p.paid_on, label:pname(p.worker_id), sub:`${w?.work_type || ''} · ${w?.job_title || w?.client_label || ''}${N(p.tds_amount) ? ' · TDS ' + money(p.tds_amount) : ''}`, acc:p.account_id, mode:p.mode, amt:-N(p.net_amount), open:() => openPayout(p.id)}); });
+  S.expenses.forEach(e => rows.push({type:'exp', date:e.spent_on, label:e.category, sub:[pname(e.party_id), e.note, e.bill_no ? 'Bill ' + e.bill_no : ''].filter(Boolean).join(' · '), acc:e.account_id, mode:e.mode, amt:-N(e.amount), open:() => openExpense(e.id)}));
+  S.transfers.forEach(t => { rows.push({type:'tr', date:t.moved_on, label:`${S.A.get(t.from_account_id)?.name} → ${S.A.get(t.to_account_id)?.name}`, sub:t.note || 'Transfer', acc:t.from_account_id, acc2:t.to_account_id, mode:null, amt:N(t.amount), open:() => openTransfer(null, t.id)}); });
+  return rows.sort((a, b) => (b.date || '0').localeCompare(a.date || '0'));
+}
+function renderTx(){
+  const all = txRows();
+  const list = all.filter(r => (S.txType === 'all' || r.type === S.txType) && (!S.txAcc || String(r.acc) === S.txAcc || String(r.acc2) === S.txAcc));
+  const T = {in:'<span class="pill ok">In</span>', out:'<span class="pill orange">Outsourcing</span>', exp:'<span class="pill red">Expense</span>', tr:'<span class="pill grey">Transfer</span>'};
+  $('#main').innerHTML = `<div class="phead"><div><h1>Transactions</h1><p>Every rupee in and out, newest first.</p></div>
+   <div class="acts"><button class="btn" id="tCsv">Export CSV</button><button class="btn" id="tTr">+ Transfer</button><button class="btn" id="tExp">+ Expense</button><button class="btn" id="tOut">+ Pay outsourced</button><button class="btn accent" id="tIn">+ Payment received</button></div></div>
+  <div class="toolbar"><div class="seg" id="tSeg">${[['all','All'],['in','Money in'],['out','Outsourcing'],['exp','Expenses'],['tr','Transfers']].map(([k, l]) => `<button data-k="${k}" class="${S.txType === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+  <select id="tAcc"><option value="">All accounts</option>${S.accounts.map(a => `<option value="${a.id}" ${String(a.id) === S.txAcc ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select></div>
+  <div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Details</th><th>Account</th><th>Method</th><th class="num">Amount</th></tr></thead><tbody>
+  ${list.map((r, i) => `<tr class="click" data-i="${i}"><td>${fdate(r.date) || '<span class="muted">no date</span>'}</td><td>${T[r.type]}</td><td><b>${esc(r.label)}</b><span class="sub2">${esc(r.sub)}</span></td><td>${esc(S.A.get(r.acc)?.name || '—')}${r.acc2 ? ' → ' + esc(S.A.get(r.acc2)?.name) : ''}</td><td>${MODES[r.mode] || ''}</td><td class="num" style="color:${r.type === 'in' ? 'var(--green)' : r.type === 'tr' ? 'inherit' : 'var(--red)'}">${r.type === 'in' ? '+' : r.type === 'tr' ? '' : '−'}${money(Math.abs(r.amt))}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">No transactions.</td></tr>'}
+  </tbody><tfoot><tr><td colspan="5">${list.length} transactions${S.txType === 'all' ? ' · net (excluding transfers)' : ''}</td><td class="num">${money(sum(list.filter(r => r.type !== 'tr'), 'amt'))}</td></tr></tfoot></table></div>`;
+  $$('#tSeg button').forEach(b => b.onclick = () => { S.txType = b.dataset.k; renderTx(); });
+  $('#tAcc').onchange = e => { S.txAcc = e.target.value; renderTx(); };
+  $$('tr[data-i]').forEach(t => t.onclick = () => list[Number(t.dataset.i)].open());
+  $('#tIn').onclick = () => openReceipt(null, null); $('#tOut').onclick = () => openPayout(null, null); $('#tExp').onclick = () => openExpense(null); $('#tTr').onclick = () => openTransfer();
+  $('#tCsv').onclick = () => csv('tecarch-transactions-' + today(), [['Date','Type','Details','Job / note','Account','Method','Amount'], ...list.map(r => [r.date, ({in:'Money in', out:'Outsourcing', exp:'Expense', tr:'Transfer'})[r.type], r.label, r.sub, S.A.get(r.acc)?.name, MODES[r.mode], r.amt])]);
+}
+function openExpense(id){
+  const e = id ? S.expenses.find(x => x.id === id) : null;
+  drawer(dhead(e ? 'Expense' : 'Record an expense', 'Office and project costs other than outsourced work') + `<div class="dbody"><div class="sec"><form id="eForm" class="fg">
+    <div><label class="f">Category</label><select id="eCat">${EXP_CATS.map(c => `<option ${c === e?.category ? 'selected' : ''}>${c}</option>`).join('')}${e && !EXP_CATS.includes(e.category) ? `<option selected>${esc(e.category)}</option>` : ''}</select></div>
+    <div><label class="f">Amount (Rs)</label><input id="eAmt" required inputmode="decimal" value="${e?.amount ?? ''}"></div>
+    <div><label class="f">Date</label><input id="eDate" type="date" required value="${e?.spent_on || today()}"></div>
+    <div><label class="f">VAT in this bill (Rs)</label><input id="eVat" inputmode="decimal" value="${N(e?.vat_amount) || ''}"><div class="hint">For VAT bills you can claim back.</div></div>
+    <div><label class="f">Method</label><select id="eMode">${modeOptions(e?.mode)}</select></div>
+    <div><label class="f">Paid from</label><select id="eAcc">${accOptions(e?.account_id)}</select></div>
+    <div><label class="f">Paid to (shop / person)</label><input id="eParty" list="dlE" value="${esc(pname(e?.party_id))}"></div>
+    <div><label class="f">Bill no.</label><input id="eBill" value="${esc(e?.bill_no || '')}"></div>
+    <div class="w2"><label class="f">For job (optional)</label><select id="eJob">${jobOptions(e?.job_id || null)}</select></div>
+    <div class="w2"><label class="f">Note</label><input id="eNote" value="${esc(e?.note || '')}"></div>${partyList('dlE', ['supplier','staff','other'])}
+    <div class="w2 formfoot">${e && S.admin ? '<button type="button" class="btn ghost danger left" id="eDel">Delete</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save</button></div></form></div></div>`);
+  $('#eMode').onchange = () => { const a = defaultAcc(val('eMode')); if(a && !val('eAcc')) $('#eAcc').value = a; };
+  if($('#eDel')) $('#eDel').onclick = async () => { if(await remove('fin_expenses', e.id, 'this expense')){ await refresh(); closeDrawer(); } };
+  $('#eForm').onsubmit = async ev => { ev.preventDefault();
+    try{ const obj = { category:val('eCat'), amount:numv('eAmt'), spent_on:val('eDate'), vat_amount:numv('eVat') || 0, mode:val('eMode'), account_id:val('eAcc') ? Number(val('eAcc')) : null, party_id:await resolveParty(val('eParty'), 'supplier'), bill_no:val('eBill'), job_id:val('eJob') ? Number(val('eJob')) : null, note:val('eNote') };
+      if(await save('fin_expenses', e?.id, obj)){ toast('Expense saved'); closeDrawer(); refresh(); } }catch(err){ fail(err); } };
+}
+function openTransfer(fromId, id){
+  const t = id ? S.transfers.find(x => x.id === id) : null;
+  const company = S.accounts.find(a => a.kind === 'company_bank')?.id;
+  drawer(dhead(t ? 'Transfer' : 'Move money between accounts', 'For example, a cash deposit to the bank, or company money moved from your personal account') + `<div class="dbody"><div class="sec"><form id="tForm" class="fg">
+    <div><label class="f">From</label><select id="tFrom" required>${accOptions(t?.from_account_id || fromId || null, false)}</select></div>
+    <div><label class="f">To</label><select id="tTo" required>${accOptions(t?.to_account_id || (fromId ? company : null), false)}</select></div>
+    <div><label class="f">Amount (Rs)</label><input id="tAmt" required inputmode="decimal" value="${t?.amount ?? (fromId ? Math.max(0, N(S.A.get(fromId)?.balance)) || '' : '')}"></div>
+    <div><label class="f">Date</label><input id="tDate" type="date" value="${t?.moved_on || today()}"></div>
+    <div class="w2"><label class="f">Note</label><input id="tNote" value="${esc(t?.note || '')}"></div>
+    <div class="w2 formfoot">${t && S.admin ? '<button type="button" class="btn ghost danger left" id="tDel">Delete</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save transfer</button></div></form></div></div>`);
+  if($('#tDel')) $('#tDel').onclick = async () => { if(await remove('fin_transfers', t.id, 'this transfer')){ await refresh(); closeDrawer(); } };
+  $('#tForm').onsubmit = async e => { e.preventDefault();
+    if(val('tFrom') === val('tTo')) return toast('Choose two different accounts');
+    if(await save('fin_transfers', t?.id, { from_account_id:Number(val('tFrom')), to_account_id:Number(val('tTo')), amount:numv('tAmt'), moved_on:val('tDate'), note:val('tNote') })){ toast('Transfer saved'); closeDrawer(); refresh(); } };
+}
+
+/* ================= ACCOUNTS ================= */
+function renderAccounts(){
+  const s = S.set;
+  $('#main').innerHTML = `<div class="phead"><div><h1>Accounts</h1><p>Where TecArch's money sits: company bank, your personal account, cash and wallets.</p></div>
+   <div class="acts"><button class="btn" id="aTr">+ Transfer</button><button class="btn accent" id="aNew">+ Add account</button></div></div>
+  <div class="note blue">Balances = opening balance + money in − money out ± transfers. To start from real figures, open each account and enter its balance on today's date as the opening balance. After that, record every payment here.</div>
+  <div class="kpis">${S.accounts.map(a => `<button class="kpi ${a.kind === 'personal_bank' ? 'warn' : ''}" data-a="${a.id}" style="${a.active ? '' : 'opacity:.5'}"><div class="l">${esc(a.name)}</div><div class="n">${money(a.balance)}</div><div class="s">${ACC_KIND[a.kind]}${a.bank_name ? ' · ' + esc(a.bank_name) : ''}${a.last4 ? ' ••' + esc(a.last4) : ''}<br>In ${money(a.money_in)} · Out ${money(a.money_out)}${N(a.transfers_net) ? ' · Transfers ' + money(a.transfers_net) : ''}</div></button>`).join('')}</div>
+  <div class="sec"><h3>Company details on requests and invoices ${S.admin ? '' : '<small>Only the admin can change these</small>'}</h3>
+   <form id="setForm" class="fg">
+    <div><label class="f">Company name</label><input id="sName" value="${esc(s.company_name)}"></div>
+    <div><label class="f">PAN / VAT no.</label><input id="sPan" value="${esc(s.company_pan)}" placeholder="9-digit PAN"></div>
+    <div><label class="f">Address</label><input id="sAddr" value="${esc(s.company_address)}"></div>
+    <div><label class="f">Phone</label><input id="sPhone" value="${esc(s.company_phone)}"></div>
+    <div><label class="f">Email</label><input id="sEmail" value="${esc(s.company_email)}"></div>
+    <div><label class="f">Website</label><input id="sWeb" value="${esc(s.company_web)}"></div>
+    <div class="w2"><label class="f">How clients should pay (printed and sent in messages)</label><textarea id="sBank" placeholder="Bank: …&#10;Account name: TecArch Engineering and Construction Pvt. Ltd.&#10;Account no: …&#10;Branch: Pokhara&#10;FonePay / eSewa: …">${esc(s.bank_details)}</textarea></div>
+    <div class="w2"><label class="f">Default note on requests</label><input id="sNote" value="${esc(s.invoice_note)}"></div>
+    ${S.admin ? '<div class="w2 formfoot"><button class="btn primary">Save company details</button></div>' : ''}
+   </form></div>`;
+  $$('[data-a]').forEach(b => b.onclick = () => openAccount(Number(b.dataset.a)));
+  $('#aNew').onclick = () => openAccount(null); $('#aTr').onclick = () => openTransfer();
+  if(!S.admin) $$('#setForm input, #setForm textarea').forEach(i => i.disabled = true);
+  $('#setForm').onsubmit = async e => { e.preventDefault();
+    const rows = [['company_name','sName'],['company_pan','sPan'],['company_address','sAddr'],['company_phone','sPhone'],['company_email','sEmail'],['company_web','sWeb'],['bank_details','sBank'],['invoice_note','sNote']].map(([k, id]) => ({ key:k, value:$('#' + id).value.trim(), updated_at:new Date().toISOString() }));
+    const { error } = await sb.from('fin_settings').upsert(rows); if(error) return fail(error); toast('Company details saved'); refresh(); };
+}
+function openAccount(id){
+  const a = id ? S.A.get(id) : null;
+  drawer(dhead(a ? esc(a.name) : 'Add account', a ? `${ACC_KIND[a.kind]} · balance ${money(a.balance)}` : '') + `<div class="dbody"><div class="sec"><form id="aForm" class="fg">
+    <div><label class="f">Name</label><input id="aName" required value="${esc(a?.name || '')}" placeholder="e.g. NIC Asia: company current"></div>
+    <div><label class="f">Type</label><select id="aKind">${Object.entries(ACC_KIND).map(([k, v]) => `<option value="${k}" ${a?.kind === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div><label class="f">Bank / wallet name</label><input id="aBank" value="${esc(a?.bank_name || '')}"></div>
+    <div><label class="f">Last 4 digits only</label><input id="aLast" maxlength="4" inputmode="numeric" value="${esc(a?.last4 || '')}"><div class="hint">Don't store the full account number here.</div></div>
+    <div><label class="f">Opening balance (Rs)</label><input id="aOpen" inputmode="decimal" value="${a?.opening_balance ?? 0}"></div>
+    <div><label class="f">Opening balance date</label><input id="aOpenD" type="date" value="${a?.opening_date || today()}"></div>
+    <div class="w2"><label class="f">Notes</label><input id="aNotes" value="${esc(a?.notes || '')}"></div>
+    <div class="w2"><label class="chk"><input type="checkbox" id="aActive" ${!a || a.active ? 'checked' : ''}> Active</label></div>
+    <div class="w2 formfoot"><button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save</button></div></form></div>
+    ${a ? `<div class="sec"><h3>Recent activity</h3><div class="rows">${txRows().filter(r => r.acc === a.id || r.acc2 === a.id).slice(0, 15).map(r => `<div class="row"><div class="grow"><b>${esc(r.label)}</b><small>${fdate(r.date) || 'no date'} · ${esc(r.sub)}</small></div><div class="amt">${r.type === 'tr' ? (r.acc2 === a.id ? '+' : '−') : r.amt >= 0 ? '+' : '−'}${money(Math.abs(r.amt))}</div></div>`).join('') || '<p class="muted">No activity yet.</p>'}</div></div>` : ''}</div>`);
+  $('#aForm').onsubmit = async e => { e.preventDefault();
+    const last = val('aLast'); if(last && !/^\d{4}$/.test(last)) return toast('Enter only the last 4 digits');
+    if(await save('fin_accounts', a?.id, { name:val('aName'), kind:val('aKind'), bank_name:val('aBank'), last4:last, opening_balance:numv('aOpen') || 0, opening_date:val('aOpenD') || today(), notes:val('aNotes'), active:val('aActive') })){ toast('Saved'); closeDrawer(); refresh(); } };
+}
+
+/* ================= CONTACTS ================= */
+function renderContacts(){
+  const q = S.contactsQ.toLowerCase();
+  const list = S.parties.filter(p => (S.contactsKind === 'all' || p.kind === S.contactsKind) && (!q || `${p.name} ${p.phone} ${p.pan_vat} ${p.speciality}`.toLowerCase().includes(q)));
+  $('#main').innerHTML = `<div class="phead"><div><h1>Contacts</h1><p>Clients, partner firms, outsourced professionals and suppliers.</p></div><div class="acts"><button class="btn accent" id="cNew">+ Add contact</button></div></div>
+  <div class="toolbar"><div class="seg" id="cSeg">${[['client','Clients'],['partner','Partners'],['outsourced','Outsourced'],['supplier','Suppliers'],['all','All']].map(([k, l]) => `<button data-k="${k}" class="${S.contactsKind === k ? 'on' : ''}">${l}</button>`).join('')}</div><input type="search" id="cQ" placeholder="Search…" value="${esc(S.contactsQ)}"></div>
+  <div class="tablewrap"><table><thead><tr><th>Name</th><th>Type</th><th>Phone</th><th class="num">Owes TecArch</th><th class="num">TecArch owes</th><th class="num">Jobs</th></tr></thead><tbody>
+  ${list.map(p => `<tr class="click" data-p="${p.id}"><td><b>${esc(p.name)}</b>${p.speciality ? `<span class="sub2">${esc(p.speciality)}</span>` : ''}</td><td>${KINDS[p.kind]}</td><td>${esc(p.phone || '')}</td><td class="num" style="${N(p.receivable) > 0 ? 'color:var(--red);font-weight:600' : ''}">${N(p.receivable) ? money(p.receivable) : '—'}</td><td class="num" style="${N(p.payable) > 0 ? 'color:var(--orange);font-weight:600' : ''}">${N(p.payable) ? money(p.payable) : '—'}</td><td class="num">${N(p.job_count) + N(p.work_order_count) || ''}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">No contacts.</td></tr>'}
+  </tbody></table></div>`;
+  $$('#cSeg button').forEach(b => b.onclick = () => { S.contactsKind = b.dataset.k; renderContacts(); });
+  $('#cQ').oninput = e => { S.contactsQ = e.target.value; clearTimeout(S.t); S.t = setTimeout(() => { renderContacts(); const i = $('#cQ'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
+  $$('tr[data-p]').forEach(t => t.onclick = () => openParty(Number(t.dataset.p)));
+  $('#cNew').onclick = () => openParty(null);
+}
+function openParty(id){
+  const p = id ? S.P.get(id) : null;
+  const jobs = p ? S.jobs.filter(j => j.client_id === id || j.bill_to_id === id) : [];
+  const wo = p ? S.wos.filter(w => w.worker_id === id) : [];
+  const rc = p ? S.receipts.filter(r => r.payer_id === id) : [];
+  const ov = drawer(dhead(p ? esc(p.name) : 'Add contact', p ? KINDS[p.kind] + (p.phone ? ' · ' + esc(p.phone) : '') : '', null, null, p ? `${p.phone ? `<a class="btn sm" href="tel:${esc(p.phone)}">Call</a>` : ''}${p.phone && N(p.receivable) > 0 ? ` <a class="btn sm wa" target="_blank" rel="noopener" href="${waLink(p.phone, `Namaste ${p.name} ji,\nA friendly reminder from ${S.set.company_name}: your balance with us is ${money(p.receivable)}.\n${jobs.filter(j => N(j.due) > 0).map(j => `• ${j.title}${j.code ? ' (' + j.code + ')' : ''}: ${money(j.due)}`).join('\n')}\n${S.set.bank_details ? '\nPayment details:\n' + S.set.bank_details : ''}\n\nThank you.`)}">Remind</a>` : ''} <button class="btn sm" id="ptPrint">Statement</button>` : '') + `<div class="dbody">
+  ${p ? `<div class="m4"><div><small>Billed</small><b>${money(p.billed)}</b></div><div><small>Paid to TecArch</small><b>${money(p.received)}</b></div><div><small>Owes TecArch</small><b style="color:var(--red)">${money(p.receivable)}</b></div><div><small>TecArch owes</small><b style="color:var(--orange)">${money(p.payable)}</b></div></div>` : ''}
+  <div class="sec"><form id="ptForm" class="fg">
+    <div><label class="f">Name</label><input id="ptName" required value="${esc(p?.name || '')}"></div>
+    <div><label class="f">Type</label><select id="ptKind">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}" ${p?.kind === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div><label class="f">Phone</label><input id="ptPhone" value="${esc(p?.phone || '')}"></div>
+    <div><label class="f">Email</label><input id="ptEmail" type="email" value="${esc(p?.email || '')}"></div>
+    <div><label class="f">Address</label><input id="ptAddr" value="${esc(p?.address || '')}"></div>
+    <div><label class="f">PAN / VAT no.</label><input id="ptPan" value="${esc(p?.pan_vat || '')}"></div>
+    <div><label class="f">Speciality</label><input id="ptSpec" value="${esc(p?.speciality || '')}" placeholder="Structure, Estimation…"></div>
+    <div><label class="f">TDS rate % (for payments to them)</label><input id="ptTds" inputmode="decimal" value="${N(p?.tds_rate) || ''}" placeholder="Ask your auditor"></div>
+    <div class="w2"><label class="f">Their payment details (bank / eSewa)</label><input id="ptBank" value="${esc(p?.bank_details || '')}"></div>
+    <div class="w2"><label class="f">Notes</label><textarea id="ptNotes">${esc(p?.notes || '')}</textarea></div>
+    <div class="w2"><label class="chk"><input type="checkbox" id="ptActive" ${!p || p.active ? 'checked' : ''}> Active</label></div>
+    <div class="w2 formfoot">${p && S.admin && !jobs.length && !wo.length && !rc.length ? '<button type="button" class="btn ghost danger left" id="ptDel">Delete</button>' : ''}<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">Save</button></div></form></div>
+  ${jobs.length ? `<div class="sec"><h3>Jobs</h3><div class="rows">${jobs.map(j => `<div class="row" data-j="${j.id}" style="cursor:pointer"><div class="grow"><b>${esc(jobLabel(j))}</b><small>${esc(j.scope || '')}${j.client_id !== id ? ' · owner ' + esc(j.client_name) : j.bill_to_id && j.bill_to_id !== id ? ' · pays via ' + esc(j.bill_to_name) : ''}</small></div>${statusPill(j.status)}<div class="amt">${money(j.due)}<br><small>of ${money(j.contract_amount)}</small></div></div>`).join('')}</div></div>` : ''}
+  ${wo.length ? `<div class="sec"><h3>Work given</h3><div class="rows">${wo.map(w => `<div class="row" data-w="${w.id}" style="cursor:pointer"><div class="grow"><b>${esc(w.job_title || w.client_label || '')}</b><small>${esc(w.work_type)}</small></div><div class="amt">${money(w.balance)}<br><small>of ${money(w.agreed_amount)}</small></div></div>`).join('')}</div></div>` : ''}
+  </div>`);
+  $$('[data-j]', ov).forEach(r => r.onclick = () => openJob(Number(r.dataset.j)));
+  $$('[data-w]', ov).forEach(r => r.onclick = () => openWO(Number(r.dataset.w)));
+  if($('#ptPrint')) $('#ptPrint').onclick = () => printStatement(p, jobs, wo);
+  if($('#ptDel')) $('#ptDel').onclick = async () => { if(await remove('fin_parties', p.id, p.name)){ closeDrawer(); refresh(); } };
+  $('#ptForm').onsubmit = async e => { e.preventDefault();
+    const obj = { name:val('ptName'), kind:val('ptKind'), phone:val('ptPhone'), email:val('ptEmail'), address:val('ptAddr'), pan_vat:val('ptPan'), speciality:val('ptSpec'), tds_rate:numv('ptTds') || 0, bank_details:val('ptBank'), notes:val('ptNotes'), active:val('ptActive') };
+    const r = await save('fin_parties', p?.id, obj); if(!r) return; toast('Saved'); await refresh(); openParty(r.id); };
+}
+function printStatement(p, jobs, wo){
+  const rc = S.receipts.filter(r => jobs.some(j => j.id === r.job_id && (j.bill_to_id || j.client_id) === p.id)).sort((a, b) => (a.received_on || '').localeCompare(b.received_on || ''));
+  const mine = jobs.filter(j => (j.bill_to_id || j.client_id) === p.id && j.status !== 'cancelled');
+  printDoc(`${letterhead()}<div class="ttl"><h1>STATEMENT OF ACCOUNT</h1><div class="meta"><b>${esc(p.name)}</b><br>As on ${fdate(today())}</div></div>
+  ${mine.length ? `<h3>Jobs</h3><table><thead><tr><th>Code</th><th>Job</th><th style="text-align:right">Agreed</th><th style="text-align:right">Received</th><th style="text-align:right">Balance</th></tr></thead><tbody>${mine.map(j => `<tr><td>${esc(j.code || '')}</td><td>${esc(j.title)}${j.scope ? ' · ' + esc(j.scope) : ''}</td><td style="text-align:right">${money(j.contract_amount)}</td><td style="text-align:right">${money(j.received)}</td><td style="text-align:right">${money(j.due)}</td></tr>`).join('')}
+   <tr><td colspan="2"><b>Total</b></td><td style="text-align:right"><b>${money(sum(mine, 'contract_amount'))}</b></td><td style="text-align:right"><b>${money(sum(mine, 'received'))}</b></td><td style="text-align:right"><b>${money(sum(mine, 'due'))}</b></td></tr></tbody></table>` : ''}
+  ${rc.length ? `<h3>Payments received</h3><table><thead><tr><th>Date</th><th>Job</th><th>Method</th><th style="text-align:right">Amount</th></tr></thead><tbody>${rc.map(r => `<tr><td>${fdate(r.received_on) || '—'}</td><td>${esc(S.J.get(r.job_id)?.title || '')}</td><td>${MODES[r.mode] || '—'}</td><td style="text-align:right">${money(r.amount)}</td></tr>`).join('')}</tbody></table>` : ''}
+  ${wo.length ? `<h3>Work given by TecArch</h3><table><thead><tr><th>Job</th><th>Work</th><th style="text-align:right">Agreed</th><th style="text-align:right">Paid</th><th style="text-align:right">Balance</th></tr></thead><tbody>${wo.map(w => `<tr><td>${esc(w.job_title || w.client_label || '')}</td><td>${esc(w.work_type)}</td><td style="text-align:right">${money(w.agreed_amount)}</td><td style="text-align:right">${money(w.paid)}</td><td style="text-align:right">${money(w.balance)}</td></tr>`).join('')}
+   <tr><td colspan="2"><b>Total</b></td><td style="text-align:right"><b>${money(sum(wo, 'agreed_amount'))}</b></td><td style="text-align:right"><b>${money(sum(wo, 'paid'))}</b></td><td style="text-align:right"><b>${money(sum(wo, 'balance'))}</b></td></tr></tbody></table>` : ''}
+  ${S.set.bank_details && N(p.receivable) > 0 ? `<h3>How to pay</h3><div class="pay">${esc(S.set.bank_details)}</div>` : ''}
+  <div class="foot">${esc(S.set.company_name)} · ${esc(S.set.company_phone)} · ${esc(S.set.company_email)}</div>`, `Statement ${p.name} ${today()}`);
+}
+
+/* ================= REPORTS ================= */
+function renderReports(){
+  const tabs = [['monthly','Monthly in & out'],['profit','Profit by job'],['payers','Outstanding by payer'],['vat','VAT'],['tds','TDS']];
+  $('#main').innerHTML = `<div class="phead"><div><h1>Reports</h1><p>For you, your auditor and tax filing. Each one can be exported to CSV.</p></div><div class="acts"><button class="btn" id="repCsv">Export CSV</button><button class="btn" id="repPrint">Print</button></div></div>
+  <div class="toolbar"><div class="seg" id="repSeg">${tabs.map(([k, l]) => `<button data-k="${k}" class="${S.repTab === k ? 'on' : ''}">${l}</button>`).join('')}</div></div><div id="repBody"></div>`;
+  $$('#repSeg button').forEach(b => b.onclick = () => { S.repTab = b.dataset.k; renderReports(); });
+  const R = ({monthly:repMonthly, profit:repProfit, payers:repPayers, vat:repVat, tds:repTds})[S.repTab]();
+  $('#repBody').innerHTML = R.html;
+  $('#repCsv').onclick = () => csv(`tecarch-${S.repTab}-${today()}`, R.rows);
+  $('#repPrint').onclick = () => printDoc(letterhead() + `<div class="ttl"><h1>${tabs.find(t => t[0] === S.repTab)[1].toUpperCase()}</h1><div class="meta">As on ${fdate(today())}</div></div>` + R.html.replace(/<svg[\s\S]*?<\/svg>/, ''), `TecArch ${S.repTab} ${today()}`);
+}
+function tableHtml(head, rows, numCols=[], foot){
+  return `<div class="tablewrap"><table><thead><tr>${head.map((h, i) => `<th class="${numCols.includes(i) ? 'num' : ''}">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${numCols.includes(i) ? 'num' : ''}">${c}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${head.length}" class="empty">No data yet.</td></tr>`}</tbody>${foot ? `<tfoot><tr>${foot.map((c, i) => `<td class="${numCols.includes(i) ? 'num' : ''}">${c}</td>`).join('')}</tr></tfoot>` : ''}</table></div>`;
+}
+function repMonthly(){
+  const m = S.monthly.slice(-12);
+  const undated = S.receipts.filter(r => !r.received_on);
+  const W = 760, H = 220, pad = 34, max = Math.max(1, ...m.map(x => Math.max(N(x.income), N(x.outsourcing) + N(x.expenses))));
+  const bw = m.length ? (W - pad - 10) / m.length : 0;
+  const svg = m.length ? `<svg class="chart" viewBox="0 0 ${W} ${H + 24}" role="img" aria-label="Monthly income and spending">
+    ${[0, .5, 1].map(f => `<line x1="${pad}" x2="${W}" y1="${H - f * (H - 10)}" y2="${H - f * (H - 10)}" stroke="#e5e6e9"/><text x="${pad - 4}" y="${H - f * (H - 10) + 4}" font-size="10" text-anchor="end" fill="#6a707a">${f ? Math.round(max * f / 1000) + 'k' : '0'}</text>`).join('')}
+    ${m.map((x, i) => { const x0 = pad + i * bw + bw * .15, w2 = bw * .33; const hi = N(x.income) / max * (H - 10), ho = N(x.outsourcing) / max * (H - 10), he = N(x.expenses) / max * (H - 10);
+      return `<rect x="${x0}" y="${H - hi}" width="${w2}" height="${hi}" fill="#2c5282" rx="2"><title>${month(x.month)} income ${money(x.income)}</title></rect>
+      <rect x="${x0 + w2 + 2}" y="${H - ho}" width="${w2}" height="${ho}" fill="#f37321" rx="2"><title>Outsourcing ${money(x.outsourcing)}</title></rect>
+      <rect x="${x0 + w2 + 2}" y="${H - ho - he}" width="${w2}" height="${he}" fill="#c62828" rx="2"><title>Expenses ${money(x.expenses)}</title></rect>
+      <text x="${x0 + w2}" y="${H + 16}" font-size="10" text-anchor="middle" fill="#6a707a">${month(x.month)}</text>`; }).join('')}</svg>
+    <div class="legend"><span><i style="background:#2c5282"></i>Money in</span><span><i style="background:#f37321"></i>Outsourcing paid</span><span><i style="background:#c62828"></i>Expenses</span></div>` : '';
+  const rows = S.monthly.slice().reverse();
+  return { html: `<div class="sec">${svg || '<p class="muted">No dated transactions yet.</p>'}</div>
+    ${undated.length ? `<div class="note">${undated.length} imported payments (${money(sum(undated, 'amount'))}) have no date, so they are not in this chart. Add dates where you know them.</div>` : ''}
+    ${tableHtml(['Month','Money in','Outsourcing paid','Expenses','Net'], rows.map(x => [month(x.month), money(x.income), money(x.outsourcing), money(x.expenses), money(x.net)]), [1,2,3,4], ['Total', money(sum(rows, 'income')), money(sum(rows, 'outsourcing')), money(sum(rows, 'expenses')), money(sum(rows, 'net'))])}`,
+    rows: [['Month','Money in','Outsourcing paid','Expenses','Net'], ...rows.map(x => [x.month, x.income, x.outsourcing, x.expenses, x.net])] };
+}
+function repProfit(){
+  const list = S.jobs.filter(j => j.status !== 'cancelled' && (N(j.contract_amount) || N(j.outsourcing_cost))).sort((a, b) => N(a.profit) / Math.max(1, N(a.contract_amount)) - N(b.profit) / Math.max(1, N(b.contract_amount)));
+  const pct = j => N(j.contract_amount) ? Math.round(N(j.profit) / N(j.contract_amount) * 100) + '%' : '—';
+  return { html: `<div class="note blue">Sorted by margin, lowest first. Jobs where outsourcing eats most of the fee, or there is a cost but no fee recorded, are at the top.</div>` +
+    tableHtml(['Code','Job','Agreed fee','Outsourcing','Other costs','Profit','Margin'], list.map(j => [esc(j.code || ''), esc(j.title), money(j.contract_amount), money(j.outsourcing_cost), money(j.expenses), `<span style="${N(j.profit) < 0 ? 'color:var(--red);font-weight:600' : ''}">${money(j.profit)}</span>`, pct(j)]), [2,3,4,5,6], ['', 'Total', money(sum(list, 'contract_amount')), money(sum(list, 'outsourcing_cost')), money(sum(list, 'expenses')), money(sum(list, 'profit')), sum(list, 'contract_amount') ? Math.round(sum(list, 'profit') / sum(list, 'contract_amount') * 100) + '%' : '']),
+    rows: [['Code','Job','Agreed fee','Outsourcing','Other costs','Profit'], ...list.map(j => [j.code, j.title, j.contract_amount, j.outsourcing_cost, j.expenses, j.profit])] };
+}
+function repPayers(){
+  const g = {}; openJobs().filter(j => N(j.due) > 0).forEach(j => { const k = j.bill_to_id || j.client_id; (g[k] ||= {name:j.bill_to_name, kind:j.bill_to_kind, jobs:[], due:0, last:null}); g[k].jobs.push(j); g[k].due += N(j.due); if(j.last_received && (!g[k].last || j.last_received > g[k].last)) g[k].last = j.last_received; });
+  const list = Object.values(g).sort((a, b) => b.due - a.due);
+  return { html: tableHtml(['Payer','Type','Jobs with balance','Last payment','Owes TecArch'], list.map(x => [`<b>${esc(x.name)}</b><span class="sub2">${x.jobs.map(j => esc(j.code || j.title)).join(', ')}</span>`, KINDS[x.kind] || '', x.jobs.length, x.last ? fdate(x.last) : '—', money(x.due)]), [2,4], ['Total', '', sum(list, x => x.jobs.length), '', money(sum(list, 'due'))]),
+    rows: [['Payer','Type','Jobs','Job codes','Last payment','Owes'], ...list.map(x => [x.name, KINDS[x.kind], x.jobs.length, x.jobs.map(j => j.code).join(' '), x.last, x.due])] };
+}
+function repVat(){
+  const g = {};
+  S.invoices.filter(i => i.status !== 'void' && N(i.vat_amount) > 0).forEach(i => { const k = i.issue_date.slice(0, 7); (g[k] ||= {sales:0, out:0, inp:0}); g[k].sales += N(i.subtotal); g[k].out += N(i.vat_amount); });
+  S.expenses.filter(e => N(e.vat_amount) > 0).forEach(e => { const k = e.spent_on.slice(0, 7); (g[k] ||= {sales:0, out:0, inp:0}); g[k].inp += N(e.vat_amount); });
+  const ks = Object.keys(g).sort().reverse();
+  return { html: `<div class="note blue">Output VAT comes from tax invoices issued here. Input VAT comes from expense bills where you entered a VAT amount. Check the figures with your auditor before filing.</div>` +
+    tableHtml(['Month','Taxable sales','Output VAT (13%)','Input VAT on bills','VAT payable'], ks.map(k => [month(k + '-01'), money(g[k].sales), money(g[k].out), money(g[k].inp), money(g[k].out - g[k].inp)]), [1,2,3,4]),
+    rows: [['Month','Taxable sales','Output VAT','Input VAT','Payable'], ...ks.map(k => [k, g[k].sales, g[k].out, g[k].inp, g[k].out - g[k].inp])] };
+}
+function repTds(){
+  const g = {}; S.payouts.forEach(p => { const k = p.worker_id; (g[k] ||= {name:pname(k), pan:S.P.get(k)?.pan_vat, gross:0, tds:0, n:0}); g[k].gross += N(p.gross_amount); g[k].tds += N(p.tds_amount); g[k].n++; });
+  const list = Object.values(g).sort((a, b) => b.gross - a.gross);
+  return { html: `<div class="note blue">TDS withheld from outsourced professionals. It has to be deposited and reported by the deadline. Set each person's rate on their contact page.</div>` +
+    tableHtml(['Person','PAN','Payments','Gross paid','TDS withheld','Net paid'], list.map(x => [esc(x.name), esc(x.pan || '—'), x.n, money(x.gross), money(x.tds), money(x.gross - x.tds)]), [2,3,4,5], ['Total', '', sum(list, 'n'), money(sum(list, 'gross')), money(sum(list, 'tds')), money(sum(list, 'gross') - sum(list, 'tds'))]),
+    rows: [['Person','PAN','Payments','Gross','TDS','Net'], ...list.map(x => [x.name, x.pan, x.n, x.gross, x.tds, x.gross - x.tds])] };
+}
+
+/* ================= TO CHECK ================= */
+function renderReview(){
+  const jobs = S.jobs.filter(j => j.needs_review);
+  const wos = S.wos.filter(w => w.needs_review);
+  const merged = jobs.filter(j => /Merged/.test(j.review_note || ''));
+  const nofee = jobs.filter(j => !/Merged/.test(j.review_note || ''));
+  const unlinked = wos.filter(w => !w.job_id);
+  const noamt = wos.filter(w => w.job_id);
+  const sec = (t, sub, items) => items.length ? `<div class="sec"><h3>${t} <small>${sub}</small></h3><div class="rows">${items.join('')}</div></div>` : '';
+  $('#main').innerHTML = `<div class="phead"><div><h1>To check</h1><p>Things from the Excel import that need your eyes. Fix or confirm each one, then mark it checked.</p></div></div>
+  ${!jobs.length && !wos.length ? '<div class="sec empty">All checked. ✓</div>' : ''}
+  ${sec('Same client in two sheets', 'merged as one fee, as you said. Confirm the amounts', merged.map(j => `<div class="row"><div class="grow"><b>${esc(jobLabel(j))}</b><small>${esc(j.review_note)}</small></div><div class="amt">${money(j.due)} due</div><div class="btns"><button class="btn sm" data-j="${j.id}">Open</button><button class="btn sm" data-jok="${j.id}">Looks right</button></div></div>`))}
+  ${sec('Fee not recorded', 'a cost or project exists but no client fee was entered', nofee.map(j => `<div class="row"><div class="grow"><b>${esc(jobLabel(j))}</b><small>${esc(j.review_note)}${N(j.outsourcing_cost) ? ' · outsourcing cost ' + money(j.outsourcing_cost) : ''}</small></div><div class="btns"><button class="btn sm" data-j="${j.id}">Enter fee</button>${S.admin ? `<button class="btn sm ghost" data-jcancel="${j.id}">Not a paid job</button>` : ''}</div></div>`))}
+  ${sec('Outsourced work not linked to a job', 'pick the job so its cost counts against the right project', unlinked.map(w => `<div class="row"><div class="grow"><b>${esc(w.worker_name)} · ${esc(w.client_label || '')}</b><small>${esc(w.work_type)} · ${money(w.agreed_amount)}</small></div><select data-link="${w.id}" style="width:auto;max-width:300px">${jobOptions(null)}</select><button class="btn sm" data-wok="${w.id}">No job</button></div>`))}
+  ${sec('Outsourced work with no amount', '', noamt.map(w => `<div class="row"><div class="grow"><b>${esc(w.worker_name)} · ${esc(w.job_title || w.client_label || '')}</b><small>${esc(w.review_note || '')}</small></div><button class="btn sm" data-w="${w.id}">Open</button></div>`))}`;
+  $$('[data-j]').forEach(b => b.onclick = () => openJob(Number(b.dataset.j)));
+  $$('[data-w]').forEach(b => b.onclick = () => openWO(Number(b.dataset.w)));
+  $$('[data-jok]').forEach(b => b.onclick = async () => { await sb.from('fin_jobs').update({needs_review:false}).eq('id', b.dataset.jok); refresh(); });
+  $$('[data-jcancel]').forEach(b => b.onclick = async () => { await sb.from('fin_jobs').update({needs_review:false, status:'cancelled', notes:(S.J.get(Number(b.dataset.jcancel)).notes || '') + ' · Marked as not a paid job'}).eq('id', b.dataset.jcancel); refresh(); });
+  $$('[data-wok]').forEach(b => b.onclick = async () => { await sb.from('fin_work_orders').update({needs_review:false}).eq('id', b.dataset.wok); refresh(); });
+  $$('[data-link]').forEach(s => s.onchange = async () => { if(!s.value) return; const { error } = await sb.from('fin_work_orders').update({job_id:Number(s.value), needs_review:false}).eq('id', s.dataset.link); if(error) return fail(error); toast('Linked'); refresh(); });
+}
+
+boot();
+</script>
+</body>
+</html>
